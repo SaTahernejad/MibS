@@ -185,7 +185,7 @@ MibSHeuristic::lowerObjHeuristic()
 
     MibSSolution *mibSol = NULL;
 
-    OsiSolverInterface * lSolver = model->bS_->setUpModel(hSolver, true);
+    OsiSolverInterface * lSolver = model->bS_->setUpModel(hSolver, 0, false, true);
 
     if(0){
        lSolver->writeLp("tmp");
@@ -372,7 +372,7 @@ MibSHeuristic::objCutHeuristic()
 
     MibSSolution *mibSol = NULL;
 
-    OsiSolverInterface * lSolver = model->bS_->setUpModel(hSolver, true);
+    OsiSolverInterface * lSolver = model->bS_->setUpModel(hSolver, 0, false, true);
 
     if(0){
        dynamic_cast<OsiCbcSolverInterface *> 
@@ -926,7 +926,7 @@ MibSHeuristic::checkLowerFeasibility(OsiSolverInterface * si,
 {
 
   MibSModel * model = MibSModel_;
-  OsiSolverInterface * lSolver = model->bS_->setUpModel(si, true, solution);
+  OsiSolverInterface * lSolver = model->bS_->setUpModel(si, 0, false, true, solution);
 
   if(0){
      dynamic_cast<OsiCbcSolverInterface *> 
@@ -964,7 +964,7 @@ MibSHeuristic::getBilevelSolution(const double * sol, double origLower)
 
   MibSModel * model = MibSModel_;
   OsiSolverInterface * oSolver = model->getSolver();
-  OsiSolverInterface * lSolver = model->bS_->setUpModel(oSolver, true, sol);
+  OsiSolverInterface * lSolver = model->bS_->setUpModel(oSolver, 0, false, true, sol);
   
   //double uObjSense(model->getSolver()->getObjSense());
   int lCols(model->getLowerDim());

@@ -46,11 +46,11 @@ SRCDIR = .
 #  CPLEX directories                                                     #
 ##########################################################################
 
-USE_CPLEX = TRUE
-CPLEXDIR      = /usr/local/cplex/
-CPLEXINCDIR   = $(CPLEXDIR)/include
-CPLEXLIBDIR   = $(CPLEXDIR)/lib/x86-64_linux/static_pic
-CPLNFLAGS  = -lcplex -lm -lpthread -lreadline -lncurses
+USE_CPLEX = FALSE
+#CPLEXDIR      = /usr/local/cplex/
+#CPLEXINCDIR   = $(CPLEXDIR)/include
+#CPLEXLIBDIR   = $(CPLEXDIR)/lib/x86-64_linux/static_pic
+#CPLNFLAGS  = -lcplex -lm -lpthread -lreadline -lncurses
 
 ##########################################################################
 #  Compiler and options                                                  #
@@ -60,7 +60,7 @@ CPLNFLAGS  = -lcplex -lm -lpthread -lreadline -lncurses
 CXX = g++
 
 # C++ Compiler options
-CXXFLAGS = -g -pipe -pedantic-errors -Wparentheses -Wreturn-type -Wcast-qual -Wall -Wpointer-arith -Wwrite-strings -Wconversion 
+CXXFLAGS = -g -pipe -pedantic-errors -Wparentheses -Wreturn-type -Wcast-qual -Wall -Wpointer-arith -Wwrite-strings -Wconversion -std=c++11
 ifeq ($(USE_CPLEX),TRUE)
 CXXFLAGS += -DUSE_CPLEX -I$(CPLEXINCDIR)
 endif
@@ -69,7 +69,8 @@ endif
 CXXLINKFLAGS = 
 
 # Directory with COIN libraries
-COININSTDIR = /home/ted/COIN/trunk/build-polyps-debug
+#COININSTDIR = /home/sat214/COINALL/COIN-1.8
+COININSTDIR = /home/sat214/COINALL/CoinAll-GDB/COIN-1.8
 
 ###########################################################################
 # Libraries necessary to link with COIN

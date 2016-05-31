@@ -17,7 +17,6 @@
 
 #include "BlisBranchStrategyPseudo.h"
 #include "BlisModel.h"
-
 //#############################################################################
 
 class MibSBranchStrategyPseudo : public BlisBranchStrategyPseudo {

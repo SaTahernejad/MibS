@@ -82,12 +82,25 @@ MibSBranchStrategyPseudo::createCandBranchObjects(int numPassesLeft, double ub)
     double *saveSolution = NULL;
 
     BlisModel *model = dynamic_cast<BlisModel *>(model_);
+    MibSModel *mibsmodel = dynamic_cast<MibSModel *>(model); 
     OsiSolverInterface *solver = model->solver();
     
     int numCols = model->getNumCols();
     int numObjects = model->numObjects();
     int aveIterations = model->getAveIterations();
+    int uN = mibsmodel->upperDim_; 
+    int * upperColInd = mibsmodel->getUpperColInd();
+    // If lowerLevel -> levelType = 0
+    // If upperlevel -> levelType = 1
+    int *levelType;
+    levelType = new int[numCols]();
 
+    // If upper-level variable is fixed -> fixedVar = 1
+    int *fixedVar;
+    fixedVar = new int[numCols]();
+
+    int *fixedVar1;
+    fixedVar1 = new int[numCols]();
 
     //std::cout <<  "aveIterations = " <<  aveIterations << std::endl;
 
@@ -139,52 +152,133 @@ MibSBranchStrategyPseudo::createCandBranchObjects(int numPassesLeft, double ub)
             
         infObjects.clear();
         firstObjects.clear();
-        
-        for (i = 0; i < numObjects; ++i) {
+    
+
+	//New Part
+
+	int index;
+	for (i = 0; i < uN; ++i){
+	    
+	    index = upperColInd[i];
+	    levelType[index] = 1;
+	    if (fabs(lower[index]-upper[index])<=0.0000000001){
+		fixedVar[index]=1;
+	    }
+	}
+
+	for(i=0; i<numCols; ++i){
+	    if (fabs(lower[i]-upper[i])<=0.0000000001){
+		fixedVar1[i]=1;
+	    }
+	}
+
+	/*std::cout<<"Fixed vars="<<std::endl;
+	for(i=0; i<numCols; ++i){
+	    if(fixedVar1[i]==1){
+		std::cout<<i<<",";
+	    }
+	}
+	std::cout<<"."<<std::endl;
+
+	if (fixedVar1[49]==1){
+	    std::cout<<"problem"<<std::endl;
+	}*/
+      
+	int found = 0;
+	index = 0;
+	for (i = 0; i < numObjects; ++i) {
+	    
+	    object = model->objects(i);
+	    infeasibility = object->infeasibility(model, preferDir);
+	    if ((fabs(infeasibility)>0.0000000001) && (levelType[index] ==1)){
+		if (!fixedVar[index]){
+		found = 1;
+		break;
+		}
+	    }
+	    ++index;
+	}
+	
+	//std::cout<<"f="<<found<<std::endl;
+	
+	index = -1;
+
+	int found1;
+	found1 = 0;
+	
+	for (i = 0; i < uN; ++i) {
+	    index = upperColInd[i];
+	    if ((!found)&&(!fixedVar[index])){
+		found1=1;
+		break;
+	    }
+	    }
+
+	/*if(found1){
+	std::cout<<"found"<<std::endl;
+	}
+
+	std::cout<<"saveSolution";
+
+	for(i=0; i<uN; ++i){
+	    std::cout<<saveSolution[i];
+	}
+	std::cout<<"." <<std::endl;*/
+
+     
+       index = -1;
+       
+       for (i = 0; i < numObjects; ++i) {
                 
             object = model->objects(i);
-            infeasibility = object->infeasibility(model, preferDir);
-            
-            if (infeasibility) {
+	    ++index;
+	    if (levelType[index] ==1){
+	        infeasibility = object->infeasibility(model, preferDir);
+		
+		if (((!found)&&(!fixedVar[index])) || (fabs(infeasibility)>0.0000000001)) {
+		    ++numInfs;
+		    intObject = dynamic_cast<BlisObjectInt *>(object);
                 
-                ++numInfs;
-                intObject = dynamic_cast<BlisObjectInt *>(object);
-                
-                if (intObject) {
-                    infObjects.push_back(intObject);
+		    if (intObject) {
+			infObjects.push_back(intObject);
                     
-                    if (!selectNow) {
-                        minCount = 
-                            ALPS_MIN(intObject->pseudocost().getDownCount(),
-                                     intObject->pseudocost().getUpCount());
+			if (!selectNow) {
+			    minCount = 
+				ALPS_MIN(intObject->pseudocost().getDownCount(),
+					 intObject->pseudocost().getUpCount());
                         
-                        if (minCount < 1) {
-                            firstObjects.push_back(intObject);
-                        }
-                    }
+			    if (minCount < 1) {
+				firstObjects.push_back(intObject);
+			    }
+			}
 
 #ifdef BLIS_DEBUG
-                    if (intObject->columnIndex() == 40) {
-                        std::cout << "x[40] = " << saveSolution[40] 
-                                  << std::endl;
-                    }
+			if (intObject->columnIndex() == 40) {
+			    std::cout << "x[40] = " << saveSolution[40] 
+				      << std::endl;
+			}
 #endif
-
-                    intObject = NULL;
-                }
-                else {
-                    // TODO: currently all are integer objects.
+			
+			intObject = NULL;
+		    }
+		    else {
+			// TODO: currently all are integer objects.
 #ifdef BLIS_DEBU
-                    assert(0);
+			assert(0);
 #endif
+		    }
                 }
-                
-            }
-        }
-            
+	    }
+	}
+	     
+	
+       /*std::cout<<"numInfs="<<numInfs<<std::endl;
+       if(numInfs<1){
+	   std::cout<<"finished"<<std::endl;
+	   }*/
         if (numInfs) {
 #if 0
-            std::cout << "PSEUDO: numInfs = " << numInfs
+	  std::cout << "PSEUDO: numInfs = " << numInfs
                       << std::endl;
 #endif
             break;
@@ -373,7 +467,12 @@ MibSBranchStrategyPseudo::createCandBranchObjects(int numPassesLeft, double ub)
         model->setSolEstimate(objValue + sumDeg);
     }
     
-
+    /*std::cout<<"set="<<std::endl;
+    for(i=0; i<numInfs; ++i){
+	cout<<branchObjects_[i]->objectIndex_<<",";
+    }
+    std::cout<<"."<<std::endl;*/
+    
  TERM_CREATE:
     
     //------------------------------------------------------
@@ -387,6 +486,7 @@ MibSBranchStrategyPseudo::createCandBranchObjects(int numPassesLeft, double ub)
     delete [] saveSolution;
     delete [] saveLower;
     delete [] saveUpper;
+    delete [] levelType;
 
     return bStatus;
 

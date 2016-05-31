@@ -1,0 +1,421 @@
+==  Welcome to the Abstract Library for Parallel Search (ALPS) 
+==  Copyright 2000-2015 Lehigh University and others 
+==  All Rights Reserved. 
+==  Distributed under the Eclipse Public License 1.0 
+==  Version: 1.5
+==  Build Date: Mar  3 2016
+==  Revision Number: 2086
+Alps0030I Data file: /home/sat214/MIBS/OldMibS/data/MCDM/NO_CORR/10_ITEMS_1000/K5010W14.KNP.mps
+LL Data File: /home/sat214/MIBS/OldMibS/data/MCDM/NO_CORR/10_ITEMS_1000/K5010W14.KNP.txt
+Number of LL Variables:   10
+
+Coin0001I At line 1 NAME          BLANK
+Coin0001I At line 2 ROWS
+Coin0001I At line 5 COLUMNS
+Coin0001I At line 16 RHS
+Coin0001I At line 18 BOUNDS
+Coin0001I At line 29 ENDATA
+Coin0002I Problem BLANK has 1 rows, 10 columns and 10 elements
+Problem = K5010W14.KNP
+Data file = /home/sat214/MIBS/OldMibS/data/MCDM/NO_CORR/10_ITEMS_1000/K5010W14.KNP.mps
+Log file = K5010W14.KNP.log
+
+==  Bcps Version: 0.94
+==  Bcps Revision Number: 2080
+==  Blis Version: 0.94
+==  Blis Revision Number: 2080
+
+Blis0043I Objective coefficients are multiples of 1
+Alps0250I Starting search ...
+Enter
+
+Nodes Done   Upper Bound   Lower Bound      Gap   Time Nodes Left
+         0          3087             0    3087      0          1
+Enter
+         1          2446             0    2446      0          2
+Enter
+         1          2416             0    2416      0          2
+Enter
+Enter
+Enter
+Enter
+Enter
+         6          2358             0    2358      0          7
+Enter
+Enter
+         6          2240             0    2240      0          7
+Enter
+Enter
+Enter
+         9          2122             0    2122      0         10
+Enter
+Enter
+Enter
+        13          1984             0    1984      0         14
+Enter
+        13          1914             0    1914      0         14
+Enter
+Enter
+Enter
+Enter
+        17          1724             0    1724      0         18
+        18          1141             0    1141      0         17
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+        74          1099             0    1099      0         19
+Enter
+Enter
+Enter
+Enter
+Enter
+        80           732             0     732      0         23
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+       100           732             0     732      0         15
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+       200           732             0     732      0         15
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+       300           732             0     732      0         11
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+       400           732             0     732      0         13
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+       500           732             0     732      1         17
+Enter
+       500           732             0     732      1         17
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+       542           644             0     644      1         11
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+       600           644             0     644      1         11
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+
+Alps0208I Search completed.
+Alps0260I Best solution found had quality 644
+Alps0264I Number of nodes processed:                683
+Alps0267I Number of nodes branched:                 341
+Alps0268I Number of nodes pruned before processing: 0
+Alps0270I Number of nodes left:                     0
+Alps0272I Tree depth: 9
+Alps0274I Search CPU time: 1.62 seconds
+Alps0278I Search wall-clock time: 1.92 seconds
+Blis0053I Called MIBS cut generator 853 times, generated 1024 cuts, CPU time 0.0440 seconds, current strategy 3
+Blis0053I Called Clique cut generator 22 times, generated 0 cuts, CPU time 0.0000 seconds, current strategy 0
+Blis0053I Called Flow Cover cut generator 22 times, generated 0 cuts, CPU time 0.0000 seconds, current strategy 0
+Blis0053I Called Knapsack cut generator 22 times, generated 0 cuts, CPU time 0.0000 seconds, current strategy 0
+Blis0058I Relative optimality gap is 0.00%
+============================================
+Optimal solution:
+Cost = 644
+x[0] = 1
+x[3] = 1
+x[4] = 1
+x[6] = 1
+x[8] = 1
+x[9] = 1
+y[1] = 1
+y[2] = 1
+y[5] = 1
+y[7] = 1
+============================================

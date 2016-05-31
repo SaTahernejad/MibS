@@ -62,7 +62,7 @@ MibSModel::MibSModel()
 //#############################################################################
 MibSModel::~MibSModel()
 {
-  if(arglist_) delete [] arglist_;
+
   if(upperColInd_) delete [] upperColInd_;
   if(lowerColInd_) delete [] lowerColInd_;
   if(upperRowInd_) delete [] upperRowInd_;
@@ -73,6 +73,7 @@ MibSModel::~MibSModel()
   if(origColUb_) delete [] origColUb_;
   if(origRowLb_) delete [] origRowLb_;
   if(origRowUb_) delete [] origRowUb_;
+  //if(upperObjCoeffs_) delete [] upperObjCoeffs_;
   if(lowerObjCoeffs_) delete [] lowerObjCoeffs_;
   if(MibSPar_) delete MibSPar_;
   if(bS_) delete bS_;
@@ -102,9 +103,6 @@ MibSModel::initialize()
   lowerRowNum_ = 0;
   upperRowNum_ = 0;
   structRowNum_ = 0;
-  isInterdict_ = false;
-  argnum_ = 0;
-  arglist_ = NULL;
   upperColInd_ = NULL;
   lowerColInd_ = NULL;
   upperRowInd_ = NULL;
@@ -114,6 +112,7 @@ MibSModel::initialize()
   origColUb_ = NULL;
   origRowLb_ = NULL;
   origRowUb_ = NULL;
+  //upperObjCoeffs_ = NULL;
   lowerObjCoeffs_ = NULL;
   interdictCost_ = NULL;
   bS_ = new MibSBilevel();
@@ -140,14 +139,7 @@ MibSModel::initialize()
 void 
 MibSModel::readParameters(const int argnum, const char * const * arglist)
 {
-
-    int i;
-    argnum_ = argnum;
-    arglist_ = new std::string[argnum];
-    for (i = 0; i < argnum; i++){
-	arglist_[i] = arglist[i];
-    }
-    
+   //std::cout << "Reading parameters ..." << std::endl;
   AlpsPar_->readFromArglist(argnum, arglist);
   BlisPar_->readFromArglist(argnum, arglist);
   MibSPar_->readFromArglist(argnum, arglist);
@@ -206,7 +198,7 @@ MibSModel::setBlisParameters()
   /* Set Blis Parameters to keep cutting until no cut is found */
   BlisPar()->setEntry(BlisParams::cutFactor, ALPS_DBL_MAX);
   BlisPar()->setEntry(BlisParams::cutPass, ALPS_INT_MAX);
-  BlisPar()->setEntry(BlisParams::tailOff, -10000);
+  BlisPar()->setEntry(BlisParams::tailOff, 1e-7);
   BlisPar()->setEntry(BlisParams::denseConFactor, ALPS_DBL_MAX);
 
   /* Set cut generation frequency to 1 */
@@ -216,7 +208,6 @@ MibSModel::setBlisParameters()
   BlisPar()->setEntry(BlisParams::cutStrategy, bliscuts);
   /* Set Blis branch strategy using MibS parameters blisBranchStrategy */
   BlisPar()->setEntry(BlisParams::cutStrategy, blisbranch);
-  
 }
 
 //#############################################################################
@@ -284,7 +275,6 @@ MibSModel::readAuxiliaryData()
        m++;
      }
      else if(key == "IB"){
-	 isInterdict_ = true;
        //FIXME: ALLOW MORE THAN ONE ROW
 	data_stream >> dValue;
 	interdictBudget_ = dValue;
@@ -475,6 +465,12 @@ MibSModel::readProblemData()
    const double *mpsObj =  mps->getObjCoefficients();
 
    memcpy(objCoef, mpsObj, sizeof(double) * numCols);
+
+   /*upperObjCoeffs_ = new double[getUpperDim()];
+
+   for (j = 0; j < numCols; ++j){
+       upperObjCoeffs_[j] = objCoef[j];
+       }*/
    
    loadProblemData(matrix, varLB, varUB, objCoef, conLB, conUB, colType, 
 		   objSense, mps->getInfinity());
@@ -497,27 +493,6 @@ MibSModel::loadProblemData(const CoinPackedMatrix& matrix,
 
    int problemType(MibSPar_->entry(MibSParams::bilevelProblemType));
 
-   int i(0);
-   
-   if(isInterdict_){
-       if(problemType != 1){
-	   for(i = 0; i < argnum_ - 1; i++){
-	       if(((arglist_[i] == "-param") || (arglist_[i] == "MibS_bilevelProblemType"))){
-		   std::cout<<"Wrong value for MibSProblemType. The correct value is 1."<<std::endl;
-		   assert(problemType == 1);
-	       }
-	   }
-	   MibSPar()->setEntry(MibSParams::bilevelProblemType, 1);
-	   problemType = 1;
-       }
-   }
-   else{
-       if(problemType == 1){
-	   std::cout<<"Wrong value for MibSProblemType. The correct value is 0."<<std::endl;
-	   assert(problemType == 0);
-       }
-   }
-		   
    int j(0);
    int beg(0);
 
@@ -781,7 +756,6 @@ MibSModel::loadProblemData(const CoinPackedMatrix& matrix,
    setBounds(); // stores the original column and row bounds
    //checkProblemType(); // checks if MibS can solve problem entered
    setProblemType(); //determine the type of MIBLP
-   instanceStructure(newMatrix);
 }
 
 //#############################################################################
@@ -1660,6 +1634,8 @@ MibSModel::userFeasibleSolution(const double * solution, bool &userFeasible)
   if(0)
     solver()->writeLp("userfeasible");
 
+  bS_->place_ = 1;
+  
   createBilevel(sol);
   
   if(!bS_->isIntegral_){
@@ -1668,6 +1644,14 @@ MibSModel::userFeasibleSolution(const double * solution, bool &userFeasible)
   else if(!bS_->isBilevelFeasible_){
     userFeasible = false;
   }
+
+  //sa:Model1
+  int allFixed(0);
+  if(bS_->upperFixed_){
+	  allFixed = 1;
+	  userFeasible = false;
+  }
+  //sa:end
   
   if(userFeasible){
     //std::cout << "This solution comes from MibSModel.cpp:1637" << std::endl;
@@ -1677,7 +1661,7 @@ MibSModel::userFeasibleSolution(const double * solution, bool &userFeasible)
 				this);
   }
   else{
-    
+      if(bS_->isUpperIntegral_){
     double * lpSolution = new double[getNumCols()];
     int * upperColInd = getUpperColInd();
     int * lowerColInd = getLowerColInd();
@@ -1706,13 +1690,21 @@ MibSModel::userFeasibleSolution(const double * solution, bool &userFeasible)
 				this);
       
       storeSolution(BlisSolutionTypeHeuristic, mibSol);
+      //sa:Model2
+      if(allFixed){
+	  userFeasible = true;
+	  //std::cout<<"new"<<std::endl;
+      }
+      if(!allFixed){
       mibSol = NULL;
+      }
     }
     delete [] lpSolution;
-    
+      }
   }
   
   delete sol;
+  bS_->place_ = 0;
   return mibSol;
    
 }
@@ -2700,6 +2692,8 @@ MibSModel::setUpModel(int * fixed)
 
   nSolver->setObjSense(objSense); //1 min; -1 max
 
+  nSolver->setObjSense(objSense); //1 min; -1 max    
+
   nSolver->setHintParam(OsiDoReducePrint, true, OsiHintDo);
   dynamic_cast<OsiCbcSolverInterface *> 
     (nSolver)->getModelPtr()->messageHandler()->setLogLevel(0);
@@ -2767,277 +2761,4 @@ MibSModel::decodeToSelf(AlpsEncoded& encoded)
 }
 
 //#############################################################################
-void                                                                                                                                                                             
-MibSModel::instanceStructure(const CoinPackedMatrix *newMatrix)                                                                                                                   
-{
-    /** Determines the properties of instance **/
-    std::cout<<"======================================="<<std::endl;                                                                                                              
-    std::cout<<"             Problem Structure          "<<std::endl;                                                                                                             
-    std::cout<<"======================================="<<std::endl;                                                                                                              
-    std::cout<<"Number of UL Variables: "<<upperDim_<<std::endl;                                                                                                                  
-    std::cout<<"Number of LL Variables: "<<lowerDim_<<std::endl;                                                                                                                  
-    std::cout<<"Number of UL Rows: "<<upperRowNum_<<std::endl;                                                                                                                    
-    std::cout<<"Number of LL Rows: "<<lowerRowNum_<<std::endl;                                                                                                                   
-
-    int i,j;                                                                                                                                                                      
-    int numCols(numVars_);                                                                                                                                                        
-    int numCons(numCons_);                                                                                                                                                        
-    bool allInt(true);                                                                                                                                                            
-    bool allUpperBin(true);                                                                                                                                                       
-    bool allLowerBin(true);                                                                                                                                                       
-    int uCols(upperDim_);                                                                                                                                                         
-    int lCols(lowerDim_);                                                                                                                                                         
-    int uRows(upperRowNum_);                                                                                                                                                      
-    int lRows(lowerRowNum_);                                                                                                                                                      
-    int * uColIndices = getUpperColInd();         
-    int * lColIndices = getLowerColInd();                                                                                                                                         
-    int * lRowIndices = getLowerRowInd();                                                                                                                                         
-                                                                                                                                                                                  
-    //Checks general or interdiction                                                                                                                                              
-    if(isInterdict_){                                                                                                                                                             
-    std::cout<<"This instance is an interdiction bilevel problem."<<std::endl;                                                                                                 
-    }                                                                                                                                                                             
-                                                                                                                                                                                  
-    //Checks type of variables                                                                                                                                                    
-    for(i = 0; i < numCols; i++){
-	if(colType_[i] == 'C'){
-	    std::cout<<"All of the veariables should be integer."<<std::endl;                                                                                                     
-            assert(colType_[i] != 'C');
-	}                                                                                                                                                                         
-        else if (colType_[i] == 'I'){
-	    if(binarySearch(0, lCols - 1, i, lColIndices) < 0){
-		allUpperBin = false;
-		if(!allLowerBin){
-		    break;
-		}
-	    }
-	    else{
-		allLowerBin = false;if(!allUpperBin){
-		    break;
-		}
-	    }
-	}
-    }
-                                                                                                                                                                         
-    if(allUpperBin){                                                                                                                                                              
-    std::cout<<"All of UL varibles are binary."<<std::endl;                                                                                                                    
-    }                                                                                                                                                                             
-                                                                                                                                                                                  
-    if(allLowerBin){                                                                                                                                                              
-    std::cout<<"All of LL varibles are binary."<<std::endl;                                                                                                                    
-    }                                                                                                                                                                             
-                                                                                                                                                                                  
-    int nonZero (newMatrix->getNumElements());                                                                                                                                    
-    const double * matElements = newMatrix->getElements();                                                                                                                        
-    const int * matIndices = newMatrix->getIndices();                                                                                                                             
-    const int * matStarts = newMatrix->getVectorStarts();                                                                                                                         
-                                                                                                                                                                                  
-    //Checks integrality of coefficients                                                                                                                                          
-    bool isInteger(true);                                                                                                                                                         
-                                                                                                                                                                                  
-    for(i = 0; i < nonZero; i++){
-	if((fabs(matElements[i] - floor(matElements[i])) > etol_) && (fabs(matElements[i] - ceil(matElements[i])) > etol_)){
-	    isInteger = false;
-	    std::cout<<"All of the coefficients should be integer."<<std::endl;
-	    assert(isInteger == true);
-	}
-    }                                                                                                                                                                             
-                                                                                                                                                                                  
-    //Checks signs of coefficients                                                                                                                                                
-    bool positiveA1(true);                                                                                                                                                        
-    bool positiveA2(true);                                                                                                                                                        
-    bool positiveG1(true);                                                                                                                                                        
-    bool positiveG2(true);                                                                                                                                                        
-    int counterStart, counterEnd;                                                                                                                                                 
-    int rowIndex, posRow, posCol;                                                                                                                                                 
-                                                                                                                                                                                  
-    for(i = 0; i < numCols; i++){                                                                                                                                                 
-        counterStart = matStarts[i];                                                                                                                                              
-        counterEnd = matStarts[i+1];                                                                                                                                              
-        for(j = counterStart; j < counterEnd; j++){                                                                                                                               
-            if(matElements[j] < 0){                                                                                                                                               
-                rowIndex = matIndices[j];                                                                                                                                         
-                posRow = binarySearch(0, lRows - 1, rowIndex, lRowIndices);                                                                                                       
-                posCol = binarySearch(0, lCols - 1, i, lColIndices);                                                                                                              
-                if(posRow < 0){                                                                                                                                                   
-                    if(posCol < 0){                                                                                                                                               
-                        positiveA1 = false;                                                                                                                                       
-                    }                                                                                                                                                             
-                    else{                                                                                                                                                         
-                        positiveG1 = false;                                                                                                                                       
-                    }                                                                                                                                                             
-                }   
-                else{                                                                                                                                                             
-                    if(posCol < 0){                                                                                                                                               
-                        positiveA2 = false;                                                                                                                                       
-                    }                                                                                                                                                             
-                    else{                                                                                                                                                         
-                        positiveG2 = false;                                                                                                                                       
-                    }                                                                                                                                                             
-                }                                                                                                                                                                 
-            }                                                                                                                                                                     
-        }                                                                                                                                                                         
-    }                                                                                                                                                                             
-                                                                                                                                                                                  
-    if(positiveA1){                                                                                                                                                              
-    std::cout<<"Matrix A1 is positive."<<std::endl;                                                                                                                            
-    }                                                                                                                                                                             
-                                                                                                                                                                                  
-    if(positiveG1){                                                                                                                                                              
-    std::cout<<"Matrix G1 is positive."<<std::endl;                                                                                                                            
-    }                                                                                                                                                                      
-    if(positiveA2){                                                                                                                                                              
-    std::cout<<"Matrix A2 is positive."<<std::endl;                                                                                                                            
-    }                                                                                                                                                                  
-    if(positiveG2){                                   
-    std::cout<<"Matrix G2 is positive."<<std::endl;             
-    }
-
-    bool paramValue(false);
-    int paramValue1(0);
-
-    //Maybe I can use that to make the code more efficient.
-    /*int lenNotWork(4);
-
-    std::string *notWorkParam = new std::string[4];
-    int *notWorkVal = new int[4];
-    
-    notWorkParam[0] = "MibS_usePreprocessor";
-    notWorkVal[0] = 0;
-    notWorkParam[1] = "MibS_useWSHeuristic";
-    notWorkVal[1] = 0;
-    notWorkParam[2] = "MibS_useGreedyHeuristic";
-    notWorkVal[2] = 0;
-    notWorkParam[3] = "MibS_useValFuncCut";
-    notWorkVal[3] = 0;*/
-    
-    if(isInterdict_){
- 
-	//Param: "MibS_usePreprocessor"
-	 paramValue = MibSPar_->entry(MibSParams::usePreprocessor);
-	 if(paramValue != false){
-	     for(i = 0; i < argnum_ - 1; i++){
-		 if(((arglist_[i] == "-param") || (arglist_[i] == "MibS_usePreprocessor"))){
-		    std::cout<<"Wrong value for MibS_usePreprocessor. The correct value is 0."<<std::endl;
-		    assert(paramValue == false);
-		    }
-		}
-	     MibSPar()->setEntry(MibSParams::usePreprocessor, false);
-	 }
-
-	 //Param: "MibS_useWSHeuristic"
-	 paramValue = MibSPar_->entry(MibSParams::useWSHeuristic);
-	 if(paramValue != false){
-	    for(i = 0; i < argnum_ - 1; i++){
-		if(((arglist_[i] == "-param") || (arglist_[i] == "MibS_useWSHeuristic"))){
-		    std::cout<<"Wrong value for MibS_useWSHeuristic. The correct value is 0."<<std::endl;
-		    assert(paramValue == false);
-		}
-	    }
-	    MibSPar()->setEntry(MibSParams::useWSHeuristic, false);
-	}
-
-        //Param: "MibS_useGreedyHeuristic"
-	paramValue = MibSPar_->entry(MibSParams::useGreedyHeuristic);
-	if(paramValue != false){
-	    for(i = 0; i < argnum_ - 1; i++){
-		if(((arglist_[i] == "-param") || (arglist_[i] == "MibS_useGreedyHeuristic"))){
-		    std::cout<<"Wrong value for MibS_useGreedyHeuristic. The correct value is 0."<<std::endl;
-		    assert(paramValue == false);
-		}
-	    }
-	    MibSPar()->setEntry(MibSParams::useGreedyHeuristic, false);
-	}
-
-        //Param: "MibS_useValFuncCut"
-	paramValue = MibSPar_->entry(MibSParams::useValFuncCut);
-	if(paramValue != 0){
-	    for(i = 0; i < argnum_ - 1; i++){
-		if(((arglist_[i] == "-param") || (arglist_[i] == "MibS_useValFuncCut"))){
-		    std::cout<<"Wrong value for MibS_useValFuncCut. The correct value is 0."<<std::endl;
-		    assert(paramValue == false);
-		}
-	    }
-	    MibSPar()->setEntry(MibSParams::useValFuncCut, false);
-	}
-
-	bool paramPureCut(MibSPar_->entry(MibSParams::usePureIntegerCut));
-
-	if(paramPureCut != true){
-
-            //Param: "MibS_useIncObjCut"
-	    paramValue = MibSPar_->entry(MibSParams::useIncObjCut);
-	    if(paramValue != false){
-		for(i = 0; i < argnum_ - 1; i++){
-		    if(((arglist_[i] == "-param") || (arglist_[i] == "MibS_useIncObjCut"))){
-			std::cout<<"Wrong value for MibS_useIncObjCut. The correct value is 0."<<std::endl;
-			assert(paramValue == false);
-		    }
-		}
-		MibSPar()->setEntry(MibSParams::useIncObjCut, false);
-	    }
-
-            //Param: "MibS_useBendersCut" 
-	    paramValue = MibSPar_->entry(MibSParams::useBendersCut);
-	    if(paramValue != false){
-		for(i = 0; i < argnum_ - 1; i++){
-		    if(((arglist_[i] == "-param") || (arglist_[i] == "MibS_useBendersCut"))){
-			std::cout<<"Wrong value for MibS_useBendersCut. The correct value is 0."<<std::endl;
-			assert(paramValue == false);
-		    }
-		}
-		MibSPar()->setEntry(MibSParams::useBendersCut, false);
-	    }
-	}
-
-	bool found(false);
-	
-	//Param: "MibS_useBendersCut"
-	paramValue = MibSPar_->entry(MibSParams::useBendersCut);
-	if((positiveA2) && (positiveG2)){
-	    if((paramValue != true) && (paramPureCut == true)){
-		for(i = 0; i < argnum_ - 1; i++){
-		    if(((arglist_[i] == "-param") || (arglist_[i] == "MibS_useBendersCut"))){
-			found = true;
-			break;
-		    }
-		}
-		if(!found){
-		    MibSPar()->setEntry(MibSParams::useBendersCut, true);
-		}
-	    }
-	}
-	    
-	found = false;
-        //Param: "MibS_warmStartLL"
-	/*paramValue = MibSPar_->entry(MibSParams::warmStartLL);
-	if(paramValue != true){
-	    for(i = 0; i < argnum_ - 1; i++){
-		if(((arglist_[i] == "-param") || (arglist_[i] == "MibS_warmStartLL"))){
-		    found = true;
-		    break;
-		}
-	    }
-	    if(!found){
-		MibSPar()->setEntry(MibSParams::warmStartLL, true);
-	    }
-	    }*/
-
-        //Param: "MibS_bilevelCutType"
-	paramValue1 = MibSPar_->entry(MibSParams::bilevelCutTypes);
-	if(paramValue1 != 1){
-	    for(i = 0; i < argnum_ - 1; i++){
-		if(((arglist_[i] == "-param") || (arglist_[i] == "MibS_bilevelCutTypes"))){
-		    found = true;
-		    break;
-		}
-	    }
-	    if(!found){ 
-                MibSPar()->setEntry(MibSParams::bilevelCutTypes, 1);
-            }
-	}
-    }
-	    
-}
-
 

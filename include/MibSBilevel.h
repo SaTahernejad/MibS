@@ -40,6 +40,8 @@ class MibSBilevel {
    bool isBilevelFeasible_;
    bool isUpperIntegral_;
    bool useBilevelBranching_;
+   bool upperFixed_;
+   int place_;
 
    double *upperSolution_;
    double *lowerSolution_;
@@ -51,6 +53,7 @@ class MibSBilevel {
    MibSModel *model_;
    MibSHeuristic *heuristic_;
    OsiSolverInterface * solver_;
+   OsiSolverInterface * solver2_;
    CoinWarmStart * ws_;
 
    
@@ -67,6 +70,7 @@ class MibSBilevel {
       model_ = 0;
       heuristic_= 0;
       solver_ = 0;
+      solver2_ = 0;
       ws_ = 0;
    }
    
@@ -76,14 +80,14 @@ class MibSBilevel {
    
    void createBilevel(CoinPackedVector *sol,
    		      MibSModel *mibs=0);
-   void checkBilevelFeasiblity(bool isRoot);
+   void checkBilevelFeasiblity(bool isRoot, int KK);
    void gutsOfDestructor();
 
  private:
    
    int findIndex(int index, int size, int * indices);
-   OsiSolverInterface * setUpModel(OsiSolverInterface * solver,
-				   bool newOsi, const double *sol = NULL);
+   OsiSolverInterface * setUpModel(OsiSolverInterface * solver, double objValLL,
+				   bool bestSolLL, bool newOsi, const double *sol = NULL);
    double getLowerObj(const double * sol, double objSense);
    int binarySearch(int index,int start, int stop, int * indexArray);
    CoinWarmStart * getWarmStart() {return ws_;}

@@ -1,0 +1,425 @@
+==  Welcome to the Abstract Library for Parallel Search (ALPS) 
+==  Copyright 2000-2015 Lehigh University and others 
+==  All Rights Reserved. 
+==  Distributed under the Eclipse Public License 1.0 
+==  Version: 1.5
+==  Build Date: Mar  3 2016
+==  Revision Number: 2086
+Alps0030I Data file: /home/sat214/MIBS/OldMibS/data/MCDM/NO_CORR/10_ITEMS_1000/K5010W20.KNP.mps
+LL Data File: /home/sat214/MIBS/OldMibS/data/MCDM/NO_CORR/10_ITEMS_1000/K5010W20.KNP.txt
+Number of LL Variables:   10
+
+Coin0001I At line 1 NAME          BLANK
+Coin0001I At line 2 ROWS
+Coin0001I At line 5 COLUMNS
+Coin0001I At line 16 RHS
+Coin0001I At line 18 BOUNDS
+Coin0001I At line 29 ENDATA
+Coin0002I Problem BLANK has 1 rows, 10 columns and 10 elements
+Problem = K5010W20.KNP
+Data file = /home/sat214/MIBS/OldMibS/data/MCDM/NO_CORR/10_ITEMS_1000/K5010W20.KNP.mps
+Log file = K5010W20.KNP.log
+
+==  Bcps Version: 0.94
+==  Bcps Revision Number: 2080
+==  Blis Version: 0.94
+==  Blis Revision Number: 2080
+
+Blis0043I Objective coefficients are multiples of 1
+Alps0250I Starting search ...
+Enter
+
+Nodes Done   Upper Bound   Lower Bound      Gap   Time Nodes Left
+         0          4410             0    4410      0          1
+Enter
+         1          4216             0    4216      0          2
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+         6          3962             0    3962      0          7
+Enter
+Enter
+         6          3768             0    3768      0          7
+Enter
+Enter
+Enter
+Enter
+         9          3703             0    3703      0         10
+Enter
+        13          3547             0    3547      0         14
+Enter
+        13          3494             0    3494      0         14
+Enter
+Enter
+        13          3298             0    3298      0         14
+Enter
+Enter
+        18          2985             0    2985      0         17
+        19          2642             0    2642      0         16
+Enter
+        19          2446             0    2446      0         16
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+       100          2446             0    2446      0         17
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+       170          1998             0    1998      0         15
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+       200          1998             0    1998      0         13
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+       300          1998             0    1998      0          7
+Enter
+       300          1998             0    1998      0          7
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+       400          1998             0    1998      1          7
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+       500          1998             0    1998      1         13
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+       600          1998             0    1998      1          5
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+
+Alps0208I Search completed.
+Alps0260I Best solution found had quality 1998
+Alps0264I Number of nodes processed:                695
+Alps0267I Number of nodes branched:                 347
+Alps0268I Number of nodes pruned before processing: 0
+Alps0270I Number of nodes left:                     0
+Alps0272I Tree depth: 9
+Alps0274I Search CPU time: 2.15 seconds
+Alps0278I Search wall-clock time: 2.57 seconds
+Blis0053I Called MIBS cut generator 859 times, generated 1024 cuts, CPU time 0.0120 seconds, current strategy 3
+Blis0053I Called Clique cut generator 22 times, generated 0 cuts, CPU time 0.0000 seconds, current strategy 0
+Blis0053I Called Flow Cover cut generator 22 times, generated 0 cuts, CPU time 0.0000 seconds, current strategy 0
+Blis0053I Called Knapsack cut generator 22 times, generated 0 cuts, CPU time 0.0000 seconds, current strategy 0
+Blis0058I Relative optimality gap is 0.00%
+============================================
+Optimal solution:
+Cost = 1998
+x[0] = 1
+x[1] = 1
+x[3] = 1
+x[5] = 1
+x[7] = 1
+x[8] = 1
+y[2] = 1
+y[4] = 1
+y[6] = 1
+============================================

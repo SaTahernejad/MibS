@@ -32,6 +32,7 @@ class MibSModel : public BlisModel {
    friend class MibSCutGenerator;
    friend class MibSBilevel;
    friend class MibSBranchStrategyMaxInf;
+   friend class MibSBranchStrategyPseudo;
    friend class MibSTreeNode;
    friend class MibSHeuristic;
 
@@ -84,18 +85,11 @@ class MibSModel : public BlisModel {
   /** Number of structural constraints **/
   int structRowNum_;
 
-  int argnum_;
-
-  /** Determins type of problem(general or interdiction) **/
-  bool isInterdict_; 
-  
   /** the left (negative) slope of the lower-level value function **/
   double leftSlope_;
 
   /** the right (positive) slope of the lower-level value function **/
   double rightSlope_;
-
-  std::string * arglist_;
   
   /** Indices of UL variables **/
   int * upperColInd_;
@@ -111,6 +105,9 @@ class MibSModel : public BlisModel {
 
   /** Indices of structural (non-vub) rows **/
   int * structRowInd_;
+
+  /** UL objective coefficients **/
+  //double * upperObjCoeffs_;
 
   /** LL objective coefficients **/
   double * lowerObjCoeffs_;
@@ -229,7 +226,10 @@ class MibSModel : public BlisModel {
   void setLowerRowInd(int *ptr) {lowerRowInd_ = ptr;} 
 
   /** Set pointer to array of structural row indices **/
-  void setStructRowInd(int *ptr) {structRowInd_ = ptr;} 
+  void setStructRowInd(int *ptr) {structRowInd_ = ptr;}
+
+  /** Set pointer to array of UL objective coefficients **/
+  //void setUpperObjCoeffs(double *ptr) {upperObjCoeffs_ = ptr;}
 
   /** Set pointer to array of LL objective coefficients **/
   void setLowerObjCoeffs(double *ptr) {lowerObjCoeffs_ = ptr;} 
@@ -279,9 +279,12 @@ class MibSModel : public BlisModel {
   /** Get the lower-level row number **/
   int getLowerRowNum() {return lowerRowNum_;}
 
-  /** Get bjective sense of lower-level problem **/
-  double getLowerObjSense() {return lowerObjSense_;}
+  /** Get objective sense of upper-level problem **/
+  double getUpperObjSense() {return objSense_;}
 
+  /** Get objective sense of lower-level problem **/
+  double getLowerObjSense() {return lowerObjSense_;}
+  
   /** Get the tolerance **/
   double getTolerance() {return etol_;}
   
@@ -308,6 +311,9 @@ class MibSModel : public BlisModel {
 
   /** Get pointer to the array of original row upper bounds **/
   double * getOrigRowUb() const {return origRowUb_;}
+
+  /** Get pointer to the UL objective coefficient array **/
+  //double * getUpperObjCoeffs() {return upperObjCoeffs_;}
 
   /** Get pointer to the LL objective coefficient array **/
   double * getLowerObjCoeffs() {return lowerObjCoeffs_;}
@@ -391,14 +397,6 @@ class MibSModel : public BlisModel {
   /** The method that decodes the model from an encoded object. */
   virtual void decodeToSelf(AlpsEncoded&);
 
-  /** Determines the properties of instance. */
-  void instanceStructure(const CoinPackedMatrix *newMatrix); 
-
-  void readFromStream(std::istream& parstream);                                                                                                                                  
-                                                                                                                                                                     
-  void readFromFile(const char * paramfile);                                                                                                                                                                                                                                                                                                                       
-  void readFromArglist(const int argnum, const char * const * arglist);
-  
   AlpsTreeNode * createRoot();
 
   virtual bool setupSelf();

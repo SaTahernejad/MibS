@@ -1,0 +1,440 @@
+==  Welcome to the Abstract Library for Parallel Search (ALPS) 
+==  Copyright 2000-2015 Lehigh University and others 
+==  All Rights Reserved. 
+==  Distributed under the Eclipse Public License 1.0 
+==  Version: 1.5
+==  Build Date: Mar  3 2016
+==  Revision Number: 2086
+Alps0030I Data file: /home/sat214/MIBS/OldMibS/data/MCDM/NO_CORR/10_ITEMS_1000/K5010W18.KNP.mps
+LL Data File: /home/sat214/MIBS/OldMibS/data/MCDM/NO_CORR/10_ITEMS_1000/K5010W18.KNP.txt
+Number of LL Variables:   10
+
+Coin0001I At line 1 NAME          BLANK
+Coin0001I At line 2 ROWS
+Coin0001I At line 5 COLUMNS
+Coin0001I At line 16 RHS
+Coin0001I At line 18 BOUNDS
+Coin0001I At line 29 ENDATA
+Coin0002I Problem BLANK has 1 rows, 10 columns and 10 elements
+Problem = K5010W18.KNP
+Data file = /home/sat214/MIBS/OldMibS/data/MCDM/NO_CORR/10_ITEMS_1000/K5010W18.KNP.mps
+Log file = K5010W18.KNP.log
+
+==  Bcps Version: 0.94
+==  Bcps Revision Number: 2080
+==  Blis Version: 0.94
+==  Blis Revision Number: 2080
+
+Blis0043I Objective coefficients are multiples of 1
+Alps0250I Starting search ...
+Enter
+
+Nodes Done   Upper Bound   Lower Bound      Gap   Time Nodes Left
+         0          3541             0    3541      0          1
+Enter
+Enter
+Enter
+Enter
+Enter
+         3          3062             0    3062      0          4
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+         9          2878             0    2878      0         10
+Enter
+Enter
+Enter
+Enter
+        13          2809             0    2809      0         14
+Enter
+Enter
+Enter
+        17          2783             0    2783      0         18
+Enter
+Enter
+        17          2038             0    2038      0         18
+Enter
+        26          1944             0    1944      0         19
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+        95          1835             0    1835      0         20
+Enter
+       100          1835             0    1835      0         17
+Enter
+       100          1835             0    1835      0         17
+Enter
+       100          1835             0    1835      0         17
+Enter
+       100          1835             0    1835      0         17
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+       179          1792             0    1792      0         12
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+       200          1792             0    1792      0          9
+Enter
+       200          1792             0    1792      0          9
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+       288          1623             0    1623      0         11
+Enter
+Enter
+Enter
+Enter
+       300          1623             0    1623      0         13
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+       400          1623             0    1623      1         15
+Enter
+       400          1623             0    1623      1         15
+Enter
+       400          1623             0    1623      1         15
+Enter
+       400          1623             0    1623      1         15
+Enter
+       400          1623             0    1623      1         15
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+       500          1623             0    1623      1          5
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+       521          1580             0    1580      1         16
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+       600          1580             0    1580      1          5
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+       700          1580             0    1580      2          5
+Enter
+       700          1580             0    1580      2          5
+
+Alps0208I Search completed.
+Alps0260I Best solution found had quality 1580
+Alps0264I Number of nodes processed:                709
+Alps0267I Number of nodes branched:                 354
+Alps0268I Number of nodes pruned before processing: 0
+Alps0270I Number of nodes left:                     0
+Alps0272I Tree depth: 9
+Alps0274I Search CPU time: 2.13 seconds
+Alps0278I Search wall-clock time: 2.60 seconds
+Blis0053I Called MIBS cut generator 867 times, generated 1026 cuts, CPU time 0.0160 seconds, current strategy 3
+Blis0053I Called Clique cut generator 22 times, generated 0 cuts, CPU time 0.0000 seconds, current strategy 0
+Blis0053I Called Flow Cover cut generator 22 times, generated 0 cuts, CPU time 0.0000 seconds, current strategy 0
+Blis0053I Called Knapsack cut generator 22 times, generated 0 cuts, CPU time 0.0040 seconds, current strategy 0
+Blis0058I Relative optimality gap is 0.00%
+============================================
+Optimal solution:
+Cost = 1580
+x[1] = 1
+x[2] = 1
+x[5] = 1
+x[7] = 1
+x[9] = 1
+y[0] = 1
+y[4] = 1
+y[6] = 1
+y[8] = 1
+============================================

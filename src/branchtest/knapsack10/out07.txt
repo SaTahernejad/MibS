@@ -1,0 +1,420 @@
+==  Welcome to the Abstract Library for Parallel Search (ALPS) 
+==  Copyright 2000-2015 Lehigh University and others 
+==  All Rights Reserved. 
+==  Distributed under the Eclipse Public License 1.0 
+==  Version: 1.5
+==  Build Date: Mar  3 2016
+==  Revision Number: 2086
+Alps0030I Data file: /home/sat214/MIBS/OldMibS/data/MCDM/NO_CORR/10_ITEMS_1000/K5010W07.KNP.mps
+LL Data File: /home/sat214/MIBS/OldMibS/data/MCDM/NO_CORR/10_ITEMS_1000/K5010W07.KNP.txt
+Number of LL Variables:   10
+
+Coin0001I At line 1 NAME          BLANK
+Coin0001I At line 2 ROWS
+Coin0001I At line 5 COLUMNS
+Coin0001I At line 16 RHS
+Coin0001I At line 18 BOUNDS
+Coin0001I At line 29 ENDATA
+Coin0002I Problem BLANK has 1 rows, 10 columns and 10 elements
+Problem = K5010W07.KNP
+Data file = /home/sat214/MIBS/OldMibS/data/MCDM/NO_CORR/10_ITEMS_1000/K5010W07.KNP.mps
+Log file = K5010W07.KNP.log
+
+==  Bcps Version: 0.94
+==  Bcps Revision Number: 2080
+==  Blis Version: 0.94
+==  Blis Revision Number: 2080
+
+Blis0043I Objective coefficients are multiples of 1
+Alps0250I Starting search ...
+Enter
+
+Nodes Done   Upper Bound   Lower Bound      Gap   Time Nodes Left
+         0          3679             0    3679      0          1
+Enter
+Enter
+Enter
+Enter
+Enter
+         3          3072             0    3072      0          4
+Enter
+Enter
+Enter
+Enter
+         6          2796             0    2796      0          7
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+        13          2657             0    2657      0         14
+Enter
+Enter
+        18          2468             0    2468      0         17
+        20          1719             0    1719      0         15
+Enter
+Enter
+Enter
+Enter
+Enter
+        28          1658             0    1658      0         19
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+        64          1140             0    1140      0         17
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+       100          1140             0    1140      0         11
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+       118          1135             0    1135      0         17
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+       200          1135             0    1135      0         13
+Enter
+       200          1135             0    1135      0         13
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+       300          1135             0    1135      0          7
+Enter
+       300          1135             0    1135      0          7
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+       400          1135             0    1135      1          7
+Enter
+       400          1135             0    1135      1          7
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+       500          1135             0    1135      1          9
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+       600          1135             0    1135      1          9
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+Enter
+
+Alps0208I Search completed.
+Alps0260I Best solution found had quality 1135
+Alps0264I Number of nodes processed:                685
+Alps0267I Number of nodes branched:                 342
+Alps0268I Number of nodes pruned before processing: 0
+Alps0270I Number of nodes left:                     0
+Alps0272I Tree depth: 9
+Alps0274I Search CPU time: 1.94 seconds
+Alps0278I Search wall-clock time: 2.30 seconds
+Blis0053I Called MIBS cut generator 854 times, generated 1024 cuts, CPU time 0.0640 seconds, current strategy 3
+Blis0053I Called Clique cut generator 22 times, generated 0 cuts, CPU time 0.0040 seconds, current strategy 0
+Blis0053I Called Flow Cover cut generator 22 times, generated 0 cuts, CPU time 0.0000 seconds, current strategy 0
+Blis0053I Called Knapsack cut generator 22 times, generated 0 cuts, CPU time 0.0000 seconds, current strategy 0
+Blis0058I Relative optimality gap is 0.00%
+============================================
+Optimal solution:
+Cost = 1135
+x[1] = 1
+x[2] = 1
+x[3] = 1
+x[6] = 1
+x[8] = 1
+x[9] = 1
+y[0] = 1
+y[4] = 1
+y[5] = 1
+y[7] = 1
+============================================

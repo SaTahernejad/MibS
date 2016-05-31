@@ -65,7 +65,10 @@ MibSTreeNode::createNewTreeNode(AlpsNodeDesc *&desc) const
     int branchInd = dynamic_cast<BlisNodeDesc *>(desc)->getBranchedInd();
     double lpX = dynamic_cast<BlisNodeDesc *>(desc)->getBranchedVal();
     double f = lpX - floor(lpX);
-    assert(f > 0.0);
+    /*if (f<1e-8){
+	f = 1e-4;
+	}*/
+    //assert(f > 0.0);
     
     BlisModel* model = dynamic_cast<BlisModel*>(desc_->getModel());
     int objInd = model->getIntObjIndices()[branchInd];
@@ -203,6 +206,7 @@ MibSTreeNode::process(bool isRoot, bool rampUp)
     //------------------------------------------------------
 
     numCols = model->solver()->getNumCols();
+    //const double * solsol = model->solver()->getColSolution();
     numRows = model->solver()->getNumRows();
     numCoreCols = model->getNumCoreVariables();
     numCoreRows = model->getNumCoreConstraints();
@@ -231,18 +235,18 @@ MibSTreeNode::process(bool isRoot, bool rampUp)
     }
     else if (cutStrategy == BlisCutStrategyRoot) {
 	// The original root only
-	if (isRoot && (index_ == 0)) genConsHere = true;
+	if (isRoot && (index_ == 0)) genConsHere = true;//true;
     }
     else if (cutStrategy == BlisCutStrategyAuto) {
 	if (depth_ < maxConstraintDepth) {
-            if (!diving_ || isRoot) genConsHere = true;
+            if (!diving_ || isRoot) genConsHere = true;//true;
 	}
     }
     else if (cutStrategy == BlisCutStrategyPeriodic) {
-	genConsHere = true;
+	genConsHere = true;//true;
     }
     else {
-	genConsHere = true;
+	genConsHere = true;//true;
     }
 
     if (genConsHere && (phase == AlpsPhaseRampup)) {
@@ -379,7 +383,7 @@ MibSTreeNode::process(bool isRoot, bool rampUp)
                     goto TERM_PROCESS;
                 }
                 needBranch = true;
-                reducedCostFix(model);
+                //reducedCostFix(model);
                 
                 //------------------------------------------
                 // Check if tailoff

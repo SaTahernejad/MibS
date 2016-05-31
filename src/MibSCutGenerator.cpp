@@ -82,11 +82,14 @@ MibSCutGenerator::bilevelFeasCut1(BcpsConstraintPool &conPool)
   double upper(getCutUpperBound());
   //double upper(- getCutUpperBound());
   double cutlb(- solver->getInfinity());
+  //new part
   double cutub(upper - 1.0);
+  //double cutub(upper - 1.0);
+
   
   //double EPS(0.01);
   //double cutub(upper - EPS);
-
+  
   std::vector<int> indexList;
   std::vector<double> valsList;
   double * tempVals = new double[numCols];
@@ -123,6 +126,8 @@ MibSCutGenerator::bilevelFeasCut1(BcpsConstraintPool &conPool)
 
     if((tempVals[i] > etol) || (tempVals[i] < - etol)){
       indexList.push_back(i);
+      //new part
+      //valsList.push_back(tempVals[i]);
       valsList.push_back(tempVals[i]);
     }
   }
@@ -2041,7 +2046,7 @@ MibSCutGenerator::weakIncObjCutCurrent(BcpsConstraintPool &conPool)
 
   double * tmpsol = new double[lN + uN];
   CoinZeroN(tmpsol, lN + uN);
-  OsiSolverInterface * lSolver = bS->setUpModel(solver, true, tmpsol);
+  OsiSolverInterface * lSolver = bS->setUpModel(solver, 0, false, true, tmpsol);
 
   if(0){
     dynamic_cast<OsiCbcSolverInterface *> 
@@ -2140,7 +2145,7 @@ MibSCutGenerator::weakIncObjCutMaximal(BcpsConstraintPool &conPool)
   //if we keep this as our big M, should move (same every time)
   double * tmpsol = new double[lN + uN];
   CoinZeroN(tmpsol, lN + uN);
-  OsiSolverInterface * lSolver = bS->setUpModel(solver, tmpsol);
+  OsiSolverInterface * lSolver = bS->setUpModel(solver, 0, false, tmpsol);
   delete [] tmpsol;
   if(0){
     dynamic_cast<OsiCbcSolverInterface *> 
@@ -2179,7 +2184,7 @@ MibSCutGenerator::weakIncObjCutMaximal(BcpsConstraintPool &conPool)
   }
   else{
   
-    OsiSolverInterface * lSolver = bS->setUpModel(solver, sol);  
+      OsiSolverInterface * lSolver = bS->setUpModel(solver, 0, false, sol);  
 
     if(0){
       dynamic_cast<OsiCbcSolverInterface *> 
@@ -2338,7 +2343,7 @@ MibSCutGenerator::incObjCutMaximal(BcpsConstraintPool &conPool)
   }
   else{
   
-    OsiSolverInterface * lSolver = bS->setUpModel(solver, maximalupper);  
+      OsiSolverInterface * lSolver = bS->setUpModel(solver, 0, false, maximalupper);  
 
     if(0){
       dynamic_cast<OsiCbcSolverInterface *> 
@@ -2817,7 +2822,7 @@ MibSCutGenerator::generateConstraints(BcpsConstraintPool &conPool)
       if (bS->isIntegral_){
 	 status = feasibilityCuts(conPool) ? true : false;
       }
-      return (status || (interdictionCuts(conPool) ? true : false));
+      return (status && (interdictionCuts(conPool) ? true : false));
     }
     else if(bS->isUpperIntegral_ && cutTypes == 2){
       //problem with binary UL variables and integer LL variables

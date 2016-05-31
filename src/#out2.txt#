@@ -1,0 +1,4930 @@
+Alps_instance: /home/sat214/MIBS/OldMibS/data/2AP05-23.mps
+Alps_timeLimit: 200
+Alps_msgLevel: 5
+Blis_cutCliqueStrategy: 2
+Blis_cutFlowCoverStrategy: 2
+Blis_cutKnapsackStrategy: 2
+Blis_heurStrategy: 0
+MibS_auxiliaryInfoFile: /home/sat214/MIBS/OldMibS/data/2AP05-23.txt
+MibS_usePreprocessor: 0
+MibS_useLowerObjHeuristic: 0
+MibS_useObjCutHeuristic: 0
+MibS_useWSHeuristic: 0
+MibS_useGreedyHeuristic: 0
+MibS_usePureIntegerCut: 1
+MibS_useValFuncCut: 0
+MibS_useNoGoodCut: 0
+MibS_useIncObjCut: 0
+MibS_bilevelProblemType: 1
+MibS_bilevelCutTypes: 1
+MibS_cutStrategy: 2
+MibS_objBoundStrategy: 0
+MibS_blisCutStrategy: -1
+MibS_warmStartLL: 0
+MibS_maxThreadsLL: 1
+MibS_useBendersCut: 0
+MibS_useBoundCut: 0
+MibS_boundCutOptimal: 1
+MibS_boundCutRelaxUpper: 0
+MibS_whichCutsLL: 2
+MibS_doDualFixing: 0
+MibS_feasCheckSolver: SYMPHONY
+==  Welcome to the Abstract Library for Parallel Search (ALPS) 
+==  Copyright 2000-2015 Lehigh University and others 
+==  All Rights Reserved. 
+==  Distributed under the Eclipse Public License 1.0 
+==  Version: Trunk (unstable) 
+==  Build Date: Aug 11 2015
+==  Revision Number: 2003
+Alps0030I Data file: /home/sat214/MIBS/OldMibS/data/2AP05-23.mps
+LL Data File: /home/sat214/MIBS/OldMibS/data/2AP05-23.txt
+Number of LL Variables:   25
+
+Coin0001I At line 1 NAME          2AP05-23
+Coin0001I At line 2 ROWS
+Coin0001I At line 24 COLUMNS
+Coin0001I At line 152 RHS
+Coin0001I At line 173 BOUNDS
+Coin0001I At line 199 ENDATA
+Coin0002I Problem 2AP05-23 has 20 rows, 25 columns and 100 elements
+Problem = 2AP05-23
+Data file = /home/sat214/MIBS/OldMibS/data/2AP05-23.mps
+Log file = 2AP05-23.log
+
+==  Bcps Version: Trunk (unstable)
+==  Bcps Revision Number: 2003
+==  Blis Version: Trunk (unstable)
+==  Blis Revision Number: 2003
+
+Blis0043I Objective coefficients are multiples of 1
+Alps0250I Starting search ...
+Fixed vars=
+.
+f=1
+saveSolution00.50.50000000000000000000000.
+numInfs=2
+
+Nodes Done   Upper Bound   Lower Bound      Gap   Time Nodes Left
+         0           -35           -76   53.25%      0          1
+Fixed vars=
+1,.
+f=1
+saveSolution000.500.500000000000000000000.
+numInfs=2
+Fixed vars=
+1,.
+f=1
+saveSolution010.500.500000000000000000000.
+numInfs=2
+         1           -42           -76   44.16%      0          2
+Fixed vars=
+1,2,.
+f=1
+saveSolution00000.500000000000000.5000000.
+numInfs=2
+Fixed vars=
+1,2,.
+f=1
+saveSolution01000.500000000000000.5000000.
+numInfs=2
+Fixed vars=
+1,2,.
+f=1
+saveSolution01100.500000000000000.5000000.
+numInfs=2
+Fixed vars=
+1,2,4,.
+f=1
+saveSolution0000100000000000000.50000.500.
+numInfs=2
+Fixed vars=
+1,2,4,.
+f=1
+saveSolution0100100000000000000.50000.500.
+numInfs=2
+Fixed vars=
+1,2,4,.
+f=1
+saveSolution0110000000000000000.50000.500.
+numInfs=2
+Fixed vars=
+1,2,4,.
+f=1
+saveSolution0110100000000000000.50000.500.
+numInfs=2
+Fixed vars=
+1,2,4,18,.
+f=1
+saveSolution00001000000000000000000.50.50.
+numInfs=2
+Fixed vars=
+1,2,4,18,.
+f=1
+saveSolution00001000000000000010000.50.50.
+numInfs=2
+Fixed vars=
+1,2,4,18,.
+f=1
+saveSolution01001000000000000010000.50.50.
+numInfs=2
+Fixed vars=
+1,2,4,18,.
+f=1
+saveSolution01100000000000000010000.50.50.
+numInfs=2
+Fixed vars=
+1,2,4,18,22,.
+f=1
+saveSolution0.500010000000000000000010.50.
+numInfs=2
+Fixed vars=
+1,2,4,18,22,.
+f=1
+saveSolution0.500010000000000000100010.50.
+numInfs=2
+Fixed vars=
+1,2,4,18,22,.
+f=1
+saveSolution0.428571100100000000000.071428600100010.50.
+numInfs=3
+Fixed vars=
+1,2,4,18,22,.
+f=1
+saveSolution0.511000000000000000100010.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,18,22,.
+f=1
+saveSolution000010000.5000000000000010.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,18,22,.
+f=1
+saveSolution100010000000000000000010.1666670.
+numInfs=1
+Fixed vars=
+0,1,2,4,18,22,.
+f=1
+saveSolution000010000.5000000000100010.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,18,22,.
+f=1
+saveSolution111000000000000000100010.1666670.
+numInfs=1
+Fixed vars=
+0,1,2,4,18,22,.
+f=1
+saveSolution011000000.5000000000100010.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,22,.
+f=1
+saveSolution000010001000000000000010.1666670.
+numInfs=1
+        27           -49           -76   35.06%      0         18
+Fixed vars=
+0,1,2,4,8,18,22,.
+f=1
+saveSolution00001000000000.50000100010.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,22,.
+f=1
+saveSolution011000001000000000100010.1666670.
+numInfs=1
+Fixed vars=
+0,1,2,4,8,18,22,.
+f=1
+saveSolution01100000000000.50000100010.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,22,.
+f=1
+saveSolution00001000000000.50000000010.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,22,.
+f=1
+saveSolution01100000000000000010.50010.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,22,.
+f=1
+saveSolution00001000000000000010.50010.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,22,.
+f=1
+saveSolution00001000000000000000.50010.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,19,22,.
+f=1
+saveSolution011000000000000000100010.50.5.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,19,22,.
+f=1
+saveSolution000010000000000000100010.50.5.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,19,22,.
+f=1
+saveSolution000010000000000000000010.50.5.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution011000.50000000000001000100.5.
+numInfs=2
+        47           -68           -76   10.39%      0         16
+Fixed vars=
+0,1,2,4,8,13,18,19,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0110000000000000.714286001000110.285714.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution000010.3888890000000000.111111001000100.5.
+numInfs=3
+Fixed vars=
+0,1,2,4,8,13,18,19,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000100000000000.857143001000110.142857.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,19,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000100000000000.714286000000110.285714.
+numInfs=2
+Fixed vars=
+1,2,4,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.511000000000000000100000.50.
+numInfs=2
+Fixed vars=
+1,2,4,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.510010000000000000100000.50.
+numInfs=2
+Fixed vars=
+1,2,4,18,34,38,42,45,49,.
+problem
+f=1
+saveSolution01101000000000000010000.50.50.
+numInfs=2
+Fixed vars=
+1,2,4,18,34,38,42,45,49,.
+problem
+f=1
+saveSolution01101000000000000000000.50.50.
+numInfs=2
+Fixed vars=
+1,2,4,18,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0.428571110000000000000.571429001000010.
+numInfs=2
+Fixed vars=
+1,2,4,18,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.51101000000000000010000.500.
+numInfs=2
+Fixed vars=
+1,2,4,18,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.51101000000000000000000.500.
+numInfs=2
+Fixed vars=
+1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.857143100100000000000.142857001000000.
+numInfs=2
+Fixed vars=
+1,2,4,18,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0.285714110100000000000.714286001000100.
+numInfs=2
+Fixed vars=
+1,2,34,38,42,45,49,.
+problem
+f=1
+saveSolution00100.500000000000000.5000000.
+numInfs=2
+Fixed vars=
+1,2,4,34,38,42,45,49,.
+problem
+f=1
+saveSolution0100000000000000000.50000.500.
+numInfs=2
+Fixed vars=
+1,2,4,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.500010000000000000100000.50.
+numInfs=2
+Fixed vars=
+1,2,4,18,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0.428571110100000000000.571429000000100.
+numInfs=2
+Fixed vars=
+1,2,4,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.500010000000000000000000.50.
+numInfs=2
+Fixed vars=
+1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.571429110100000000000.428571000000000.
+numInfs=2
+Fixed vars=
+1,2,4,18,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0.285714000100000000000.714286001000010.
+numInfs=2
+Fixed vars=
+1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.500010000.50000000000000000.
+numInfs=2
+Fixed vars=
+1,2,4,18,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0.428571000100000000000.571429000000010.
+numInfs=2
+Fixed vars=
+1,2,4,34,38,42,45,49,.
+problem
+f=1
+saveSolution0010100000000000000.50000.500.
+numInfs=2
+Fixed vars=
+0,1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution000010000.500000.500000000000.
+numInfs=2
+Fixed vars=
+1,2,4,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution0010100000000000000.500000.50.
+numInfs=2
+Fixed vars=
+1,2,4,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution0010100000000000000.500010.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution00001000000000.5000000.500000.
+numInfs=2
+Fixed vars=
+1,2,4,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.5010100000000000000.5000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution00001000000000000000.500000.5.
+numInfs=2
+Fixed vars=
+1,2,4,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.0714286010100000000000.428571000.5000010.
+numInfs=3
+Fixed vars=
+0,1,2,4,8,13,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution000010.50000000000000000000.5.
+numInfs=2
+Fixed vars=
+1,2,4,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.5010100000000000000.5000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution001010000.50000000000.5000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution001010000.50000000000.5000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0010100000000000000.5000000.5.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,13,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000100000.5000000000000000.5.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0010100000000000.142857000000000.857143.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0010100000000000.285714001000000.714286.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0010100000000000000.5000100.5.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,13,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution000010000000.50000000000000.5.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0010100000000000.285714000000100.714286.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0010100000000000.428571001000100.571429.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution000010000000000000.50000000.5.
+numInfs=2
+Fixed vars=
+1,2,4,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution0100000000000000000.500000.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,17,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000100.42857100000000.03571430.0357143000000000.5.
+numInfs=4
+Fixed vars=
+1,2,4,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution0100000000000000000.500010.50.
+numInfs=2
+Fixed vars=
+1,2,4,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.5100000000000000000.5000000.
+numInfs=2
+Fixed vars=
+1,2,4,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.5100000000000000000.5000010.
+numInfs=2
+Fixed vars=
+1,2,4,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.5100000000000000000.5000100.
+numInfs=2
+Fixed vars=
+1,2,4,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.5100000000000000000.5000110.
+numInfs=2
+Fixed vars=
+1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.510000000.50000000000000000.
+numInfs=2
+Fixed vars=
+1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.510000000.50000000001000000.
+numInfs=2
+Fixed vars=
+1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.857143100000000000000.142857001000010.
+numInfs=2
+       100           -68           -76   10.39%      0         35
+Fixed vars=
+1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.510000000.50000000001000100.
+numInfs=2
+Fixed vars=
+1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.714286100000000000000.285714001000110.
+numInfs=2
+Fixed vars=
+0,1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution110000000.5714290000000.428571000000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,18,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution110000000.4285710000000.571429001000000.
+numInfs=2
+Fixed vars=
+1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.500010000.50000000001000000.
+numInfs=2
+Fixed vars=
+1,2,4,34,38,42,45,49,.
+problem
+f=1
+saveSolution0010000000000000000.50000.500.
+numInfs=2
+Fixed vars=
+1,2,4,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000000000000000.50000.500.
+numInfs=2
+Fixed vars=
+1,2,4,18,34,38,42,45,49,.
+problem
+f=1
+saveSolution01100000000000000000000.50.50.
+numInfs=2
+Fixed vars=
+1,2,4,18,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0.428571110100000000000.571429001000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,18,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution110000000.2857140000000.714286001000100.
+numInfs=2
+Fixed vars=
+1,2,4,18,34,38,42,45,49,.
+problem
+f=1
+saveSolution00100000000000000010000.50.50.
+numInfs=2
+Fixed vars=
+1,2,4,18,34,38,42,45,49,.
+problem
+f=1
+saveSolution00000000000000000000000.50.50.
+numInfs=2
+Fixed vars=
+1,2,4,18,34,38,42,45,49,.
+problem
+f=1
+saveSolution00000000000000000010000.50.50.
+numInfs=2
+Fixed vars=
+1,2,4,18,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.51100000000000000000000.500.
+numInfs=2
+Fixed vars=
+1,2,4,18,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.51100000000000000000000.510.
+numInfs=2
+Fixed vars=
+1,2,4,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.500000000000000000000010.50.
+numInfs=2
+Fixed vars=
+1,2,4,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.500000000000000000100000.50.
+numInfs=2
+Fixed vars=
+1,2,4,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.500000000000000000100010.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,18,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution111000000.2142860000000.2857140000000.500.
+numInfs=3
+Fixed vars=
+0,1,2,4,18,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution011000000.500000000000000.510.
+numInfs=2
+Fixed vars=
+0,1,2,4,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution100000000.4285710000000.071428600100000.50.
+numInfs=3
+Fixed vars=
+0,1,2,4,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution000000000.5000000000100010.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution100000000.2857140000000.21428600100010.50.
+numInfs=3
+Fixed vars=
+0,1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution000000000.500000.500001000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution000000000.50000000001000110.5.
+numInfs=2
+Fixed vars=
+0,1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution011000000.5714290000000.428571000000010.
+numInfs=2
+Fixed vars=
+0,1,2,4,18,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution011000000.4285710000000.571429000000110.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution00000000000000.5000010.500100.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000010000000.428571001000100.571429.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution00000000000000.437500.0625001000110.5.
+numInfs=3
+Fixed vars=
+0,1,2,4,18,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution011000000.500000000000000.500.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution00000000000000000010.500100.5.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000000000000100.571429001000100.428571.
+numInfs=2
+Fixed vars=
+0,1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution011000000.500000.500000000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution011000000.500000.500000000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution000000.50000000000001000100.5.
+numInfs=2
+Fixed vars=
+0,1,2,4,6,8,10,12,13,16,18,19,20,21,22,23,26,27,34,37,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000.444444000000000000.444444001100100.111111.
+numInfs=3
+Fixed vars=
+0,1,2,4,8,18,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0110000010000000.857143000000000.142857.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution01100000000000.5000000.500100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,13,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000000.5000000001000100.5.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,13,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000010000000000001000100.444444.
+numInfs=1
+Fixed vars=
+0,1,2,4,8,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution01100000000000.500000000100.5.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution01100000000000.100000100100.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,13,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution000000000000.50000001000100.5.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,13,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000001000000001000100.444444.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,11,13,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000000010000001000100.333333.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,11,13,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution000000000000000000.51000100.5.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000010000.222222000000.777778001000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution011000.50000000000000000100.5.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000000000100.20000.8001000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,17,18,19,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000000000000000.857143011000100.142857.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000000000001000.10.9001000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution011000.50000.5000000000000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,17,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000.5000000000001000100.5.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution01100000000000.5000000.500000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0110000000.500.450000.05000000100.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,8,9,11,13,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000.50000000000.501000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000000000000000.40.6001000101.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution01100000000000.500000000000.5.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution01100000000000.200000100000.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution000000000000000.05555560.05555560.88888901000100.
+numInfs=3
+Fixed vars=
+0,1,2,4,8,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution011000.500000000.500000000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution01100000000000.300000000001.
+numInfs=1
+Fixed vars=
+0,1,2,4,8,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution011000.50000.5000000000000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution011000.1111110000000000.888889000000001.
+numInfs=2
+Fixed vars=
+0,1,2,4,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution000000000.5000000000000010.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0110000000.500.50000000000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution00000000000000.50000000010.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000010000000.071428600000010.50.428571.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,8,9,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution011000000000.5000000.50000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution00000000000000000000.50010.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000000000100.21428600000010.50.285714.
+numInfs=3
+Fixed vars=
+0,1,2,4,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution100000000.4285710000000.071428600000010.50.
+numInfs=3
+Fixed vars=
+0,1,2,4,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution000000000.5000000000100000.50.
+numInfs=2
+Fixed vars=
+1,2,4,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.501000000000000000100000.50.
+numInfs=2
+Fixed vars=
+1,2,4,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.501000000000000000100010.50.
+numInfs=2
+Fixed vars=
+1,2,4,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.500000000000000000000000.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,13,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0110000.35714300000.5000.07142860.0714286000000000.
+numInfs=4
+Fixed vars=
+0,1,2,4,8,10,12,13,16,18,19,20,22,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000.166667000000000000.16666700010010.50.166667.
+numInfs=4
+Fixed vars=
+0,1,2,4,8,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000010000000.071428600100000.50.428571.
+numInfs=3
+Fixed vars=
+1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.714286010000000000000.285714001000010.
+numInfs=2
+Fixed vars=
+1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.571429010000000000000.428571001000110.
+numInfs=2
+Fixed vars=
+1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.500000000.50000000000000010.
+numInfs=2
+Fixed vars=
+1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.511000000.50000000001000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution000010000.500000.500001000000.
+numInfs=2
+Fixed vars=
+1,2,4,18,34,38,42,45,49,.
+problem
+f=1
+saveSolution00100000000000000000000.50.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution010000000.500000.500001000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution010000000.500000.500001000000.
+numInfs=2
+Fixed vars=
+1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.500000000.50000000000000000.
+numInfs=2
+Fixed vars=
+1,2,4,8,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.222222000000010000000000000010.
+numInfs=1
+Fixed vars=
+1,2,4,8,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.222222110000010000000001000000.
+numInfs=1
+Fixed vars=
+1,2,4,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.501000000000000000000010.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,13,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution010000000.4444440000100001000000.
+numInfs=1
+Fixed vars=
+0,1,2,4,13,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution010000000.500000000010.500100.
+numInfs=2
+Fixed vars=
+1,2,4,8,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.888889000000010000000000000000.
+numInfs=1
+Fixed vars=
+1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.501000000.50000000000000100.
+numInfs=2
+Fixed vars=
+1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.714286010000000000000.285714000000110.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100000000000100.714286001000000.285714.
+numInfs=2
+Fixed vars=
+0,1,2,4,13,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution010000000.3333330000000001100100.
+numInfs=1
+Fixed vars=
+0,1,2,4,8,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000010000000.142857000000000.857143.
+numInfs=2
+Fixed vars=
+0,1,2,4,13,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution010000000.50000000001000100.5.
+numInfs=2
+Fixed vars=
+1,2,4,8,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.50100000000000.500000000100.
+numInfs=2
+Fixed vars=
+1,2,4,8,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.444444010000010000000000000100.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,6,7,8,9,10,11,12,13,14,16,17,18,19,20,21,22,23,24,26,27,31,33,34,36,37,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution0100.2000000000000.8001100100.
+numInfs=2
+Fixed vars=
+0,1,2,4,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution010000.5000.50000000001000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution010000000.4444440000000001000101.
+numInfs=1
+Fixed vars=
+0,1,2,4,8,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution00100000000000.5000000.500100.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution1010000000000000.714286000000100.285714.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0010000010000000.714286000000100.285714.
+numInfs=2
+       200           -68           -76   10.39%      1         77
+Fixed vars=
+0,1,2,4,13,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution010000000.3333330000100001000100.
+numInfs=1
+Fixed vars=
+1,2,4,8,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.50000000000000.500000000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0010000000000100.857143000000100.142857.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution010000.50000.5000000001000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100000000000100.857143001000100.142857.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution00000000000000.5000000.500000.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution1000000000000000.142857000000000.857143.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution010000.2222220010000000.777778001000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0100000000.500.50000001000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution00000000000000000000.500000.5.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000000000100.285714000000000.714286.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution010000.2222220000000000.777778001000101.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution010000000000.5000000.51000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution000000.500000000000000.500000.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution00000000000000000000.800001.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,13,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0100000.500000.50000001000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,13,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution010000000000.08333330000011000100.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,13,18,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000000.50000000000.500000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,13,18,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000010000000000.50000.500000.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution000000.6666670000000000.333333000000001.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,8,9,13,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution010000000000.5000.05555560.05555560.38888901000100.
+numInfs=4
+Fixed vars=
+0,1,2,4,5,8,9,13,18,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000001000000.50000.500000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,13,18,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution000000000000.500000000.500000.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution00100000000000000000.500100.5.
+numInfs=2
+Fixed vars=
+0,1,2,4,13,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution010000000.500000000010.500000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution000000000000.5000000.50000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000.33333300000000.3333330000.333333000100000.
+numInfs=3
+Fixed vars=
+0,1,2,4,8,13,18,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution001000.500000000000000.500100.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0010000000000000.750000.2500101.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution01000000000000000010.500000.5.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100000010000000.571429001000000.428571.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,13,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000000000000.30000.7010000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,13,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000.500000.50000000000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution001000.50000.5000000000000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,7,8,9,10,11,12,13,14,16,17,18,19,20,21,22,23,24,26,27,31,33,34,36,37,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution0010.2000000000000.8000100100.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution010000.500000000000010.500000.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution01000000000000000010.500001.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,6,8,9,13,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution000000000000.500000.500000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,8,9,13,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution000000100000.250000000000000.
+numInfs=1
+Fixed vars=
+0,1,2,4,8,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution010000.50000.5000000001000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,7,8,9,10,11,12,13,14,16,17,18,19,20,21,22,23,24,26,27,31,33,34,36,37,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100.4000000000000.6001100000.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution010000.3333330000000000.666667001000001.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0010000000.500.50000000000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000000000.50000.500000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000000000001000.30.7000000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000000100000000.10.9000000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0100000000.500.50000001000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100010000.111111000000.888889001000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,11,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0100000000.500000000.51000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,11,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0100000000.181818010000001000000.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,11,13,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0100000.5000.5000000001000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,11,13,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0100000000.181818000000011000000.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,11,13,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0100000.500000000.05555560.05555560.38888901000000.
+numInfs=4
+Fixed vars=
+0,1,2,4,5,8,9,11,13,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution010000000100000.10.9001000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution001000000000.5000000.50000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,8,9,11,12,13,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution00000000000000000.50000.50000.
+numInfs=2
+Fixed vars=
+1,2,4,18,34,38,42,45,49,.
+problem
+f=1
+saveSolution01001000000000000000000.50.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0010000.500000000000.50000100.
+numInfs=2
+Fixed vars=
+1,2,4,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.510010000000000000000010.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0010000.85714300000000.07142860.0714286000000100.
+numInfs=3
+Fixed vars=
+0,1,2,4,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution010010000.5000000000000010.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,8,9,11,12,13,16,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution000000000000000.04545450.045454500000.9090910000.
+numInfs=3
+Fixed vars=
+0,1,2,4,8,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution01001000000000.50000000010.50.
+numInfs=2
+Fixed vars=
+1,2,4,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.510010000000000000000000.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution01001000000000000000.50010.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution010010000.5000000000000000.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,19,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution010010000000000000000010.50.5.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution01001000000000.50000000000.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,19,22,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution010010.4444440000000000.055555600000010.50.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,8,13,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0110000000.5000000001000100.5.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution01001000000000000000.50000.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,13,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution011000000000.450000.05001000100.5.
+numInfs=3
+Fixed vars=
+0,1,2,4,8,13,18,19,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution010010000000000000000000.50.5.
+numInfs=2
+Fixed vars=
+0,1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution010000000.500000.500000000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,19,22,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution010010.5000000000000000000.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution01000000000000.5000000.500000.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0100000010000000.428571000000000.571429.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,13,18,19,22,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0100100000.500000000000000.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution01000000000000.500000000000.5.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution01000000000000.500000100000.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,13,18,19,22,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution010010000000.5000000000000.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution010000.500000000.500000000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution01000000000000.600000000001.
+numInfs=1
+Fixed vars=
+0,1,2,4,6,8,10,12,13,16,18,19,20,21,22,23,26,27,34,37,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100.444444000000000000.444444000100000.111111.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,8,9,11,13,18,19,22,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution010010000000000000.5000000.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution010000.50000.5000000000000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution010000.3333330000000100.666667000000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution010000.4444440000000000.555556000000001.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,17,18,19,22,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0100100.35714300000000.07142860.071428600000000.50.
+numInfs=4
+Fixed vars=
+1,2,4,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.501000000000000000000000.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,9,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution010000.5000000.50000000000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,9,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution010000.3636360001000000000000000.
+numInfs=1
+       300           -68           -76   10.39%      1        103
+Fixed vars=
+0,1,2,4,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution001000000.5000000000000000.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution1010000000000000.2500000000.750.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,9,11,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution010000.5000000000000.50000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,9,11,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution010000.2727270000010000000000000.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution010000000100.20000.8000000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution001000001000000000000000.8333330.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,11,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0100000.500000000000.50000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution010001000000000.20.8000000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution010000000001000.10.9000000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0010000010000000.571429000000000.428571.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution00100000000000.50000000000.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0100000.50000000000.500000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution010000000000000.10.9010000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution00100000000000000000.50000.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution001000000000010000000000.6666670.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,11,13,16,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0100000.5000000.4500.0250.025000000000.
+numInfs=4
+Fixed vars=
+0,1,2,4,8,13,18,19,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution001000000000000000000000.50.5.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,19,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution001000000000000000010000.6666670.
+numInfs=1
+Fixed vars=
+0,1,2,4,8,13,18,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0010000000000100.714286000000000.285714.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,19,22,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution001000.5000000000000000000.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,19,22,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0010000000000000.2500000000.751.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,7,8,9,10,11,12,13,14,16,17,18,19,20,21,22,23,24,26,27,31,33,34,36,37,38,42,45,47,49,.
+problem
+f=1
+saveSolution0010.4000000000000.6000100000.
+numInfs=2
+Fixed vars=
+0,1,2,4,13,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution000010000.500000000010.500000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,13,18,19,22,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0010000000.500000000000000.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,13,18,19,22,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution001001000000000000000000.50.
+numInfs=1
+Fixed vars=
+0,1,2,4,8,13,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution00001000000000000010.500000.5.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,13,18,19,22,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution001000000100000000000000.50.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0010010000.111111000000.888889000000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution000010.4444440000000000.05555560010.500000.
+numInfs=3
+Fixed vars=
+0,1,2,4,8,13,18,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution00001000000000000010.100001.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution001000000100.10000.9000000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,13,18,19,22,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution001000000000.5000000000000.50.
+numInfs=2
+Fixed vars=
+1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.857143100000000000000.142857000000110.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,18,19,22,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution001000000000000000.5000000.50.
+numInfs=2
+Fixed vars=
+1,2,4,8,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.51100000000000.500001000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0010000.500000000000.50000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution001000000000000.40.400.20000010.
+numInfs=3
+Fixed vars=
+0,1,2,4,8,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution01100000000000.5000010.500000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0010000.500000000.05555560.05555560.38888900000000.
+numInfs=4
+Fixed vars=
+1,2,4,8,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.50000000000000.500000000010.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution01100000000000.500001000000.5.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution01100000000000.100001100000.
+numInfs=1
+Fixed vars=
+0,1,2,4,8,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution00000000000000.5000000.500010.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution011000.500000000.500001000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution01100000000000.200001000001.
+numInfs=1
+Fixed vars=
+0,1,2,4,8,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution00000000000000.500000000010.5.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution00000000000000.100000100010.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0110000000.50000.500001000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution000000.500000000.500000000010.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution00000000000000.200000000011.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution011000000000.500.500001000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution000000.50000.5000000000000010.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution011000000000.90000.1001000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,9,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution000000.5000000.450000.05000000010.
+numInfs=3
+Fixed vars=
+0,1,2,4,8,13,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution000010.50000000000000000100.5.
+numInfs=2
+Fixed vars=
+1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.510000000.50000000000000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,13,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000100000.5000000000000100.5.
+numInfs=2
+Fixed vars=
+1,2,4,8,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.51000000000000.500000000100.
+numInfs=2
+Fixed vars=
+1,2,4,8,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.555556100000010000000000000100.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,13,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution000010000000.450000.05000000100.5.
+numInfs=3
+Fixed vars=
+1,2,4,8,13,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.51000000000000000000.500100.
+numInfs=2
+Fixed vars=
+1,2,4,8,13,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.444444100000000000100000000100.
+numInfs=1
+Fixed vars=
+0,1,2,4,8,18,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100000010000000.571429000000100.428571.
+numInfs=2
+Fixed vars=
+1,2,4,8,13,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.5100000000000000000000100.5.
+numInfs=2
+Fixed vars=
+1,2,4,8,13,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.444444100000000000000000100100.
+numInfs=1
+Fixed vars=
+0,1,2,4,8,13,18,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100000000000100.714286000000100.285714.
+numInfs=2
+Fixed vars=
+1,2,4,8,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.510000.50000000000000000100.
+numInfs=2
+Fixed vars=
+1,2,4,8,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.555556100000000000000000000101.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,6,7,8,9,10,11,12,13,14,16,17,18,19,20,21,22,23,24,26,27,31,33,34,36,37,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100.4000000000000.6000100100.
+numInfs=2
+Fixed vars=
+1,2,4,5,8,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.5100000000.5000000000000100.
+numInfs=2
+Fixed vars=
+1,2,4,5,8,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.333333100010000000000000000100.
+numInfs=1
+Fixed vars=
+0,1,2,4,8,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution010000.3333330000000000.666667000000101.
+numInfs=2
+Fixed vars=
+1,2,4,5,8,9,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.510000000000.50000000000100.
+numInfs=2
+Fixed vars=
+1,2,4,5,8,9,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.333333100000001000000000000100.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100010000.111111000000.888889000000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution010000000000.5000000.50000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution110000000000.30000.7000000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution010000000100.10000.9000000100.
+numInfs=2
+Fixed vars=
+1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.501000000.50000000001000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0100000.500000000000.50000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution001000000.500000.500001000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,18,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution101000000.1428570000000.857143001000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0100000.500000000.05555560.05555560.38888900000100.
+numInfs=4
+Fixed vars=
+1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.501000000.50000000001000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution00100000000000.5000010.500100.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0010000010000000.857143001000100.142857.
+numInfs=2
+Fixed vars=
+0,1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution001000000.500000.500001000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,18,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution101000000.2857140000000.714286001000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution00100000000000000010.500100.5.
+numInfs=2
+Fixed vars=
+0,1,2,4,13,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution001000000.500000000010.500000.
+numInfs=2
+Fixed vars=
+0,1,2,4,13,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution001000000.3333330000100001000000.
+numInfs=1
+Fixed vars=
+0,1,2,4,8,13,18,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution001000.500000000000010.500100.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution00100000000000000010.300101.
+numInfs=1
+       400           -68           -76   10.39%      1        125
+Fixed vars=
+0,1,2,4,8,13,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution00100000000000000010.500000.5.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0010000010000000.714286001000000.285714.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0010000000000100.857143001000000.142857.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,13,18,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0010000000.50000000010.500100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,13,18,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution00100100000000000010.100100.
+numInfs=1
+Fixed vars=
+0,1,2,4,8,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution001000.1111110000000000.888889001000101.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,13,18,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution001000000000.500000010.500100.
+numInfs=2
+Fixed vars=
+1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0.510000000.50000000000000010.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution00000000000000.50000100000.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,19,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution000000000000000000000010.50.5.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,13,18,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution00100000010000000010.100100.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution001000000000.5000000.51000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution001000.500000000000010.500000.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0010000000000000.750010.2500001.
+numInfs=2
+Fixed vars=
+0,1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution010000000.50000000000000010.5.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000000000100.21428600100000.50.285714.
+numInfs=3
+Fixed vars=
+0,1,2,4,8,13,18,19,22,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution000000.5000000000000000010.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,19,22,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution000000.3333330000000000.16666700000010.51.
+numInfs=3
+Fixed vars=
+0,1,2,4,8,13,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution00000000000000000010.50000.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution001000.50000.5000000001000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,7,8,9,10,11,12,13,14,16,17,18,19,20,21,22,23,24,26,27,31,33,34,36,37,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution0010.2000000000000.8001100000.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution01000000000000.437500.0625000000010.5.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,8,13,18,19,22,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000000.500000000000010.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,13,18,19,22,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution000001000000000000000010.8333330.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,11,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0010000.35714300000000.07142860.071428600.51000100.
+numInfs=4
+Fixed vars=
+0,1,2,4,8,9,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution001000.5000000.50000001000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,9,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution001000.1818180001000000001000000.
+numInfs=1
+Fixed vars=
+0,1,2,4,8,10,12,13,16,18,19,20,22,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000.166667000000000000.16666700110000.50.166667.
+numInfs=4
+Fixed vars=
+0,1,2,4,8,13,18,19,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution000000000000000000100000.50.5.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,13,18,19,22,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution000000000000.5000000000010.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,13,18,19,22,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution000000000100000000000010.8333330.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000010000.333333000000.666667000000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,9,11,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution001000.5000000000000.51000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,19,22,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution000000.3333330000000000.16666700100000.51.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,8,9,11,13,18,19,22,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution000000000000000000.5000010.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,10,11,13,18,19,22,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000000010000.500000010.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000000000100.30000.7000000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,9,11,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution001000.09090910000010000001000000.
+numInfs=1
+Fixed vars=
+0,1,2,4,8,13,18,19,22,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution000000.5000000000000100000.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0010000.500000000000.51000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000.500000000000.50000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution000000000000000.20.200.60000110.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,8,13,18,19,22,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000000.500000000100000.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,13,18,19,22,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution000001000000000000100000.8333330.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,11,13,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0010000.85714300000000.07142860.0714286001000000.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,8,9,11,13,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000000000000000.20.8010000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000.50000000000.500000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,13,18,19,22,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution000000000000.5000000100000.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,13,18,19,22,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution000000000100000000100000.8333330.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000010000.333333000000.666667001000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000000000.4500.0250.0250.500000100.
+numInfs=4
+Fixed vars=
+0,1,2,4,5,8,9,11,13,18,19,22,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution000000000000000000.5100000.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,10,11,13,18,19,22,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000000010000.500100000.50.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000000000100.30000.7001000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000.500000000000.51000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution000000000000000.20.200.61000010.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution00000000000000000.50.51000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution000000100000000000.1666671000000.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000000000.4500.0250.0250.501000000.
+numInfs=4
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000000000000000.20.8011000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,16,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0100000000000.800.10.1000000000.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,16,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000000000.900.050.05000000100.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,16,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000000000.900.050.05001000000.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,17,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution000010000000000.08333330.08333330.33333300000000.5.
+numInfs=4
+Fixed vars=
+0,1,2,4,5,6,8,9,11,12,13,14,16,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000000000000.062500000.93750000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,8,9,11,12,13,14,16,17,18,19,22,23,24,26,27,34,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution000000000000001100000.1666670000.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution011000000000.90000.1000000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution011000000000.80000.2001000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution000010000000000.050.0500.40000100.5.
+numInfs=4
+Fixed vars=
+0,1,2,4,5,8,9,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution000000000000.90000.1000000010.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,14,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000100000000000.0500.450000100.5.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,8,9,11,13,14,17,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000100.375000000000.125000000100.5.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,6,8,9,11,12,13,16,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution000000000000000.09090910.090909100000.8181820100.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,6,8,9,11,12,13,16,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution000000000000000.09090910.090909100100.8181820000.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution001000000000000.1111110.1111110.77777800000000.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution010000000000000.1111110.1111110.77777801000000.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,8,13,18,19,22,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0100100000.444444000000.055555600000010.50.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,14,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000000000000.07142860.92857101000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,14,17,18,19,22,23,24,26,27,34,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution00000000000000110.062501000100.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution010000000000000.1666670.1666670.66666701000100.
+numInfs=3
+       500           -68      -75.8889   10.26%      2        145
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution010000000000000.1111110.1111110.77777800000100.
+numInfs=3
+       500           -68      -75.8889   10.26%      2        145
+Fixed vars=
+0,1,2,4,5,8,13,18,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000100000.444444000000.05555560010.500000.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,8,9,13,18,19,22,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution010010000000.40000.100000010.50.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,8,9,13,18,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution000010000000.40000.10010.500000.
+numInfs=3
+Fixed vars=
+0,1,2,4,8,13,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0100000000000000.06250000.437500010.5.
+numInfs=3
+Fixed vars=
+0,1,2,4,8,13,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000000000000.06250010.437500110.5.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,6,8,9,11,12,13,14,15,16,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000.05263160000.02631580000000000000.8684210.0526316000.
+numInfs=4
+Fixed vars=
+0,1,2,4,5,6,8,9,11,12,13,14,15,16,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000000000000000100000.8333330000.
+numInfs=1
+Fixed vars=
+0,1,2,4,8,13,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution010000.3888890000000000.111111000000010.5.
+numInfs=3
+Fixed vars=
+0,1,2,4,8,13,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution000000.3888890000000000.111111001000110.5.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,8,9,11,13,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution010010000000000.10.9000000010.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,22,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution00000000100000.37500.12500000010.50.
+numInfs=3
+Fixed vars=
+0,1,2,4,8,18,22,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution00000000100000.37500.12500100000.50.
+numInfs=3
+Fixed vars=
+0,1,2,4,8,18,22,34,38,42,45,49,.
+problem
+f=1
+saveSolution1000000000000000.071428600000010.50.428571.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,14,16,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000000000.866667000.133333001000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,8,9,13,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution011000000000.5000.1111110.1111110.27777800000000.
+numInfs=4
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution001000000000000.1666670.1666670.66666701000000.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,8,9,11,13,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0100100.28571400000000.3571430.357143000000000.
+numInfs=3
+Fixed vars=
+0,1,2,4,18,22,34,38,45,49,.
+problem
+f=1
+saveSolution010010000.4285710000000.071428600100010.50.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,6,7,8,9,10,11,12,14,15,16,17,18,20,21,22,34,37,38,42,45,47,49,.
+problem
+f=1
+saveSolution1000.2500000000000000000010.50.25.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution001000000000000.1666670.1666670.66666700000100.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,6,7,9,10,11,12,14,15,16,17,18,20,21,22,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100.2510000.25000000000100010.50.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,8,9,11,13,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0010000.71428600000000.1428570.142857001000100.
+numInfs=3
+Fixed vars=
+0,1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution100000000.7142860000000.285714001000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution000010000000000.2777780.2777780.44444400000000.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,6,8,9,11,12,13,14,16,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000000000000.12500000.8750100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,8,9,11,12,13,14,16,17,18,19,22,23,24,26,27,34,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution000000000000001000000.2222220100.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,6,8,9,11,12,13,14,16,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000000000000.12500100.8750000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,8,9,11,12,13,14,16,17,18,19,22,23,24,26,27,34,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution000000000000001000100.2222220000.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,11,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution011000000000000.10.100.81000000.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,8,9,11,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000000000000.100.90000010.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0110000000000000.100.90000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution000010000000.80000.2001000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,8,9,11,12,13,16,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution010000000000000.1363640.13636400000.7272730000.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,8,9,11,13,15,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution011000000000000.751001000000.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,10,11,12,13,15,18,19,20,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0110.200000000000.2000.61000000.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,8,9,10,11,12,13,15,16,18,19,20,22,23,24,30,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000.200000000000000.80000010.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,15,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000000000000000100.750000010.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,10,11,12,13,15,18,19,20,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0110.200000000000000.80000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,15,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution011000000000000100.750000100.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,11,13,18,19,22,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution010010000000000.10.100.3000010.50.
+numInfs=4
+Fixed vars=
+0,1,2,4,5,8,9,10,11,12,13,15,18,19,20,22,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100.210000000000.2000.1000010.50.
+numInfs=4
+Fixed vars=
+0,1,2,4,6,8,10,12,13,15,16,18,19,20,22,23,30,31,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100.2500.250000000000000000010.5.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,14,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0010000000000000.1428570.85714300000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,14,17,18,19,22,23,24,26,27,34,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution00100000000000100.12500000000.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,13,18,19,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000100000.388889000000.111111001000100.5.
+numInfs=3
+Fixed vars=
+0,1,2,4,6,8,10,12,13,15,16,18,19,20,21,22,23,30,31,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000.2500.250000000000001000110.5.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,14,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0100000000000000.1428570.85714301000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,14,17,18,19,22,23,24,26,27,34,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution01000000000000100.12501000000.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,6,8,9,13,15,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0110.12500000000.5000.12500.12500000.125000.
+numInfs=5
+Fixed vars=
+0,1,2,4,5,6,8,9,13,15,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution011000000000.8333330001000000000.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,10,12,13,15,16,18,19,20,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000.25100000.25000000001000100.5.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,14,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0100000000000000.1428570.85714300000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,14,17,18,19,22,23,24,26,27,34,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution01000000000000100.12500000100.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,11,13,14,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000100.666667000000000.333333000000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,15,18,22,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000000001000000100000010.8333330.
+numInfs=1
+Fixed vars=
+0,1,2,4,6,8,10,12,15,16,18,20,21,22,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000.3333330000100000.1666670000100000.50.
+numInfs=3
+Fixed vars=
+0,1,2,4,8,15,18,22,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000000001000000100100000.8333330.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,6,8,9,11,12,13,14,15,16,17,18,19,22,23,24,34,38,42,43,45,49,.
+problem
+f=1
+saveSolution000000000000000100000.7777780100.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,6,8,9,11,12,13,14,15,16,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000.1052630000.05263160000000000100.7368420.105263000.
+numInfs=4
+Fixed vars=
+0,1,2,4,5,6,8,9,11,12,13,14,15,16,17,18,19,22,23,24,34,38,42,43,45,49,.
+problem
+f=1
+saveSolution000000000000000100100.7777780000.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,6,8,9,11,12,13,14,15,16,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000.1052630000.05263160000000000000.7368420.105263100.
+numInfs=4
+Fixed vars=
+0,1,2,4,6,8,10,12,15,16,18,20,21,22,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000.3333330000100000.1666670000000010.50.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,14,15,16,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000.1212120000.060606100000.69697000001000.121212100.
+numInfs=4
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,14,15,16,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000000000000.764706001001000100.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,6,8,9,11,12,13,15,16,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100.13636400000000000.136364000000.5909090.136364000.
+numInfs=4
+Fixed vars=
+0,1,2,4,5,6,8,9,11,12,13,15,16,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution010000000000001100000.05555560000.
+numInfs=1
+Fixed vars=
+0,1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution010000000.8571430000000.142857001000010.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution10000000000000.7500.25000000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,15,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution001000000000000.8333331001000100.
+numInfs=1
+Fixed vars=
+0,1,2,4,8,18,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution00000000100000.7500.25000000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,7,8,9,10,11,12,14,15,16,17,18,20,21,22,23,34,37,38,42,45,47,49,.
+problem
+f=1
+saveSolution0010.5100000000000000000000.5.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,15,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0010.2000.400000000.20001000.2100.
+numInfs=4
+Fixed vars=
+0,1,2,4,5,6,7,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,26,30,31,34,38,41,42,45,47,49,.
+problem
+f=1
+saveSolution0100.500000.50000000001000010.
+numInfs=2
+Fixed vars=
+0,1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution010010000.8571430000000.142857001000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution010000000.8571430000000.142857000000110.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,7,9,10,11,12,14,15,16,17,18,20,21,22,23,34,37,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100.510000.50000000001000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,7,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,26,30,31,34,38,41,42,45,47,49,.
+problem
+f=1
+saveSolution0100.500000.50000000000000110.
+numInfs=2
+       600           -68      -75.7143   10.06%      2        163
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,14,15,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100.1428570000.0714286000000000.64285701000.142857000.
+numInfs=4
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,14,15,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution01000000000000010.7501000000.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,14,15,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100.1428570000.0714286000000000.64285700000.142857100.
+numInfs=4
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,14,15,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution01000000000000010.7500000100.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,14,15,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0010.1666670000000000000.66666700000.166667000.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,14,15,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution00100000000000010.7500000000.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,14,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0100000000000000.2142860.78571401000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,14,17,18,19,22,23,24,26,27,34,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution0100000000000010.5001000100.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,15,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0010.187500000000000.187500.437500000.1875100.
+numInfs=4
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,15,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution001000000000000.9166671000000100.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,15,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0010.187500000000000.187500.437501000.1875000.
+numInfs=4
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,15,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution001000000000000.9166671001000000.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,13,18,19,22,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000000.333333000000.16666700100000.51.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,8,13,18,19,22,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000000.333333000000.16666700000010.51.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,8,10,12,13,15,16,18,19,20,22,24,34,37,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000.375000000.12500000000100000.51.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,8,10,12,13,15,16,18,19,20,22,24,34,37,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000.375000000.12500000000000010.51.
+numInfs=3
+Fixed vars=
+0,1,2,3,4,5,6,8,9,11,12,13,14,15,16,17,18,19,22,23,24,34,38,42,43,45,49,.
+problem
+f=1
+saveSolution00000000.06250000000000000.81250.125000.
+numInfs=3
+Fixed vars=
+0,1,2,3,4,5,6,8,9,11,12,13,14,15,16,17,18,19,22,23,24,30,34,35,37,38,41,42,43,45,47,49,.
+problem
+f=1
+saveSolution0001000000000000000000.769231000.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,11,13,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000.42857100000000.2857140.285714000000110.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,8,9,11,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution011000000000000.20.200.61000100.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,8,9,10,11,12,13,15,16,18,19,20,22,23,24,34,37,38,42,45,47,49,.
+problem
+f=1
+saveSolution0110.400000000000.4000.21000100.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,8,9,11,13,15,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution011000000000000.6666671001000100.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,10,12,13,15,16,18,19,20,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000.410000000.60000001000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,13,15,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000010000000.6666670001001000000.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,11,13,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000.42857100000000.2857140.285714001000010.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,14,15,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100.2142860000.107143000000000.46428601000.214286100.
+numInfs=4
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,14,15,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution01000000000000010.687501000100.
+numInfs=1
+Fixed vars=
+0,1,2,4,8,13,18,22,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000000000100.250000.250010.50.
+numInfs=3
+Fixed vars=
+0,1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution100000000.5714290000000.428571001000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,22,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000000000100.250010.250000.50.
+numInfs=3
+Fixed vars=
+0,1,2,4,18,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution101000000.4285710000000.571429000000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,15,18,22,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000000000000010100100000.6666670.
+numInfs=1
+Fixed vars=
+0,1,2,4,8,13,15,18,22,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000000000000010100000010.6666670.
+numInfs=1
+Fixed vars=
+0,1,2,4,6,7,8,10,11,12,14,15,16,17,18,20,21,22,23,24,34,37,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000.6666670000100000.33333300000000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,6,7,8,10,11,12,14,15,16,17,18,20,21,22,23,24,30,34,37,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution1000.6666670000000000.33333300000000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution001000.3333330000000000.666667000000001.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,15,17,18,19,22,23,24,34,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution0000.312510000000000.312500.062500000.3125000.
+numInfs=4
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,15,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000010000000000.751000000000.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,10,11,13,15,17,18,19,20,22,23,24,26,30,31,34,38,41,42,45,49,.
+problem
+f=1
+saveSolution0000.40000.40000000.20000000110.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,8,9,11,13,15,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000000000000000.6666671000000110.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,10,11,13,15,17,18,19,20,22,23,24,26,30,31,34,38,41,42,45,49,.
+problem
+f=1
+saveSolution0000.40000.40000000.20001000010.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,8,9,11,13,15,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000000000000000.6666671001000010.
+numInfs=1
+Fixed vars=
+0,1,2,4,8,13,18,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000000000100.3750000.62500000.
+numInfs=2
+Fixed vars=
+0,1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution001000000.7142860000000.285714000000110.
+numInfs=2
+Fixed vars=
+0,1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution001000000.7142860000000.285714001000010.
+numInfs=2
+Fixed vars=
+0,1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution010000000.7142860000000.285714001000110.
+numInfs=2
+Fixed vars=
+0,1,2,4,18,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution111000000.1428570000000.857143000000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,13,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000000000.666667000000.333333000000001.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,14,15,17,18,19,22,23,24,34,37,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000.5100000000000000000.5100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,14,15,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000100.571429000000001000000100.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,6,8,10,12,13,15,16,18,19,20,21,22,23,24,30,34,37,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution0000.75000000.25000000000000001.
+numInfs=2
+Fixed vars=
+0,1,2,3,4,5,6,8,9,11,12,13,14,15,16,17,18,19,22,23,24,34,38,42,43,45,49,.
+problem
+f=1
+saveSolution00000000.1250000000000100.6250.25000.
+numInfs=3
+Fixed vars=
+0,1,2,3,4,5,6,8,9,11,12,13,14,15,16,17,18,19,22,23,24,30,34,35,37,38,41,42,43,45,47,49,.
+problem
+f=1
+saveSolution0001000000000000001000.692308000.
+numInfs=1
+Fixed vars=
+0,1,2,3,4,5,6,8,9,11,12,13,14,15,16,17,18,19,22,23,24,34,38,42,43,45,49,.
+problem
+f=1
+saveSolution00000000.1250000000000000.6250.25100.
+numInfs=3
+Fixed vars=
+0,1,2,3,4,5,6,8,9,11,12,13,14,15,16,17,18,19,22,23,24,30,34,35,37,38,41,42,43,45,47,49,.
+problem
+f=1
+saveSolution0001000000000000000000.692308100.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,10,11,12,13,15,16,17,18,19,20,22,23,24,34,37,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100.610000000000.40000000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,15,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution010010000000000.5833331000000000.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,6,8,9,13,14,15,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0110.16666700000000.500000.16666700000.166667000.
+numInfs=4
+Fixed vars=
+0,1,2,4,5,6,8,9,11,12,13,14,15,16,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000.1578950000.07894740000000000100.6052630.157895100.
+numInfs=4
+Fixed vars=
+0,1,2,4,5,8,9,11,13,17,18,19,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution0010000.14285700000000.4285710.428571000000010.
+numInfs=3
+Fixed vars=
+0,1,2,3,4,5,6,7,8,9,11,12,13,14,15,16,17,18,19,22,23,24,33,34,38,42,43,45,49,.
+problem
+f=1
+saveSolution000000000000000000000.80.2000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,8,9,11,12,13,14,15,16,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100.1578950000.07894740000000000000.6052630.157895000.
+numInfs=4
+Fixed vars=
+0,1,2,4,5,6,8,9,11,12,13,14,15,16,17,18,19,22,23,24,34,37,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution010000000000001000000.1666670000.
+numInfs=1
+       700           -68      -75.1429    9.38%      2        177
+Fixed vars=
+0,1,2,4,8,18,22,23,24,34,38,42,45,49,.
+problem
+f=1
+saveSolution01000000100000.500.5000000000.
+numInfs=2
+       700           -68      -75.1429    9.38%      2        177
+Fixed vars=
+0,1,2,4,8,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution1100000000000000.428571000000000.571429.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution0110000000000000.428571000000010.571429.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,15,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution001000000000000.51000000010.
+numInfs=1
+Fixed vars=
+0,1,2,4,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution001010000.07142860000000.428571000.5000010.
+numInfs=3
+Fixed vars=
+0,1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution011010000.5714290000000.428571000000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,18,22,23,34,38,42,45,49,.
+problem
+f=1
+saveSolution001000000.5714290000000.428571001000110.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,14,15,16,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100.1818180000.090909100000.545455000000000.181818100.
+numInfs=4
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,14,15,16,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100.1818180000.090909100000.545455000001000.181818000.
+numInfs=4
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,14,15,16,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0010.214286000000000.571429000000000.214286000.
+numInfs=3
+Fixed vars=
+0,1,2,3,4,5,6,8,9,10,12,13,14,15,16,17,18,19,20,22,23,24,26,33,34,36,38,41,42,43,45,47,49,.
+problem
+f=1
+saveSolution01100000.50000.50000000000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000000000100.40000.6000000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000010000.444444000000.555556000000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,10,11,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000000000001000.20.8001000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,10,11,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000000000001000.20.8000000100.
+numInfs=2
+Fixed vars=
+0,1,2,3,4,5,6,8,9,11,12,13,14,15,16,17,18,19,22,23,24,34,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution00000000.18750000000000100.43750.375100.
+numInfs=3
+Fixed vars=
+0,1,2,3,4,5,6,8,9,11,12,13,14,15,16,17,18,19,22,23,24,30,34,35,37,38,41,42,43,45,47,49,.
+problem
+f=1
+saveSolution0001000000000000001000.615385100.
+numInfs=1
+Fixed vars=
+0,1,2,3,4,5,6,8,9,11,12,13,14,15,16,17,18,19,22,23,24,34,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution01000000.18750000000000000.43750.375000.
+numInfs=3
+Fixed vars=
+0,1,2,3,4,5,6,8,9,11,12,13,14,15,16,17,18,19,22,23,24,30,34,35,37,38,41,42,43,45,47,49,.
+problem
+f=1
+saveSolution0101000000000000000000.615385000.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100000000.444444000000.555556000000001.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,14,15,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0010.250000000000000.500000.25100.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,14,15,17,18,19,22,23,24,34,37,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution00100000000000100.062500000100.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,14,15,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0010.250000000000000.501000.25000.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,14,15,17,18,19,22,23,24,34,37,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution00100000000000100.062501000000.
+numInfs=1
+Fixed vars=
+0,1,2,4,8,18,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0110000000000000.571429000000110.428571.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution00100000100000.37500.625000000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,18,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000010000.4285710000000.571429000000010.
+numInfs=2
+Fixed vars=
+0,1,2,4,18,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution011000000.4285710000000.571429001000010.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution1100000000000000.571429001000000.428571.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution01000000100000.37500.625000000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,18,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution011010000.4285710000000.571429000000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100000010000000.6250010.37500000.
+numInfs=2
+Fixed vars=
+0,1,2,4,18,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution011010000.4285710000000.571429001000000.
+numInfs=2
+       800           -68      -74.8571    9.04%      3        159
+Fixed vars=
+0,1,2,3,4,5,6,8,9,11,13,14,15,16,17,18,19,22,23,24,34,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution01000000.23076900000.307692000001000.461538000.
+numInfs=3
+Fixed vars=
+0,1,2,3,4,5,6,8,9,11,13,14,15,16,17,18,19,22,23,24,30,34,35,37,38,41,42,43,45,47,49,.
+problem
+f=1
+saveSolution0101000000000000001000.538462000.
+numInfs=1
+Fixed vars=
+0,1,2,3,4,5,6,8,9,11,13,14,15,16,17,18,19,22,23,24,34,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution01000000.23076900000.307692000000000.461538100.
+numInfs=3
+Fixed vars=
+0,1,2,3,4,5,6,8,9,11,13,14,15,16,17,18,19,22,23,24,30,34,35,37,38,41,42,43,45,47,49,.
+problem
+f=1
+saveSolution0101000000000000000000.538462100.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,11,13,14,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000000.333333000000000.666667001000101.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,10,11,12,13,14,15,18,19,20,22,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100.210000000000000.3000010.50.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,8,9,11,13,14,15,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0010.25000.5000000000001000.25100.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,8,9,10,11,12,13,15,17,18,19,20,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0110.3000.100000000.30000000.3100.
+numInfs=4
+Fixed vars=
+0,1,2,4,5,8,9,13,15,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000000000100.3333330001000000000.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,10,11,12,13,14,15,18,19,20,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0110.200000000000000.81000000.
+numInfs=2
+Fixed vars=
+0,1,2,3,4,5,6,7,8,9,11,12,13,14,15,16,17,18,19,20,22,23,24,33,34,38,42,43,45,49,.
+problem
+f=1
+saveSolution00000000000.66666700000000000.333333000.
+numInfs=2
+Fixed vars=
+0,1,2,3,4,5,6,8,9,11,13,14,15,16,17,18,19,22,23,24,33,34,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution00100000.33333300000.333333000000000.333333000.
+numInfs=3
+Fixed vars=
+0,1,2,3,4,5,6,8,9,11,13,14,15,16,17,18,19,22,23,24,30,34,35,37,38,41,42,43,45,47,49,.
+problem
+f=1
+saveSolution0011000000000000000000.538462000.
+numInfs=1
+Fixed vars=
+0,1,2,4,8,10,12,13,16,18,19,20,22,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000.19230800.1153850000000000.19230800010010.50.
+numInfs=4
+Fixed vars=
+0,1,2,4,8,10,12,13,16,18,19,20,22,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000.19230800.1153850000000000.19230800110000.50.
+numInfs=4
+Fixed vars=
+0,1,2,4,5,8,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100000000.333333000000.666667000000101.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000001000000.30000.7001000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100000000.333333000100.666667000000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000001000000.30000.7000000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100000000.333333000000.666667001000001.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,14,15,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000000.285714000000001001000101.
+numInfs=1
+Fixed vars=
+0,1,2,3,4,5,6,8,9,10,11,13,14,15,17,18,19,22,23,24,33,34,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution01000000.3000000000.101000.6100.
+numInfs=3
+Fixed vars=
+0,1,2,3,4,5,6,8,9,11,13,14,15,17,18,19,22,23,24,30,34,35,37,38,41,42,43,45,47,49,.
+problem
+f=1
+saveSolution0101000000000000001000.461538100.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,14,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000000000010000.7857140.21428600000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000000000000000.30.7010000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution110000000000000.30.7000000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,15,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000000000000000.251010000000.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,11,13,15,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution110000000000000.251000000100.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,11,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000000000100000.30.7001000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,13,15,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000001000000.250001000000100.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,13,15,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000001000000.250001001000000.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,11,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000000000100000.30.7000000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,15,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000000000100000.251001000000.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,11,13,15,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000000000100000.251000000100.
+numInfs=1
+Fixed vars=
+0,1,2,4,8,13,18,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100000000000100.750010.2500000.
+numInfs=2
+       900           -68      -74.5714    8.70%      3        157
+Fixed vars=
+0,1,2,4,8,18,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution00100000100000.2500.75000000100.
+numInfs=2
+       900           -68      -74.5714    8.70%      3        157
+Fixed vars=
+0,1,2,4,8,13,18,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0010000000000100.750000.2500000.
+numInfs=2
+       900           -68      -74.5714    8.70%      3        157
+Fixed vars=
+0,1,2,4,18,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000010000.2857140000000.714286001000010.
+numInfs=2
+       900           -68      -74.5714    8.70%      3        157
+Fixed vars=
+0,1,2,4,8,18,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution10100000000000.2500.75000000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution1100000000000000.714286001000100.285714.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0010000010000000.750010.2500000.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution1010000000000000.714286001000000.285714.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100000000000100.750000.2500100.
+numInfs=2
+Fixed vars=
+0,1,2,4,18,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution011010000.2857140000000.714286001000100.
+numInfs=2
+Fixed vars=
+0,1,2,3,4,5,6,8,9,10,11,13,14,15,17,18,19,20,22,23,24,30,33,34,35,38,41,42,43,45,47,49,.
+problem
+f=1
+saveSolution00100000.428571000000000.14285701000.428571000.
+numInfs=3
+Fixed vars=
+0,1,2,3,4,5,6,8,9,11,13,14,15,17,18,19,22,23,24,30,34,35,37,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution0011000000000000001000.461538000.
+numInfs=1
+Fixed vars=
+0,1,2,3,4,5,6,8,9,10,11,13,14,15,17,18,19,20,22,23,24,30,33,34,35,38,41,42,43,45,47,49,.
+problem
+f=1
+saveSolution00100000.428571000000000.14285700000.428571100.
+numInfs=3
+Fixed vars=
+0,1,2,3,4,5,6,8,9,11,13,14,15,17,18,19,22,23,24,30,34,35,37,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution0011000000000000000000.461538100.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,6,7,8,9,10,11,12,14,15,16,17,18,20,21,22,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100.2510000000000000100010.50.25.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,8,9,10,12,13,15,16,18,19,20,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000.310000000.20000001000100.5.
+numInfs=3
+Fixed vars=
+0,1,2,4,8,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution001000.2222220000000000.777778000000101.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution001000.2222220000000000.777778001000001.
+numInfs=2
+Fixed vars=
+0,1,2,3,4,8,10,12,13,16,18,19,20,22,24,26,27,34,37,38,42,45,47,49,.
+problem
+f=1
+saveSolution000000.2222220000000000.27777800010010.50.
+numInfs=3
+Fixed vars=
+0,1,2,3,4,8,10,12,13,16,18,19,20,22,24,26,27,34,37,38,42,45,47,49,.
+problem
+f=1
+saveSolution000000.2222220000000000.27777800110000.50.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,8,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100000000.222222000000.777778001000101.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000001000000.20000.8001000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100000010.222222000000.777778001000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,14,15,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution00000000000100010.187500000000.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,11,13,14,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100010000000000.800.20000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,10,11,13,15,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000000000001000.1666671001000000.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,13,15,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000001000000.1666670001001000100.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,10,11,13,15,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000000000001000.1666671000000100.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,11,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000000000100000.20.8001000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution010000000100000.20.8000000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,14,15,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution010001000000000100.1666670000000.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,11,13,15,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000000000100000.1666671001000100.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,11,13,15,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution010000000100000.1666671000000000.
+numInfs=1
+      1000           -68         -74.4    8.49%      3        137
+Fixed vars=
+0,1,2,4,5,8,9,11,13,14,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000000.166667000000000.833333010000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,14,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000000000000000.8571430.14285711000000.
+numInfs=2
+Fixed vars=
+0,1,2,3,4,5,6,7,8,9,11,12,13,14,15,16,17,18,19,22,23,24,33,34,37,38,42,43,45,49,.
+problem
+f=1
+saveSolution000000000000000000000.60.4100.
+numInfs=2
+Fixed vars=
+0,1,2,3,4,5,6,7,8,9,11,12,13,14,15,16,17,18,19,22,23,24,33,34,37,38,42,43,45,49,.
+problem
+f=1
+saveSolution000000000000000000100.60.4000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,7,8,9,10,11,12,14,15,16,17,18,20,21,22,24,34,37,38,42,45,47,49,.
+problem
+f=1
+saveSolution1000.3333330000000000.1666670000000010.50.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,8,9,11,13,14,15,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000000.142857000000001010000100.
+numInfs=1
+Fixed vars=
+0,1,2,4,8,13,18,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0010000000000100.8750010.12500000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,14,15,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution00000000000000010.12511000000.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,11,13,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000000000000000.10.9011000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution00100000100000.12500.875001000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0010000000000100.8750000.12500100.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,13,18,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100000000000100.8750010.12500100.
+numInfs=2
+Fixed vars=
+0,1,2,4,8,18,22,23,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution1010000000000000.857143001000100.142857.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution001001000000.10000.9000000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0110000000.111111000000.888889000000001.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution010001000000.10000.9001000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution010001000000.10000.9000000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0010000000.111111000000.888889001000101.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution010000000100000.10.9000000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,14,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000000000010000.900.11000100.
+numInfs=2
+Fixed vars=
+0,1,2,3,4,5,8,9,10,11,12,13,15,17,18,19,20,22,23,24,30,34,35,37,38,41,42,43,45,47,49,.
+problem
+f=1
+saveSolution011100000000000.3333330000000100.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,11,13,14,15,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000000000001000100.08333331000100.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,11,13,15,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution000000000000000.08333331011000100.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,13,15,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution010001000000.08333330001000000100.
+numInfs=1
+Fixed vars=
+0,1,2,3,4,5,8,9,10,12,13,15,16,18,19,20,22,23,30,32,34,35,37,38,41,42,43,45,47,49,.
+problem
+f=1
+saveSolution0001100000000000001000100.222222.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,10,11,12,13,15,16,17,18,19,20,22,23,24,26,30,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000.3000.250.30000000.150000000010.
+numInfs=4
+Fixed vars=
+0,1,2,4,5,8,9,11,13,15,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution010000000100000.08333331000000100.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,11,13,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution001000000100000.10.9000000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,14,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100000000010000.900.10000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,14,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100000.0833333000000000.916667010000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,14,15,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution010000000001000100.08333330000000.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,14,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000001000000000.9285710.071428600000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,13,15,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution010001000000.08333330001001000000.
+numInfs=1
+      1100           -68         -74.2    8.24%      3        129
+Fixed vars=
+0,1,2,4,5,8,9,11,13,15,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution001000000100000.08333331000000000.
+numInfs=1
+      1100           -68         -74.2    8.24%      3        129
+Fixed vars=
+0,1,2,4,5,8,9,13,15,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution001001000000.08333330001000000000.
+numInfs=1
+      1100           -68         -74.2    8.24%      3        129
+Fixed vars=
+0,1,2,4,5,8,9,11,13,15,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution010010000000000.08333331000000010.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,11,13,14,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100000.0833333001000000.916667001000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,11,13,14,15,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100000.0714286000000001010000000.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,8,9,11,13,14,15,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100000.0714286001000001001000000.
+numInfs=1
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,14,15,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution00000010000000010.062500000000.
+numInfs=1
+Fixed vars=
+0,1,2,3,4,5,6,8,9,11,13,15,17,18,19,22,23,24,30,34,35,37,38,41,42,43,45,47,49,.
+problem
+f=1
+saveSolution000110000000000.3333330000000000.
+numInfs=1
+Fixed vars=
+0,1,2,4,6,8,10,12,13,15,16,18,20,21,22,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000.3333330000100000000010.1666670000.50.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,6,8,9,11,12,13,14,15,16,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000.312500000000000100100.3750.3125100.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,6,8,9,11,12,13,14,15,16,17,18,19,20,22,23,24,26,34,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution0000.3333330000000.33333300001001000.333333000.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,8,9,10,11,12,13,15,16,17,18,19,20,22,23,24,26,32,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0110.600000000000.41000000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,10,11,12,13,14,15,16,18,19,20,22,23,24,26,32,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0110.600000000000100.41000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,10,11,12,13,14,15,16,18,19,20,22,23,24,26,27,32,34,37,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution0110.800000000000100.21000100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,8,9,11,12,13,14,15,16,17,18,19,20,22,23,24,26,34,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution0000.3333330000000.33333300001000000.333333000.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,6,8,9,11,12,13,15,16,17,18,19,20,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100.1666670000000.1666670000.51000000.166667000.
+numInfs=4
+Fixed vars=
+0,1,2,4,5,6,8,9,10,11,12,13,14,15,16,17,18,19,20,22,23,24,26,27,32,34,37,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution0000.833333100000000001000000.166667100.
+numInfs=2
+Fixed vars=
+0,1,2,4,6,8,10,12,13,15,16,18,20,21,22,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000.3333330000100000000000.1666670010.50.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,6,8,9,10,11,12,13,14,16,17,18,19,20,22,23,24,26,27,34,37,38,41,42,43,45,47,49,.
+problem
+f=1
+saveSolution0000.416667000000000010.5000000.0833333000.
+numInfs=3
+      1200           -68           -74    8.00%      4        105
+Fixed vars=
+0,1,2,4,5,6,8,9,10,11,12,13,14,15,17,18,19,20,22,23,24,26,32,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000.666667100000000001000000.333333000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,14,15,16,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0010.357143000000000.285714001000000.357143000.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,8,9,11,13,14,15,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0010.5000000000001001000.5100.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,8,9,10,11,12,13,15,16,18,19,20,22,23,24,26,27,32,34,37,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution0000.810000000000100.21000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,14,15,16,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100.357143000000000.285714001000000.357143100.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,14,15,16,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100.357143000000000.285714001001000.357143000.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,14,15,16,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100.428571000000000.142857001001000.428571100.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,6,8,9,11,12,13,14,15,16,17,18,19,20,22,23,24,26,34,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution0000.3333330000000.33333300001000000.333333100.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,6,8,9,10,11,12,13,15,16,17,18,19,20,21,22,23,24,26,27,30,31,34,37,38,41,42,45,47,49,.
+problem
+f=1
+saveSolution0000.600000000000.41000000010.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,8,9,10,11,12,13,15,17,18,19,20,22,23,24,32,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0110.400000000000.61000000000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,14,15,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0010.4166670000000000010.16666700000.416667100.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,6,8,9,11,13,14,15,17,18,19,22,23,24,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0010.4166670000000000010.16666701000.416667000.
+numInfs=3
+      1300           -68           -74    8.00%      4         83
+Fixed vars=
+0,1,2,4,5,8,9,10,12,13,15,16,18,19,20,22,24,34,37,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000.400000000000.1000000010.51.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,6,8,10,12,13,15,16,18,19,20,22,23,30,31,34,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100.25000000.25000000000000010.5.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,8,9,10,12,13,15,16,18,19,20,22,24,34,37,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000.400000000000.1000100000.51.
+numInfs=3
+Fixed vars=
+0,1,2,4,5,6,8,10,12,13,15,16,18,19,20,21,22,23,30,31,34,38,42,45,49,.
+problem
+f=1
+saveSolution0000.25000000.25000000001000110.5.
+numInfs=3
+Fixed vars=
+0,1,2,3,4,5,8,9,10,11,12,13,15,16,18,19,20,22,23,24,30,34,35,37,38,41,42,43,45,47,49,.
+problem
+f=1
+saveSolution011100000000000.250001000100.
+numInfs=1
+Fixed vars=
+0,1,2,3,4,5,6,7,8,9,11,12,13,14,15,16,17,18,19,20,22,23,24,33,34,37,38,42,43,45,49,.
+problem
+f=1
+saveSolution00000000000.500000001000.5000.
+numInfs=2
+Fixed vars=
+0,1,2,3,4,5,6,7,8,9,11,12,13,14,15,16,17,18,19,20,22,23,24,33,34,37,38,42,43,45,49,.
+problem
+f=1
+saveSolution00000000000.500000000000.5100.
+numInfs=2
+Fixed vars=
+0,1,2,3,4,5,6,7,8,9,11,12,13,14,15,16,17,18,19,22,23,24,33,34,37,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution010000000000000000000.40.6000.
+numInfs=2
+Fixed vars=
+0,1,2,3,4,5,6,7,8,9,11,12,13,14,15,16,17,18,19,22,23,24,33,34,37,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution000000000000000000100.40.6100.
+numInfs=2
+Fixed vars=
+0,1,2,3,4,5,6,8,9,11,12,13,15,16,17,18,19,20,22,23,24,33,34,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution01000000000.08333330000.51000000.416667000.
+numInfs=3
+Fixed vars=
+0,1,2,3,4,5,6,8,9,11,12,13,15,16,17,18,19,20,22,23,24,26,27,32,34,37,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution010100000000000.51000000000.
+numInfs=1
+Fixed vars=
+0,1,2,3,4,5,8,9,10,12,13,16,18,19,20,22,23,24,26,27,34,36,37,38,42,45,47,49,.
+problem
+f=1
+saveSolution000000000000.50000.5000100000.
+numInfs=2
+Fixed vars=
+0,1,2,3,4,5,8,9,11,13,14,15,17,18,19,22,23,24,30,34,35,37,38,41,42,43,45,47,49,.
+problem
+f=1
+saveSolution0001100000000000000000.230769100.
+numInfs=1
+Fixed vars=
+0,1,2,3,4,5,6,7,8,9,10,11,13,14,15,16,17,18,19,22,23,24,30,33,34,37,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution0100000000000.25000000000.75100.
+numInfs=2
+Fixed vars=
+0,1,2,3,4,5,6,7,8,9,10,11,13,14,15,16,17,18,19,22,23,24,30,33,34,37,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution0100000000000.25000001000.75000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,7,8,9,10,11,12,14,15,16,17,18,20,21,22,23,34,37,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100.5100000000000001000000.5.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,7,8,9,10,11,12,14,15,16,17,18,20,21,22,23,24,34,37,38,42,45,47,49,.
+problem
+f=1
+saveSolution0010.6666671000000000.33333300000000000.
+numInfs=2
+Fixed vars=
+0,1,2,3,4,5,6,8,9,11,12,13,14,15,16,17,18,19,22,23,24,26,27,32,34,37,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution0001000000000001001000.461538100.
+numInfs=1
+Fixed vars=
+0,1,2,3,4,5,6,8,9,11,12,13,14,15,16,17,18,19,20,22,23,24,26,33,34,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution00000000000.33333300001000000.666667000.
+numInfs=2
+Fixed vars=
+0,1,2,3,4,5,6,8,9,11,12,13,14,15,16,17,18,19,20,22,23,24,26,27,32,34,37,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution0001000000000001000000.615385000.
+numInfs=1
+Fixed vars=
+0,1,2,3,4,5,6,8,9,11,12,13,14,15,16,17,18,19,20,22,23,24,26,33,34,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution00000000000.16666700001001000.833333000.
+numInfs=2
+Fixed vars=
+0,1,2,3,4,5,6,8,9,11,12,13,14,15,16,17,18,19,20,22,23,24,26,33,34,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution00000000000.16666700001000000.833333100.
+numInfs=2
+Fixed vars=
+0,1,2,3,4,5,6,8,9,11,13,14,15,16,17,18,19,22,23,24,26,27,32,34,37,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution0101000000000001001000.384615000.
+numInfs=1
+Fixed vars=
+0,1,2,3,4,5,6,8,9,11,13,14,15,16,17,18,19,22,23,24,26,27,32,34,37,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution0101000000000001000000.384615100.
+numInfs=1
+Fixed vars=
+0,1,2,3,4,5,6,8,9,11,13,14,15,16,17,18,19,22,23,24,26,27,32,34,37,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution0011000000000001000000.384615000.
+numInfs=1
+Fixed vars=
+0,1,2,4,6,8,10,12,13,16,18,19,20,21,22,23,24,26,27,34,37,38,42,45,47,49,.
+problem
+f=1
+saveSolution0100.46153800.07692310000000000.461538000100000.
+numInfs=3
+Fixed vars=
+0,1,2,3,4,6,7,8,10,11,12,13,14,16,17,18,19,20,21,22,23,26,27,31,33,34,36,37,38,42,45,47,49,.
+problem
+f=1
+saveSolution0000000000000000.571429001100100.428571.
+numInfs=2
+Fixed vars=
+0,1,2,3,4,5,6,7,8,9,11,12,13,14,15,16,17,18,19,20,22,23,24,33,34,37,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution01000000000.33333300000000000.666667000.
+numInfs=2
+      1400           -68         -72.4    5.99%      4         65
+Fixed vars=
+0,1,2,3,4,5,6,7,8,9,11,12,13,14,15,16,17,18,19,20,22,23,24,33,34,37,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution00000000000.33333300000001000.666667100.
+numInfs=2
+      1400           -68         -72.4    5.99%      4         65
+Fixed vars=
+0,1,2,3,4,5,6,8,9,11,13,14,15,17,18,19,22,23,24,26,27,32,34,37,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution0011000000000001000000.307692100.
+numInfs=1
+Fixed vars=
+0,1,2,3,4,5,6,8,9,11,13,14,15,17,18,19,22,23,24,26,27,32,34,37,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution0011000000000001001000.307692000.
+numInfs=1
+Fixed vars=
+0,1,2,3,4,6,8,10,12,13,16,18,19,20,21,22,23,24,26,27,31,33,34,36,37,38,42,45,47,49,.
+problem
+f=1
+saveSolution010000.3333330000000000.666667000100000.
+numInfs=2
+Fixed vars=
+0,1,2,3,4,5,6,8,9,11,13,14,15,16,17,18,19,22,23,24,26,27,32,34,37,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution0101000000000001001000.307692100.
+numInfs=1
+Fixed vars=
+0,1,2,3,4,5,6,7,8,9,10,11,13,14,15,16,17,18,19,22,23,24,30,33,34,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution0010000000000.25000000000.75000.
+numInfs=2
+Fixed vars=
+0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,22,23,24,30,33,34,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution001000000000000000000.20.8000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,26,30,31,34,38,41,42,45,47,49,.
+problem
+f=1
+saveSolution0100.5000000000000000000110.5.
+numInfs=2
+Fixed vars=
+0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,22,23,24,30,33,34,37,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution010000000000000000000.20.8100.
+numInfs=2
+Fixed vars=
+0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,22,23,24,30,33,34,37,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution010000000000000000100.20.8000.
+numInfs=2
+Fixed vars=
+0,1,2,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,26,30,31,34,38,41,42,45,47,49,.
+problem
+f=1
+saveSolution0100.5000000000000001000010.5.
+numInfs=2
+      1500           -68         -71.2    4.43%      5         39
+Fixed vars=
+0,1,2,3,4,5,6,8,9,10,11,12,13,14,15,16,17,18,19,20,22,23,24,26,27,32,34,37,38,42,43,45,47,49,.
+problem
+f=1
+saveSolution0001100000000001000000.0769231100.
+numInfs=1
+      1600           -68           -70    2.82%      5          7
+
+Alps0208I Search completed.
+Alps0260I Best solution found had quality -68
+Alps0264I Number of nodes processed:                1615
+Alps0267I Number of nodes branched:                 807
+Alps0268I Number of nodes pruned before processing: 0
+Alps0270I Number of nodes left:                     0
+Alps0272I Tree depth: 24
+Alps0274I Search CPU time: 5.48 seconds
+Alps0278I Search wall-clock time: 6.07 seconds
+Blis0040I Checking feasibility took 1.8208 seconds
+Blis0053I Called MIBS cut generator 1319 times, generated 1024 cuts, CPU time 0.2840 seconds, current strategy 3
+Blis0053I Called Clique cut generator 22 times, generated 0 cuts, CPU time 0.0000 seconds, current strategy 0
+Blis0053I Called Flow Cover cut generator 22 times, generated 0 cuts, CPU time 0.0000 seconds, current strategy 0
+Blis0053I Called Knapsack cut generator 22 times, generated 0 cuts, CPU time 0.0040 seconds, current strategy 0
+Blis0058I Relative optimality gap is 0.00%
+============================================
+Optimal solution:
+Cost = -68
+x[1] = 1
+x[2] = 1
+x[18] = 1
+x[22] = 1
+x[24] = 1
+y[0] = 1
+y[7] = 1
+y[14] = 1
+y[16] = 1
+y[23] = 1
+============================================
+
+
