@@ -198,7 +198,7 @@ MibSModel::setBlisParameters()
   /* Set Blis Parameters to keep cutting until no cut is found */
   BlisPar()->setEntry(BlisParams::cutFactor, ALPS_DBL_MAX);
   BlisPar()->setEntry(BlisParams::cutPass, ALPS_INT_MAX);
-  BlisPar()->setEntry(BlisParams::tailOff, 1e-7);
+  BlisPar()->setEntry(BlisParams::tailOff, -10000);
   BlisPar()->setEntry(BlisParams::denseConFactor, ALPS_DBL_MAX);
 
   /* Set cut generation frequency to 1 */
@@ -1634,8 +1634,6 @@ MibSModel::userFeasibleSolution(const double * solution, bool &userFeasible)
   if(0)
     solver()->writeLp("userfeasible");
 
-  bS_->place_ = 1;
-  
   createBilevel(sol);
   
   if(!bS_->isIntegral_){
@@ -1661,7 +1659,7 @@ MibSModel::userFeasibleSolution(const double * solution, bool &userFeasible)
 				this);
   }
   else{
-      if(bS_->isUpperIntegral_){
+      if((bS_->isUpperIntegral_) && ((bS_->isProvenOptimal_)|| (allFixed))){
     double * lpSolution = new double[getNumCols()];
     int * upperColInd = getUpperColInd();
     int * lowerColInd = getLowerColInd();
@@ -1683,6 +1681,9 @@ MibSModel::userFeasibleSolution(const double * solution, bool &userFeasible)
     }
 
     if(checkUpperFeasibility(lpSolution)){
+	if(!bS_->isProvenOptimal_){
+	    upperObj = 10000000;
+	}
       //std::cout << "This solution comes from MibSModel.cpp:1665" << std::endl;
       mibSol = new MibSSolution(getNumCols(),
 				lpSolution,
@@ -1704,7 +1705,6 @@ MibSModel::userFeasibleSolution(const double * solution, bool &userFeasible)
   }
   
   delete sol;
-  bS_->place_ = 0;
   return mibSol;
    
 }

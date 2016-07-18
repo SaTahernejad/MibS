@@ -2800,12 +2800,12 @@ MibSCutGenerator::generateConstraints(BcpsConstraintPool &conPool)
        boundCuts(conPool);
     }
 
-    if(localModel_->solIsUpdated_)
+    /*if(localModel_->solIsUpdated_)
       bS = localModel_->bS_;
     else
       bS->createBilevel(sol, localModel_);
 
-    localModel_->solIsUpdated_ = false;
+    localModel_->solIsUpdated_ = false;*/
 
     if(cutTypes == 0){
       //general type of problem, no specialized cuts

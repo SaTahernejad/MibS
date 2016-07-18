@@ -8,13 +8,15 @@
 #MibS_auxiliaryInfoFile /home/sat214/MIBS/OldMibS/data/MIPS/RANDOM/RAND_BILEVEL/miblp_20_20_50_0110_5_11.txt
 #Alps_instance /home/sat214/MIBS/OldMibS/data/MCDM/NO_CORR/10_ITEMS_1000/K5010W01.KNP.mps
 #MibS_auxiliaryInfoFile /home/sat214/MIBS/OldMibS/data/MCDM/NO_CORR/10_ITEMS_1000/K5010W01.KNP.txt
-Alps_instance /home/sat214/MIBS/data/stein45-0.100000.mps
-MibS_auxiliaryInfoFile /home/sat214/MIBS/data/stein45-0.100000.txt
+Alps_instance /home/sat214/MIBS/data/miblp_20_15_50_0110_10_3.mps
+MibS_auxiliaryInfoFile /home/sat214/MIBS/data/miblp_20_15_50_0110_10_3.txt
+#Alps_instance /home/sat214/MIBS/OldMibS/data/moore90.mps
+#MibS_auxiliaryInfoFile /home/sat214/MIBS/OldMibS/data/moore90.txt
 Alps_timeLimit 20000
 #Alps_nodeLimit 4000000
 #Alps_nodeLimit 20000
 
-Alps_msgLevel 1000
+Alps_msgLevel 10000
 #Alps_hubMsgLevel 0
 #Alps_workerMsgLevel 0
 #Alps_logFileLevel 3

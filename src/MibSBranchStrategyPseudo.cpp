@@ -84,7 +84,8 @@ MibSBranchStrategyPseudo::createCandBranchObjects(int numPassesLeft, double ub)
     BlisModel *model = dynamic_cast<BlisModel *>(model_);
     MibSModel *mibsmodel = dynamic_cast<MibSModel *>(model); 
     OsiSolverInterface *solver = model->solver();
-    
+
+    double etol = mibsmodel->etol_;
     int numCols = model->getNumCols();
     int numObjects = model->numObjects();
     int aveIterations = model->getAveIterations();
@@ -98,9 +99,6 @@ MibSBranchStrategyPseudo::createCandBranchObjects(int numPassesLeft, double ub)
     // If upper-level variable is fixed -> fixedVar = 1
     int *fixedVar;
     fixedVar = new int[numCols]();
-
-    int *fixedVar1;
-    fixedVar1 = new int[numCols]();
 
     //std::cout <<  "aveIterations = " <<  aveIterations << std::endl;
 
@@ -158,39 +156,21 @@ MibSBranchStrategyPseudo::createCandBranchObjects(int numPassesLeft, double ub)
 
 	int index;
 	for (i = 0; i < uN; ++i){
-	    
 	    index = upperColInd[i];
 	    levelType[index] = 1;
-	    if (fabs(lower[index]-upper[index])<=0.0000000001){
+	    if (fabs(lower[index]-upper[index])<=etol){
 		fixedVar[index]=1;
 	    }
 	}
-
-	for(i=0; i<numCols; ++i){
-	    if (fabs(lower[i]-upper[i])<=0.0000000001){
-		fixedVar1[i]=1;
-	    }
-	}
-
-	/*std::cout<<"Fixed vars="<<std::endl;
-	for(i=0; i<numCols; ++i){
-	    if(fixedVar1[i]==1){
-		std::cout<<i<<",";
-	    }
-	}
-	std::cout<<"."<<std::endl;
-
-	if (fixedVar1[49]==1){
-	    std::cout<<"problem"<<std::endl;
-	}*/
       
 	int found = 0;
 	index = 0;
-	for (i = 0; i < numObjects; ++i) {
-	    
+	//sa:To Do:
+	//Make sure index[object] = i
+	for (i = 0; i < numObjects; ++i) {   
 	    object = model->objects(i);
 	    infeasibility = object->infeasibility(model, preferDir);
-	    if ((fabs(infeasibility)>0.0000000001) && (levelType[index] ==1)){
+	    if ((fabs(infeasibility) > etol) && (levelType[index] == 1)){
 		if (!fixedVar[index]){
 		found = 1;
 		break;
@@ -198,44 +178,15 @@ MibSBranchStrategyPseudo::createCandBranchObjects(int numPassesLeft, double ub)
 	    }
 	    ++index;
 	}
-	
-	//std::cout<<"f="<<found<<std::endl;
-	
-	index = -1;
 
-	int found1;
-	found1 = 0;
-	
-	for (i = 0; i < uN; ++i) {
-	    index = upperColInd[i];
-	    if ((!found)&&(!fixedVar[index])){
-		found1=1;
-		break;
-	    }
-	    }
-
-	/*if(found1){
-	std::cout<<"found"<<std::endl;
-	}
-
-	std::cout<<"saveSolution";
-
-	for(i=0; i<uN; ++i){
-	    std::cout<<saveSolution[i];
-	}
-	std::cout<<"." <<std::endl;*/
-
-     
        index = -1;
        
-       for (i = 0; i < numObjects; ++i) {
-                
+       for (i = 0; i < numObjects; ++i) {                
             object = model->objects(i);
 	    ++index;
 	    if (levelType[index] ==1){
 	        infeasibility = object->infeasibility(model, preferDir);
-		
-		if (((!found)&&(!fixedVar[index])) || (fabs(infeasibility)>0.0000000001)) {
+		if (((!found) && (!fixedVar[index])) || (fabs(infeasibility) > etol)) {
 		    ++numInfs;
 		    intObject = dynamic_cast<BlisObjectInt *>(object);
                 

@@ -41,7 +41,7 @@ class MibSBilevel {
    bool isUpperIntegral_;
    bool useBilevelBranching_;
    bool upperFixed_;
-   int place_;
+   bool isProvenOptimal_;
 
    double *upperSolution_;
    double *lowerSolution_;
@@ -80,7 +80,7 @@ class MibSBilevel {
    
    void createBilevel(CoinPackedVector *sol,
    		      MibSModel *mibs=0);
-   void checkBilevelFeasiblity(bool isRoot, int KK);
+   void checkBilevelFeasiblity(bool isRoot, bool upperFixed_);
    void gutsOfDestructor();
 
  private:
