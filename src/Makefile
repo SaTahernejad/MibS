@@ -71,6 +71,7 @@ CXXLINKFLAGS =
 # Directory with COIN libraries
 #COININSTDIR = /home/sat214/COINALL/COIN-1.8
 COININSTDIR = /home/sat214/COINALL/CoinAll-GDB/COIN-1.8
+#COININSTDIR = /home/ted/COIN/trunk/build-polyps-debug
 
 ###########################################################################
 # Libraries necessary to link with COIN

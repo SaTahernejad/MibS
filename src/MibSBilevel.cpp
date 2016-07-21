@@ -506,7 +506,7 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot, bool upperFixed_)
 
     int index(0);
 
-    if(1){
+    if(0){
 	std::cout << "objVal: " << objVal << std::endl;
 	std::cout << "lowerObj: " << lowerObj << std::endl;
     }
