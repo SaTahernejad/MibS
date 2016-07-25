@@ -52,6 +52,9 @@ MibSSolution::MibSSolution(int s,
 		<< std::endl;
       std::cout << "Upper-level objective value: " << objVal 
 		<< std::endl << std::endl;
+      if ((objVal >= 2604) && (objVal <= 2606)){
+	  std::cout << "stop2" << std::endl;
+      }
 
       int i(0);
    

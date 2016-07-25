@@ -23,6 +23,7 @@
 #include "MibSParams.h"
 #include "MibSSolution.h"
 #include "MibSSolTypes.h"
+#include "MibSConstants.h"
 
 //#############################################################################
 MibSHeuristic::MibSHeuristic(MibSModel * model)
@@ -60,28 +61,28 @@ MibSHeuristic::findHeuristicSolutions()
 
   MibSModel * model = MibSModel_;
 
-  bool useLowerObjHeuristic
+  int useLowerObjHeuristic
     = model->MibSPar_->entry(MibSParams::useLowerObjHeuristic);
 
-  bool useObjCutHeuristic
+  int useObjCutHeuristic
     = model->MibSPar_->entry(MibSParams::useObjCutHeuristic);
 
-  bool useWSHeuristic
+  int useWSHeuristic
     = model->MibSPar_->entry(MibSParams::useWSHeuristic);
 
-  bool useGreedyHeuristic
+  int useGreedyHeuristic
     = model->MibSPar_->entry(MibSParams::useGreedyHeuristic);
 
-  if(useLowerObjHeuristic)
+  if(useLowerObjHeuristic == PARAM_ON)
     lowerObjHeuristic();
 
-  if(useObjCutHeuristic)
+  if(useObjCutHeuristic == PARAM_ON)
     objCutHeuristic();
 
-  if(useWSHeuristic)
+  if(useWSHeuristic == PARAM_ON)
     weightedSumsHeuristic();
 
-  if(useGreedyHeuristic)
+  if(useGreedyHeuristic == PARAM_ON)
     greedyHeuristic();
 
 }

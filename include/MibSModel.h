@@ -108,7 +108,7 @@ class MibSModel : public BlisModel {
 
   /** Determines if matrix G2 is positive or not **/
   bool positiveG2_;
-
+  
   /** the left (negative) slope of the lower-level value function **/
   double leftSlope_;
 
@@ -423,7 +423,7 @@ class MibSModel : public BlisModel {
 
   /** Determines the properties of instance. */
   void instanceStructure(const CoinPackedMatrix *newMatrix);
-  
+
   AlpsTreeNode * createRoot();
 
   virtual bool setupSelf();

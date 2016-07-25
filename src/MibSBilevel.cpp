@@ -246,12 +246,9 @@ MibSBilevel::createBilevel(CoinPackedVector* sol,
     else
       lowerSolutionOrd_[pos] = values[i];
   }
-
+  
   if(isUpperIntegral_)
       checkBilevelFeasiblity(mibs->isRoot_, upperFixed_);
-
-  /* run a heuristic to find a better feasible solution */
-  //heuristic_->findHeuristicSolutions();
 
 }
 
@@ -371,12 +368,12 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot, bool upperFixed_)
   double objVal(lSolver->getObjValue() * model_->getLowerObjSense());
 
   //if (lSolver->isProvenOptimal()){
-      const double * values = lSolver->getColSolution();
+  //const double * values = lSolver->getColSolution();
       //}
       
   //New Part: Finding multiple optimal solutions of lower-level problem
  
-  /* MibSTreeNode * node = static_cast<MibSTreeNode *>(model_->activeNode_);
+  /*MibSTreeNode * node = static_cast<MibSTreeNode *>(model_->activeNode_);
   MibSTreeNode * parent = 
     static_cast<MibSTreeNode *>(model_->activeNode_->getParent());
 
@@ -427,7 +424,7 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot, bool upperFixed_)
   if(1)
       lSolver->writeLp("lowerlevel");
 
-  if (feasCheckSolver == "Cbc"){
+  /*if (feasCheckSolver == "Cbc"){
                 dynamic_cast<OsiCbcSolverInterface *>
 		    (lSolver)->getModelPtr()->messageHandler()->setLogLevel(0);
   }else if (feasCheckSolver == "SYMPHONY"){
@@ -474,7 +471,26 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot, bool upperFixed_)
 		            #endif
   }
 
+  lSolver->branchAndBound();*/
+
+  if(0){
+                  dynamic_cast<OsiCbcSolverInterface *>
+		      (lSolver)->getModelPtr()->messageHandler()->setLogLevel(0);
+  }
+  else{
+                  dynamic_cast<OsiSymSolverInterface *>
+		      (lSolver)->setSymParam("prep_level", -1);
+
+		                  dynamic_cast<OsiSymSolverInterface *>
+				      (lSolver)->setSymParam("verbosity", -2);
+
+				                      dynamic_cast<OsiSymSolverInterface *>
+							  (lSolver)->setSymParam("max_active_nodes", 1);
+  }
+
   lSolver->branchAndBound();
+
+  const double * values = lSolver->getColSolution();
 
   //objVal = lSolver->getObjValue() * model_->getLowerObjSense();
 
@@ -495,7 +511,7 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot, bool upperFixed_)
 	node->setIsBoundSet(true);
 
     }
-
+    
     double etol(model_->etol_);
     double lowerObj = getLowerObj(sol, model_->getLowerObjSense());
 
@@ -565,7 +581,7 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot, bool upperFixed_)
      int numCols = model_->solver()->getNumCols();
      int pos(0);
 
-#if 0
+#if 1
      for(i = 0; i < numCols; i++){
 	if ((pos = model_->bS_->binarySearch(0, lN - 1, i, lowerColInd)) >= 0){
 	   optLowerSolutionOrd_[pos] = optLowerSolution_[pos];
@@ -598,21 +614,22 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot, bool upperFixed_)
      delete [] newSolution;
 #endif	  
      
-     /* This is now called directly from createBilevel(), but leave */
-     /* it commented for now */
-     heuristic_->findHeuristicSolutions(); 
-      }
-      else{
-	  isProvenOptimal_ = false;
+     /* run a heuristic to find a better feasible solution */
+     heuristic_->findHeuristicSolutions();
       }
 
-      
+     else{
+	 isProvenOptimal_ = false;
+     }
+
+
      isBilevelFeasible_ = false;
      if(cutStrategy != 1)
 	 useBilevelBranching_ = true;
      //Notice:I delete it
      //}
   //int i1(0);
+     
   if(upperFixed_){
       isBilevelFeasible_ = true;
       useBilevelBranching_ = false;
@@ -622,7 +639,7 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot, bool upperFixed_)
       if(cutStrategy != 1)
 	  useBilevelBranching_ = true;
   }
-  }
+    }
   //delete lSolver;
   
 }
@@ -697,25 +714,28 @@ MibSBilevel::setUpModel(OsiSolverInterface * oSolver, double objValLL, bool best
   int uNum(0);
   //if lower-level participates:lCoeff=1
   int * lCoeff = new int[uRows]();
-  
-  for(i = 0; i < uRows; i++){
-      index1 = uRowIndices[i];
-      for(j = 0; j < lCols; j++){
-	  index2 = lColIndices[j];
-	  tmp = matrix->getCoefficient(index1, index2);
-	  if(fabs(tmp) > 0.0000000000001){
-	      lCoeff[i] = 1;
-	      uNum ++;
-	      break;
+
+  if (bestSolLL){
+      for(i = 0; i < uRows; i++){
+	  index1 = uRowIndices[i];
+	  for(j = 0; j < lCols; j++){
+	      index2 = lColIndices[j];
+	      tmp = matrix->getCoefficient(index1, index2);
+	      if(fabs(tmp) > etol){
+		  lCoeff[i] = 1;
+		  uNum ++;
+		  break;
+	      }
 	  }
       }
+      uNum++;
   }
   
-  if (bestSolLL){
-    uNum ++;
-}
   int rowNum(lRows+uNum);
   double * rowUb = new double[rowNum];
+  //std::cout << "rownum = " << rowNum << std::endl;
+  //std::cout << "uNum = " << uNum << std::endl;
+  //std::cout << "uRows = " << uRows << std::endl;
   double * rowLb = new double[rowNum];
   double * colUb = new double[lCols];
   double * colLb = new double[lCols];
@@ -731,10 +751,15 @@ MibSBilevel::setUpModel(OsiSolverInterface * oSolver, double objValLL, bool best
       rowUb[i] = oSolver->getRowUpper()[index1];
   }
 
-  for(i = 0; i < uRows; i++){
-      if (lCoeff[i] == 1){
-	  rowLb[i+lRows] = origRowLb[uRowIndices[i]];
-	  rowUb[i+lRows] = origRowUb[uRowIndices[i]];
+  int cnt(0);
+  
+  if (bestSolLL){
+      for(i = 0; i < uRows; i++){
+	  if (lCoeff[i] == 1){
+	      rowLb[cnt+lRows] = oSolver->getRowLower()[uRowIndices[i]];
+	      rowUb[cnt+lRows] = oSolver->getRowUpper()[uRowIndices[i]];
+	      cnt ++;
+	  }
       }
   }
           
@@ -762,9 +787,10 @@ MibSBilevel::setUpModel(OsiSolverInterface * oSolver, double objValLL, bool best
 	
      int * integerVars = new int[lCols];
      double * objCoeffs = new double[lCols];
-     double * newRow = new double [lCols];
+     double * newRow = new double[lCols];
      
      CoinFillN(integerVars, lCols, 0);
+     CoinFillN(newRow, lCols, 0.0);
      //CoinZeroN(objCoeffs, lCols);
      
      int intCnt(0);
@@ -1023,6 +1049,8 @@ MibSBilevel::setUpModel(OsiSolverInterface * oSolver, double objValLL, bool best
 	}
      }
 
+     cnt = 0;
+     
      if (bestSolLL){
 	 for(i = 0; i < uRows; i++){
 	     if (lCoeff[i] == 1){
@@ -1031,9 +1059,10 @@ MibSBilevel::setUpModel(OsiSolverInterface * oSolver, double objValLL, bool best
 		     index2 = uColIndices[j];
 		     coeff = matrix->getCoefficient(index1, index2);
 		     if (coeff != 0){
-			 upComp[i] += coeff * lpSol[index2];
+			 upComp[cnt+lRows] += coeff * lpSol[index2];
 		     }
 		 }
+		 cnt ++;
 	     }
 	 }
      }		 
@@ -1054,7 +1083,8 @@ MibSBilevel::setUpModel(OsiSolverInterface * oSolver, double objValLL, bool best
   //I don't think this is needed
   //if(!getWarmStart())
   //  setWarmStart(nSolver->getWarmStart());
-
+  //delete [] newRow;
+  delete [] lCoeff;
   return nSolver;
 
 }

@@ -284,10 +284,10 @@ MibSModel::readAuxiliaryData()
        m++;
      }
      else if(key == "IB"){
-	 isInterdict_ = true;
-	 //FIXME: ALLOW MORE THAN ONE ROW
-	 data_stream >> dValue;
-	 interdictBudget_ = dValue;
+       //FIXME: ALLOW MORE THAN ONE ROW
+	isInterdict_ = true;
+	data_stream >> dValue;
+	interdictBudget_ = dValue;
      }
   }
 
@@ -831,35 +831,35 @@ MibSModel::setUpperColData()
 }
 
 //#############################################################################
-void 
+void
 MibSModel::setUpperRowData()
 {
 
-   //FIXME: MAKE THIS MORE SIMPLE
+    //FIXME: MAKE THIS MORE SIMPLE
 
-   int lowerRowNum(lowerRowNum_);
-   upperRowNum_ = numCons_ - lowerRowNum_;
-   int * lowerRowInd = getLowerRowInd();
+    int lowerRowNum(lowerRowNum_);
+    upperRowNum_ = numCons_ - lowerRowNum_;
+    int * lowerRowInd = getLowerRowInd();
 
-   if(!upperRowInd_){
-       delete[] upperRowInd_;
-   }
+    if(!upperRowInd_){
+	delete[] upperRowInd_;
+    }
 
-   if(upperRowNum_ > 0){
-       upperRowInd_ = new int[upperRowNum_];
-   }
-   
-   int i(0), cnt(0);
-   
-   for(i = 0; i < lowerRowNum_ + upperRowNum_; i++){
-       if(!findIndex(i, lowerRowNum, lowerRowInd)){
-	   upperRowInd_[cnt] = i;
-	   cnt++;
-       }
-   }
-   
-   assert(cnt == upperRowNum_);
-   numOrigCons_ = lowerRowNum_ + upperRowNum_;
+    if(upperRowNum_ > 0){
+	upperRowInd_ = new int[upperRowNum_];
+    }
+
+    int i(0), cnt(0);
+
+    for(i = 0; i < lowerRowNum_ + upperRowNum_; i++){
+	if(!findIndex(i, lowerRowNum, lowerRowInd)){
+	    upperRowInd_[cnt] = i;
+	    cnt++;
+	}
+    }
+    assert(cnt == upperRowNum_);
+
+    numOrigCons_ = lowerRowNum_ + upperRowNum_;
 }
 
 //#############################################################################
@@ -1697,11 +1697,13 @@ MibSModel::userFeasibleSolution(const double * solution, bool &userFeasible)
   }
   else{
       if((bS_->isUpperIntegral_) && ((bS_->isProvenOptimal_)|| (allFixed))){
-    double * lpSolution = new double[getNumCols()];
-    int * upperColInd = getUpperColInd();
-    int * lowerColInd = getLowerColInd();
-    int i(0), index(0);
-    double upperObj(0.0);
+	  double * lpSolution = new double[getNumCols()];
+	  int * upperColInd = getUpperColInd();
+	  int * lowerColInd = getLowerColInd();
+	  int i(0), index(0);
+	  double upperObj(0.0);
+	  CoinFillN(lpSolution, getNumCols(), 0.0);
+    
 
     for(i = 0; i < upperDim_; i++){
       index = upperColInd[i];
@@ -1716,7 +1718,7 @@ MibSModel::userFeasibleSolution(const double * solution, bool &userFeasible)
       upperObj += 
 	bS_->optLowerSolutionOrd_[i] * solver()->getObjCoefficients()[index];
     }
-
+    
     if(checkUpperFeasibility(lpSolution)){
 	if(!bS_->isProvenOptimal_){
 	    upperObj = 10000000;
@@ -1754,30 +1756,38 @@ MibSModel::checkUpperFeasibility(double * solution)
   bool feasible(true);
   int * uRowIndices = getUpperRowInd();
   int uRows(getUpperRowNum());
-  const double * RowLb = getSolver()->getRowLower();
-  const double * RowUb = getSolver()->getRowUpper();
+  int rowNum(getSolver()->getNumRows());
+  double * rowLb = new double[rowNum]();
+  double * rowUb = new double[rowNum]();
   const CoinPackedMatrix * matrix = getSolver()->getMatrixByRow();
   const double * matElements = matrix->getElements();
   const int * matIndices = matrix->getIndices();
   const int * matStarts = matrix->getVectorStarts();
 
-
   double lhs(0.0);
   int i(0), j(0), index1(0), index2(0), start(0), end(0);
 
+  for (i = 0; i < rowNum; i++){
+      rowLb[i] = getSolver()->getRowLower()[i];
+      rowUb[i] = getSolver()->getRowUpper()[i];
+  }
+  
   for(i = 0; i < uRows; i++){
     index1 = uRowIndices[i];
     start = matStarts[index1];
     end = start + matrix->getVectorSize(index1);
     for(j = start; j < end; j++){
-      index2 = matIndices[j];
+	index2 = matIndices[j];
       lhs += matElements[j] * solution[index2];
     }
-    if((RowLb[index1] > lhs) || (lhs > RowUb[index1]))
-      feasible = false;
+    
+    if((rowLb[index1] > lhs) || (lhs > rowUb[index1]))
+	feasible = false;
     lhs = 0.0;
   }
 
+  delete [] rowLb;
+  delete [] rowUb;
 
 
   return feasible;
@@ -2825,12 +2835,11 @@ MibSModel::instanceStructure(const CoinPackedMatrix *newMatrix)
     if(isInterdict_ == true){
 	std::cout << "This instance is an interdiction bilevel problem." << std::endl;
     }
-    
+
     //Checks type of variables
     for(i = 0; i < numCols; i++){
 	if(colType_[i] == 'C'){
-	    std::cout << "All of the veariables should be integer." << std::endl;                                                                               
-
+	    std::cout << "All of the veariables should be integer." << std::endl;
 	    assert(colType_[i] != 'C');
 	}
 	else if (colType_[i] == 'I'){
@@ -2860,8 +2869,7 @@ MibSModel::instanceStructure(const CoinPackedMatrix *newMatrix)
     int nonZero (newMatrix->getNumElements());
     const double * matElements = newMatrix->getElements();
     const int * matIndices = newMatrix->getIndices();
-    const int * matStarts = newMatrix->getVectorStarts();                                                                                                                         \
-
+    const int * matStarts = newMatrix->getVectorStarts();
     for(i = 0; i < nonZero; i++){
 	if((fabs(matElements[i] - floor(matElements[i])) > etol_) &&
 	   (fabs(matElements[i] - ceil(matElements[i])) > etol_)){
@@ -2886,7 +2894,7 @@ MibSModel::instanceStructure(const CoinPackedMatrix *newMatrix)
 		    if(posCol < 0){
 			positiveA1_ = false;
 		    }
-                    else{
+		    else{
 			positiveG1_ = false;
 		    }
 		}

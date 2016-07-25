@@ -330,7 +330,6 @@ MibSCutGenerator::boundCuts(BcpsConstraintPool &conPool)
 				    localModel_->structRowInd_,
 				    0, NULL);
       
-      
       delete[] indDel;
       
       int argc = 1;
@@ -1962,9 +1961,9 @@ MibSCutGenerator::interdictionCuts(BcpsConstraintPool &conPool)
       double etol(localModel_->etol_);
       const double * sol = solver->getColSolution();
       int * upperColInd = localModel_->getUpperColInd();
-      
+
       int i(0), index(0);
-      
+
       for(i = 0; i < uN; i++){
 	  index = upperColInd[i];
 	  indexList.push_back(index);
@@ -1975,50 +1974,50 @@ MibSCutGenerator::interdictionCuts(BcpsConstraintPool &conPool)
 	  else{
 	      valsList.push_back(- 1.0);
 	  }
-      }	   
+      }
+      
 
 #if 0
       indexList.push_back(uN + lN);
       valsList.push_back(- 1.0);
 #endif
-      
+
       assert(indexList.size() == valsList.size());
       
       numCuts += addCut(conPool, cutlb, cutub, indexList, valsList, false);
-      
+  
       indexList.clear();
       valsList.clear();
   }
-      
+
 #if 0
-  double maxLowerObj(node->getLowerUB());
   double m(solver->getObjValue() - maxLowerObj);
   //double m(maxLowerObj - 
-  cu tub = m + maxLowerObj;
-  
+  cutub = m + maxLowerObj;
+
   for(i = 0; i < lN; i++){
-      index = lowerColInd[i];
-      if(fabs(lObjCoeffs[i]) != 0.0){
-	  indexList.push_back(index);
-	  valsList.push_back(lObjCoeffs[i]);
-      }
+    index = lowerColInd[i];
+    if(fabs(lObjCoeffs[i]) != 0.0){
+      indexList.push_back(index);
+      valsList.push_back(lObjCoeffs[i]);
+    }
   }
   
   if(fabs(m) != 0.0){
-      indexList.push_back(uN + lN);
-      valsList.push_back(m);
+    indexList.push_back(uN + lN);
+    valsList.push_back(m);
   }
-  
+
   //for(i = 0; i < valsList.size(); i++){
   //  std::cout << "index: " << indexList.at(i) << std::endl;
   //  std::cout << "value: " << valsList.at(i);
   //}
-  
+
   assert(indexList.size() == valsList.size());
-  
+
   numCuts += addCut(conPool, cutlb, cutub, indexList, valsList, false);
 #endif
-  
+
   if (useBendersCut){
      numCuts += bendersInterdictionCuts(conPool);
   }
@@ -2825,7 +2824,6 @@ MibSCutGenerator::generateConstraints(BcpsConstraintPool &conPool)
 	     boundCuts(conPool);
 	 }
       }
-      numCuts += interdictionCuts(conPool);
       return (numCuts ? true : false);
     }
     else if(bS->isUpperIntegral_ && cutTypes == 1){
@@ -2833,9 +2831,10 @@ MibSCutGenerator::generateConstraints(BcpsConstraintPool &conPool)
       delete sol;
       int status = false;
       if (bS->isIntegral_){
-	 status = feasibilityCuts(conPool) ? true : false;
+	  numCuts += feasibilityCuts(conPool);
       }
-      return (status && (interdictionCuts(conPool) ? true : false));
+      numCuts += interdictionCuts(conPool);
+      return (numCuts ? true : false);
     }
     else if(bS->isUpperIntegral_ && cutTypes == 2){
       //problem with binary UL variables and integer LL variables
