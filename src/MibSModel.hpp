@@ -1,6 +1,6 @@
 /*===========================================================================*/
 /* This file is part of a Mixed Integer Bilevel Solver                       */
-/* developed using the BiCePS Linear Integer Solver (BLIS).                  */
+/* developed using the Discrete Conic Optimization (DisCO).                  */
 /*                                                                           */
 /* Authors: Scott DeNegre, Lehigh University                                 */
 /*          Ted Ralphs, Lehigh University                                    */
@@ -17,8 +17,8 @@
 
 #include "OsiClpSolverInterface.hpp"
 
-#include "BlisModel.h"
-#include "BlisSolution.h"
+#include "DcoModel.hpp"
+#include "DcoSolution.hpp"
 #include "MibSBilevel.hpp"
 #include "MibSParams.hpp"
 
@@ -26,8 +26,7 @@ class MibSBilevel;
 class MibSCutGenerator;
 
 //#############################################################################
-
-class MibSModel : public BlisModel {
+class MibSModel : public DcoModel {
 
     friend class MibSCutGenerator;
     friend class MibSBilevel;
@@ -37,19 +36,19 @@ class MibSModel : public BlisModel {
 
 private:
 
-    /** Data file specifying lower-level problem **/
-    std::string llDataFile_;
+    /** Data file specifying LL problem **/
+    std::string lowerDataFile_;
 
-    /** Data file specifying Omega and upper-level objective **/
-    std::string ulDataFile_;
+    /** Data file specifying Omega and UL objective **/
+    std::string upperDataFile_;
 
-    /** AMPL model file specifying Omega and upper-level objective **/
+    /** AMPL model file specifying Omega and UL objective **/
     /** (may or may not have data) **/
-    std::string ulAmplModelFile_;
+    std::string upperAmplModelFile_;
 
     /** AMPL data file specifying instance **/
-    /** (may be NULL) **/
-    std::string ulAmplDataFile_;
+    /** (may or may not have data) **/
+    std::string upperAmplDataFile_;
 
     /** Original number of total variables **/
     int numOrigVars_;
@@ -63,20 +62,22 @@ private:
     /** Current number of total constraints **/
     int numCons_;
 
-    /** Objective sense of upper-level problem **/
-    double objSense_;
+    //sahar:I removed objSense_ because
+    //it is a member of DcoModel class
+    /** Objective sense of UL problem **/
+    //double objSense_;
 
-    /** Objective sense of lower-level problem **/
+    /** Objective sense of LL problem **/
     double lowerObjSense_;
-  
+
     /** Number of UL variables **/
-    int upperDim_;
+    int upperColNum_;
 
     /** Number of UL constraints **/
     int upperRowNum_;
 
     /** Number of LL variables **/
-    int lowerDim_;
+    int lowerColNum_;
 
     /** Number of LL constraints **/
     int lowerRowNum_;
@@ -90,21 +91,21 @@ private:
     /** Determines if problem is pure integer or not **/
     bool isPureInteger_;
 
-    /** Determines if all upper-level coefficients are integer or not**/
+    /** Determines if all UL coefficients are integer or not**/
     bool isUpperCoeffInt_;
 
-    /** Determines if all lower-level coefficients are integer or not**/
-    bool isLowerCoeffInt_;  
+    /** Determines if all LL coefficients are integer or not**/
+    bool isLowerCoeffInt_;
 
-    /** Determines if all variables of upper-level problem are binary or not **/
+    /** Determines if all variables of UL problem are binary or not **/
     bool allUpperBin_;
 
-    /** Determines if all variables of upper-level problem are binary or not **/
+    /** Determines if all variables of LL problem are binary or not **/
     bool allLowerBin_;
 
     /** Determines if matrix A1 is positive or not **/
     bool positiveA1_;
-  
+
     /** Determines if matrix A2 is positive or not **/
     bool positiveA2_;
 
@@ -113,17 +114,23 @@ private:
 
     /** Determines if matrix G2 is positive or not **/
     bool positiveG2_;
-  
-    /** the left (negative) slope of the lower-level value function **/
+
+    /** the left (negative) slope of the LL value function **/
     double leftSlope_;
 
-    /** the right (positive) slope of the lower-level value function **/
+    /** the right (positive) slope of the LL value function **/
     double rightSlope_;
-  
+
+    //sahar:I added this memebr and member function setColType
+    //here because BlisModel has this member, but DcoModel
+    //does not have it.
+    /** Type of variables: continuous, integer, boolean **/
+    char *colType_;
+
     /** Indices of UL variables **/
     int * upperColInd_;
 
-    /** Indices of LL rows **/
+    /** Indices of UL rows **/
     int * upperRowInd_;
 
     /** Indices of LL variables **/
@@ -135,7 +142,7 @@ private:
     /** Indices of structural (non-vub) rows **/
     int * structRowInd_;
 
-    /** Indices of first-stage variables in second-stage constraints **/
+    /** Indices of UL variables in LL constraints **/
     int * fixedInd_;
 
     /** LL objective coefficients **/
@@ -146,13 +153,13 @@ private:
 
     /** Interdiction budget **/
     double interdictBudget_;
-  
+
     /** Original column lower bounds from Omega **/
     double * origColLb_;
 
     /** Original column upper bounds from Omega **/
     double * origColUb_;
-  
+
     /** Original row lower bounds from Omega **/
     double * origRowLb_;
 
@@ -162,23 +169,14 @@ private:
     /** MibSBilevel object **/
     MibSBilevel *bS_;
 
-    /** Tolerance parameter, used for testing equality **/
-    double etol_;
-
-    /** Indicator of cut types to use **/
-    bool simpleCutOnly_;
-  
     /** Method for determining binding cons **/
     std::string bindingMethod_;
 
     /** MibS Parameters **/
     MibSParams *MibSPar_;
 
-    /** Max number of aux columns **/
-    //int maxAuxCols_;
-
     /** Indicator telling whether solution has been updated **/
-    bool solIsUpdated_;  
+    bool solIsUpdated_;
 
 public:
 
@@ -188,47 +186,58 @@ public:
     /** Read in the problem data **/
     void readInstance(const char * dataFile);
 
-    /** Set the upper-level file **/
-    inline void setUpperFile(std::string infile) {ulDataFile_ = infile;}
-
-    /** Set the upper-level AMPL model file **/
-    inline void setUpperAmplModelFile(std::string infile) 
+    /** Set the UL file **/
+    inline void setUpperFile(std::string infile)
     {
-	ulAmplModelFile_ = infile;
+	upperDataFile_ = infile;
     }
 
-    /** Set the upper-level AMPL data file **/
-    inline void setUpperAmplDataFile(std::string infile) 
+    /** Set the UL AMPL model file **/
+    inline void setUpperAmplModelFile(std::string infile)
     {
-	ulAmplDataFile_ = infile;
+	upperAmplModelFile_ = infile;
     }
 
-    /** Set the lower-level file **/
-    inline void setLowerFile(std::string infile) {llDataFile_ = infile;}
+    /** Set the UL AMPL data file **/
+    inline void setUpperAmplDataFile(std::string infile)
+    {
+	upperAmplDataFile_ = infile;
+    }
+
+    /** Set the LL file **/
+    inline void setLowerFile(std::string infile)
+    {
+	lowerDataFile_ = infile;
+    }
 
     /** Set the MibsBilevel pointer **/
     inline void setMibSBilevel(MibSBilevel *bs) {bS_ = bs;}
 
     /** Set the number of rows **/
-    inline void setNumRows(int val) {numCons_ = val;}
+    inline void setNumRows(int val) {numRows_ = val;}
 
     /** Set the number of columns **/
-    inline void setNumCols(int val) {numVars_ = val;}
+    inline void setNumCols(int val) {numCols_ = val;}
 
-    /** Set the lower-level dimension **/
-    inline void setLowerDim(int val) {lowerDim_ = val;}
+    /** Set the LL dimension **/
+    inline void setLowerDim(int val) {lowerColNum_ = val;}
 
-    /** Set the upper-level dimension **/
-    inline void setUpperDim(int val) {upperDim_ = val;}
+    /** Set the UL dimension **/
+    inline void setUpperDim(int val) {upperColNum_ = val;}
 
-    /** Set the upper-level row number **/
+    /** Set the UL row number **/
     inline void setUpperRowNum(int val) {upperRowNum_ = val;}
 
-    /** Set the lower-level row number **/
+    /** Set the LL row number **/
     inline void setLowerRowNum(int val) {lowerRowNum_ = val;}
 
     /** Set the number of structural rows **/
     inline void setStructRowNum(int val) {structRowNum_ = val;}
+
+    /** Pass variable types */
+    void setColType(char *colType){
+	colType_ = colType;
+    }
 
     /** Set the interdiction cost **/
     inline void setInterdictCost(double *ptr) {interdictCost_ = ptr;}
@@ -237,80 +246,80 @@ public:
     inline void setInterdictBudget(double val) {interdictBudget_ = val;}
 
     /** Set UL column indices **/
-    void setUpperColInd(int *ptr) {upperColInd_ = ptr;} 
+    void setUpperColInd(int *ptr) {upperColInd_ = ptr;}
 
     /** Set UL column data **/
     void setUpperColData();
 
     /** Set UL row indices **/
-    void setUpperRowInd(int *ptr) {upperRowInd_ = ptr;} 
+    void setUpperRowInd(int *ptr) {upperRowInd_ = ptr;}
 
     /** Set UL row indices **/
     void setUpperRowData();
 
     /** Set pointer to array of LL column indices **/
-    void setLowerColInd(int *ptr) {lowerColInd_ = ptr;} 
+    void setLowerColInd(int *ptr) {lowerColInd_ = ptr;}
 
     /** Set pointer to array of LL row indices **/
-    void setLowerRowInd(int *ptr) {lowerRowInd_ = ptr;} 
+    void setLowerRowInd(int *ptr) {lowerRowInd_ = ptr;}
 
     /** Set pointer to array of structural row indices **/
-    void setStructRowInd(int *ptr) {structRowInd_ = ptr;} 
+    void setStructRowInd(int *ptr) {structRowInd_ = ptr;}
 
     /** Set pointer to array of LL objective coefficients **/
-    void setLowerObjCoeffs(double *ptr) {lowerObjCoeffs_ = ptr;} 
+    void setLowerObjCoeffs(double *ptr) {lowerObjCoeffs_ = ptr;}
 
     /** Set objective sense of LL problem **/
     void setLowerObjSense(double os) {lowerObjSense_ = os;}
 
     /** Set the number of original variables **/
-    void setNumOrigVars(int num) {numOrigVars_ = num;}
-  
+    void setNumOrigCols(int num) {numOrigCols_ = num;}
+
     /** Set the number of original constraints **/
-    void setNumOrigCons(int num) {numOrigCons_ = num;}
-  
-    /** set the slopes of the lower-level value function **/
+    void setNumOrigRows(int num) {numOrigRows_ = num;}
+
+    /** set the slopes of the LL value function **/
     void setValFuncSlopes();
-  
-    /** Get the upper-level file **/
-    std::string getUpperFile() {return ulDataFile_;}
-  
-    /** Get the upper-level AMPL model file **/
-    std::string getUpperAmplModelFile() {return ulAmplModelFile_;}
-  
-    /** Get the upper-level AMPL data file **/
-    std::string getUpperAmplDataFile() {return ulAmplDataFile_;}
-  
-    /** Get the lower-level file **/
+
+    /** Get the UL file **/
+    std::string getUpperFile() {return upperDataFile_;}
+
+    /** Get the UL AMPL model file **/
+    std::string getUpperAmplModelFile() {return upperAmplModelFile_;}
+
+    /** Get the UL AMPL data file **/
+    std::string getUpperAmplDataFile() {return upperAmplDataFile_;}
+
+    /** Get the LL file **/
     std::string getLowerFile()
     {
 	return MibSPar_->entry(MibSParams::auxiliaryInfoFile);
     }
 
-    /** Get the lower-level dimension **/
-    int getLowerDim() {return lowerDim_;}
+    /** Get the LL dimension **/
+    int getLowerDim() {return lowerColNum_;}
 
-    /** Get the upper-level dimension **/
-    int getUpperDim() {return upperDim_;}
+    /** Get the UL dimension **/
+    int getUpperDim() {return upperColNum_;}
 
     /** Get the number of original variables **/
-    int getNumOrigVars() {return numOrigVars_;}
-  
+    int getNumOrigCols() {return numOrigCols_;}
+
     /** Get the number of original constraints **/
-    int getNumOrigCons() {return numOrigCons_;}
-  
-    /** Get the upper-level row number **/
+    int getNumOrigRows() {return numOrigRows_;}
+
+    /** Get the UL row number **/
     int getUpperRowNum() {return upperRowNum_;}
 
-    /** Get the lower-level row number **/
+    /** Get the LL row number **/
     int getLowerRowNum() {return lowerRowNum_;}
 
-    /** Get bjective sense of lower-level problem **/
+    /** Get objective sense of LL problem **/
     double getLowerObjSense() {return lowerObjSense_;}
 
     /** Get the tolerance **/
     double getTolerance() {return etol_;}
-  
+
     /** Get pointer to the UL column index array **/
     int * getUpperColInd() {return upperColInd_;}
 
@@ -351,11 +360,11 @@ public:
     inline MibSBilevel *getMibSBilevel() {return bS_;}
 
     /** Get the parameters **/
-    MibSParams *MibSPar() {return MibSPar_;} 
+    MibSParams *MibSPar() {return MibSPar_;}
 
-    /** Set the Blis parameters **/
-    void setBlisParameters();
-  
+    /** Set the DisCO parameters **/
+    void setDisCOParameters();
+
     /** Read auxiliary data file **/
     void readAuxiliaryData();
 
@@ -368,9 +377,9 @@ public:
 			   int upperColNum, int upperRowNum,
 			   const int *upperColInd,
 			   const int *upperRowInd,
-			   int structRowNum, 
+			   int structRowNum,
 			   const int *structRowInd,
-			   double interdictBudget, 
+			   double interdictBudget,
 			   const double *interdictCost);
 
     /** Read problem description file **/
@@ -382,40 +391,35 @@ public:
 			 const double* obj, const double* rowLB,
 			 const double* rowUB, const char *types,
 			 double objSense, double infinity,  const char *rowSense);
-  
-    /** Set integer indices and number of integer variables **/
-    void findIntegers();
 
     /** Check for solution feasiblity **/
-    //BlisSolution * userFeasibleSolution(bool &userFeasible);
-    BlisSolution * userFeasibleSolution(const double * solution,
+    DcoSolution * userFeasibleSolution(const double * solution,
 					bool &userFeasible);
 
-    /** Check if a lower-level solution satisfies upper-level constraints **/
+    /** Check if a LL solution satisfies UL constraints **/
     bool checkUpperFeasibility(double * solution);
-  
+
     /** Get solution information **/
     CoinPackedVector * getSolution();
 
     /** Calls MibSBilevel::createBilevel(CoinPackedVector *vec) **/
     void createBilevel(CoinPackedVector *vec);
-    //void createBilevel(const double *vec);
 
     /** Print current solution **/
     void printCurSol();
 
-    /** Read in Alps, Blis, MibS parameters. */
+    /** Read in Alps, DisCO, MibS parameters. */
     virtual void readParameters(const int argnum, const char * const *arglist);
 
     /** Pack MibS portion of the model into an encoded object. */
     AlpsReturnStatus encodeMibS(AlpsEncoded *encoded) const;
-  
+
     /** Unpack MibS portion of the model from an encoded object. */
-    AlpsReturnStatus decodeMibS(AlpsEncoded &encoded);  
-  
+    AlpsReturnStatus decodeMibS(AlpsEncoded &encoded);
+
     /** The method that encodes the model into an encoded object. */
     virtual AlpsEncoded* encode() const;
-  
+
     /** The method that decodes the model from an encoded object. */
     virtual void decodeToSelf(AlpsEncoded&);
 
@@ -425,16 +429,12 @@ public:
     /** Determines the properties of instance. */
     void instanceStructure(const CoinPackedMatrix *newMatrix, const double* rowLB,
 			   const double* rowUB, const char *rowSense);
-                                                                                                                                                               
+
     AlpsTreeNode * createRoot();
 
     virtual bool setupSelf();
-  
+
     void setBounds();
-
-    void setProblemType();
-
-    void checkProblemType();
 
     void runPreprocessor();
 
@@ -459,3 +459,15 @@ private:
 };
 
 #endif
+
+    
+
+    
+    
+
+    
+
+    
+    
+
+    

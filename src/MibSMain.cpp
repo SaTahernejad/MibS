@@ -1,6 +1,6 @@
 /*===========================================================================*/
 /* This file is part of a Mixed Integer Bilevel Solver                       */
-/* developed using the BiCePS Linear Integer Solver (BLIS).                  */
+/* developed using the Discrete Conic Optimization (DisCO).                  */
 /*                                                                           */
 /* Authors: Scott DeNegre, Lehigh University                                 */
 /*          Ted Ralphs, Lehigh University                                    */
@@ -11,7 +11,6 @@
 /* This software is licensed under the Eclipse Public License. Please see    */
 /* accompanying file for terms.                                              */
 /*===========================================================================*/
-
 #include <iostream>
 
 #include "CoinError.hpp"
@@ -27,33 +26,28 @@
 #include "AlpsKnowledgeBrokerSerial.h"
 #endif
 
-//#############################################################################
-//#############################################################################
-
+//############################################################################# 
 int main(int argc, char* argv[])
 {
-
+    
     try{
-       
-      /** Set up lp solver **/
-      OsiClpSolverInterface lpSolver;
-      lpSolver.getModelPtr()->setDualBound(1.0e10);
-      lpSolver.messageHandler()->setLogLevel(0);
-      
-      /** Create MibS model **/
-      MibSModel model;
-      model.setSolver(&lpSolver);
+	/** Set up lp solver **/
+	OsiClpSolverInterface lpSolver;
+	lpSolver.getModelPtr()->setDualBound(1.0e10);
+	lpSolver.messageHandler()->setLogLevel(0);
 
-
+	/** Create MibS model **/
+	MibSModel model;
+	model.setSolver(&lpSolver);
+	
 #ifdef  COIN_HAS_MPI
-        AlpsKnowledgeBrokerMPI broker(argc, argv, model);
+	AlpsKnowledgeBrokerMPI broker(argc, argv, model);
 #else
-        AlpsKnowledgeBrokerSerial broker(argc, argv, model);
+	AlpsKnowledgeBrokerSerial broker(argc, argv, model);
 #endif
 
 	broker.search(&model);
 	broker.printBestSolution();
-
     }
     catch(CoinError& er) {
 	std::cerr << "ERROR:" << er.message() << std::endl
@@ -63,6 +57,14 @@ int main(int argc, char* argv[])
     catch(...) {
 	std::cerr << "Something went wrong!" << std::endl;
     }
-
     return 0;
 }
+    
+
+    
+
+
+
+
+
+    
