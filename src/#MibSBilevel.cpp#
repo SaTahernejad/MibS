@@ -1,305 +1,307 @@
 /*===========================================================================*/
-/* This file is part of a Mixed Integer Bilevel Solver                       */
-/* developed using the BiCePS Linear Integer Solver (BLIS).                  */
+/* THIS FILE IS PART OF A MIXED INTEGER BILEVEL SOLVER                       */
+/* DEVELOPED USING THE BICEPS LINEAR INTEGER SOLVER (BLIS).                  */
 /*                                                                           */
-/* Authors: Scott DeNegre, Lehigh University                                 */
-/*          Ted Ralphs, Lehigh University                                    */
-/*          Sahar Tahernajad, Lehigh University                              */
+/* AUTHORS: SCOTT DENEGRE, LEHIGH UNIVERSITY                                 */
+/*          TED RALPHS, LEHIGH UNIVERSITY                                    */
+/*          SAHAR TAHERNAJAD, LEHIGH UNIVERSITY                              */
 /*                                                                           */
-/* Copyright (C) 2007-2017 Lehigh University, Scott DeNegre, and Ted Ralphs. */
-/* All Rights Reserved.                                                      */
+/* COPYRIGHT (C) 2007-2017 LEHIGH UNIVERSITY, SCOTT DENEGRE, AND TED RALPHS. */
+/* ALL RIGHTS RESERVED.                                                      */
 /*                                                                           */
-/* This software is licensed under the Eclipse Public License. Please see    */
-/* accompanying file for terms.                                              */
+/* THIS SOFTWARE IS LICENSED UNDER THE ECLIPSE PUBLIC LICENSE. PLEASE SEE    */
+/* ACCOMPANYING FILE FOR TERMS.                                              */
 /*===========================================================================*/
 
-#include "CoinPackedVector.hpp"
-#include "OsiCbcSolverInterface.hpp"
+#INCLUDE "COINPACKEDVECTOR.HPP"
+#INCLUDE "OSICBCSOLVERINTERFACE.HPP"
 
-#include "MibSBilevel.hpp"
-#include "MibSModel.hpp"
-#include "MibSTreeNode.hpp"
-#include "MibSSolution.hpp"
-#include "MibSHeuristic.hpp"
-#include "MibSConfig.hpp"
+#INCLUDE "MIBSBILEVEL.HPP"
+#INCLUDE "MIBSMODEL.HPP"
+#INCLUDE "MIBSTREENODE.HPP"
+#INCLUDE "MIBSSOLUTION.HPP"
+#INCLUDE "MIBSHEURISTIC.HPP"
+#INCLUDE "MIBSCONFIG.HPP"
 
-#ifdef COIN_HAS_SYMPHONY
-#include "symphony.h"
-#include "SymConfig.h"
-#include "OsiSymSolverInterface.hpp"
-#endif
-#ifdef COIN_HAS_CPLEX
-#include "cplex.h"
-#include "OsiCpxSolverInterface.hpp"
-#endif
+#IFDEF COIN_HAS_SYMPHONY
+#INCLUDE "SYMPHONY.H"
+#INCLUDE "SYMCONFIG.H"
+#INCLUDE "OSISYMSOLVERINTERFACE.HPP"
+#ENDIF
+#IFDEF COIN_HAS_CPLEX
+#INCLUDE "CPLEX.H"
+#INCLUDE "OSICPXSOLVERINTERFACE.HPP"
+#ENDIF
 
 //#############################################################################
-void 
-MibSBilevel::createBilevel(CoinPackedVector* sol, 
-			   MibSModel *mibs)
+VOID 
+MIBSBILEVEL::CREATEBILEVEL(COINPACKEDVECTOR* SOL, 
+			   MIBSMODEL *MIBS)
 {
   
-  /** Splits sol into two parts, upper- and lower-level components **/
+  /** SPLITS SOL INTO TWO PARTS, UPPER- AND LOWER-LEVEL COMPONENTS **/
 
-  if(!mibs) return;
+  IF(!MIBS) RETURN;
   
-  model_ = mibs;
+  MODEL_ = MIBS;
 
-  heuristic_ = new MibSHeuristic(mibs);
+  HEURISTIC_ = NEW MIBSHEURISTIC(MIBS);
 
-  int i(0),j(0);
-  int N(model_->numVars_);
-  int lN(model_->lowerDim_); // lower-level dimension
-  int uN(model_->upperDim_); // upper-level dimension
-  int lRowNum(model_->getLowerRowNum());
-  double etol(model_->BlisPar()->entry(BlisParams::integerTol));
+  INT I(0),J(0);
+  INT N(MODEL_->NUMVARS_);
+  INT LN(MODEL_->LOWERDIM_); // LOWER-LEVEL DIMENSION
+  INT UN(MODEL_->UPPERDIM_); // UPPER-LEVEL DIMENSION
+  INT LROWNUM(MODEL_->GETLOWERROWNUM());
+  DOUBLE ETOL(MODEL_->BLISPAR()->ENTRY(BLISPARAMS::INTEGERTOL));
   
-  MibSBranchingStrategy branchPar = static_cast<MibSBranchingStrategy>
-      (model_->MibSPar_->entry(MibSParams::branchStrategy));
+  MIBSBRANCHINGSTRATEGY BRANCHPAR = STATIC_CAST<MIBSBRANCHINGSTRATEGY>
+      (MODEL_->MIBSPAR_->ENTRY(MIBSPARAMS::BRANCHSTRATEGY));
 
-  int solveSecondLevelWhenXYVarsInt(model_->MibSPar_->entry
-			   (MibSParams::solveSecondLevelWhenXYVarsInt));
-  int solveSecondLevelWhenXVarsInt(model_->MibSPar_->entry
-			  (MibSParams::solveSecondLevelWhenXVarsInt));
-  int solveSecondLevelWhenLVarsInt(model_->MibSPar_->entry
-			  (MibSParams::solveSecondLevelWhenLVarsInt));
-  int solveSecondLevelWhenLVarsFixed(model_->MibSPar_->entry
-			    (MibSParams::solveSecondLevelWhenLVarsFixed));
-  int cutStrategy(model_->MibSPar_->entry
-		  (MibSParams::cutStrategy));
+  INT SOLVESECONDLEVELWHENXYVARSINT(MODEL_->MIBSPAR_->ENTRY
+			   (MIBSPARAMS::SOLVESECONDLEVELWHENXYVARSINT));
+  INT SOLVESECONDLEVELWHENXVARSINT(MODEL_->MIBSPAR_->ENTRY
+			  (MIBSPARAMS::SOLVESECONDLEVELWHENXVARSINT));
+  INT SOLVESECONDLEVELWHENLVARSINT(MODEL_->MIBSPAR_->ENTRY
+			  (MIBSPARAMS::SOLVESECONDLEVELWHENLVARSINT));
+  INT SOLVESECONDLEVELWHENLVARSFIXED(MODEL_->MIBSPAR_->ENTRY
+			    (MIBSPARAMS::SOLVESECONDLEVELWHENLVARSFIXED));
+  INT CUTSTRATEGY(MODEL_->MIBSPAR_->ENTRY
+		  (MIBSPARAMS::CUTSTRATEGY));
 
-  int useLinkingSolutionPool(model_->MibSPar_->entry
-			   (MibSParams::useLinkingSolutionPool));
+  INT USELINKINGSOLUTIONPOOL(MODEL_->MIBSPAR_->ENTRY
+			   (MIBSPARAMS::USELINKINGSOLUTIONPOOL));
 
-  MibSAddTenderVars useTenderVars = static_cast<MibSAddTenderVars>
-      (model_->MibSPar_->entry(MibSParams::useTenderVars));
+  MIBSADDTENDERVARS USETENDERVARS = STATIC_CAST<MIBSADDTENDERVARS>
+      (MODEL_->MIBSPAR_->ENTRY(MIBSPARAMS::USETENDERVARS));
   
-  assert(N == model_->solver()->getNumCols());
+  ASSERT(N == MODEL_->SOLVER()->GETNUMCOLS());
 
-  model_->setNumRows(model_->solver()->getNumRows());
-  model_->setUpperRowNum(model_->solver()->getNumRows() - model_->getLowerRowNum());
-  model_->setUpperRowData();
+  MODEL_->SETNUMROWS(MODEL_->SOLVER()->GETNUMROWS());
+  MODEL_->SETUPPERROWNUM(MODEL_->SOLVER()->GETNUMROWS() - MODEL_->GETLOWERROWNUM());
+  MODEL_->SETUPPERROWDATA();
   
-  int *indices = sol->getIndices();
-  double *values = sol->getElements();
-  int numElements(sol->getNumElements()); // number of nonzero elements
-  int * fixedInd = model_->fixedInd_; 
+  INT *INDICES = SOL->GETINDICES();
+  DOUBLE *VALUES = SOL->GETELEMENTS();
+  INT NUMELEMENTS(SOL->GETNUMELEMENTS()); // NUMBER OF NONZERO ELEMENTS
+  INT * FIXEDIND = MODEL_->FIXEDIND_; 
  
-  if(!upperSolutionOrd_)
-      upperSolutionOrd_ = new double[uN];
-  if(!lowerSolutionOrd_)
-      lowerSolutionOrd_ = new double[lN];
-  if(!optUpperSolutionOrd_)
-      optUpperSolutionOrd_ = new double[uN];
-  if(!optLowerSolutionOrd_)
-      optLowerSolutionOrd_ = new double[lN];
+  IF(!UPPERSOLUTIONORD_)
+      UPPERSOLUTIONORD_ = NEW DOUBLE[UN];
+  IF(!LOWERSOLUTIONORD_)
+      LOWERSOLUTIONORD_ = NEW DOUBLE[LN];
+  IF(!OPTUPPERSOLUTIONORD_)
+      OPTUPPERSOLUTIONORD_ = NEW DOUBLE[UN];
+  IF(!OPTLOWERSOLUTIONORD_)
+      OPTLOWERSOLUTIONORD_ = NEW DOUBLE[LN];
   
-  CoinZeroN(upperSolutionOrd_, uN);
-  CoinZeroN(lowerSolutionOrd_, lN);
-  CoinZeroN(optUpperSolutionOrd_, uN);
-  CoinZeroN(optLowerSolutionOrd_, lN);
+  COINZERON(UPPERSOLUTIONORD_, UN);
+  COINZERON(LOWERSOLUTIONORD_, LN);
+  COINZERON(OPTUPPERSOLUTIONORD_, UN);
+  COINZERON(OPTLOWERSOLUTIONORD_, LN);
   
-  isIntegral_ = true;
-  isUpperIntegral_ = true;
-  isLinkVarsIntegral_ = true;
-  LPSolStatus_ = MibSLPSolStatusUnknown;
-  isLinkVarsFixed_ = true;
-  isTenderVarsFixed_ = false;
-  shouldPrune_ = false;
-  isLowerSolved_ = false;
-  isUBSolved_ = false;
-  isContainedInLinkingPool_ = false;
-  useBilevelBranching_ = true;
-  isProvenOptimal_ = false;
-  tagInSeenLinkingPool_ = MibSLinkingPoolTagIsNotSet;
-  haveHeurSolCand_ = false;
+  ISINTEGRAL_ = TRUE;
+  ISUPPERINTEGRAL_ = TRUE;
+  ISLINKVARSINTEGRAL_ = TRUE;
+  LPSOLSTATUS_ = MIBSLPSOLSTATUSUNKNOWN;
+  ISLINKVARSFIXED_ = TRUE;
+  ISTENDERVARSFIXED_ = FALSE;
+  SHOULDPRUNE_ = FALSE;
+  ISLOWERSOLVED_ = FALSE;
+  ISUBSOLVED_ = FALSE;
+  ISCONTAINEDINLINKINGPOOL_ = FALSE;
+  USEBILEVELBRANCHING_ = TRUE;
+  ISPROVENOPTIMAL_ = FALSE;
+  TAGINSEENLINKINGPOOL_ = MIBSLINKINGPOOLTAGISNOTSET;
+  HAVEHEURSOLCAND_ = FALSE;
 
-  model_->countIteration_ ++;
+  MODEL_->COUNTITERATION_ ++;
   
-  int * lowerColInd = mibs->getLowerColInd();
-  int * upperColInd = mibs->getUpperColInd();
-  int index(0), uCount(0), lCount(0);
+  INT * LOWERCOLIND = MIBS->GETLOWERCOLIND();
+  INT * UPPERCOLIND = MIBS->GETUPPERCOLIND();
+  INT INDEX(0), UCOUNT(0), LCOUNT(0);
 
-  const double *lower = model_->solver()->getColLower();
-  const double *upper = model_->solver()->getColUpper();
-  double value;
-  for(i = 0; i < numElements; i ++){
-    index = indices[i];
-    value = CoinMax(values[i], lower[index]);
-    value = CoinMin(value, upper[index]);
-    if(binarySearch(0, uN - 1, index, upperColInd) >= 0){
-       if(fabs(floor(value + 0.5) - value) > etol){
-#if 1
-	   if(fixedInd[index] == 1){
-	       isLinkVarsIntegral_ = false;
+  CONST DOUBLE *LOWER = MODEL_->SOLVER()->GETCOLLOWER();
+  CONST DOUBLE *UPPER = MODEL_->SOLVER()->GETCOLUPPER();
+  DOUBLE VALUE;
+  FOR(I = 0; I < NUMELEMENTS; I ++){
+    INDEX = INDICES[I];
+    VALUE = COINMAX(VALUES[I], LOWER[INDEX]);
+    VALUE = COINMIN(VALUE, UPPER[INDEX]);
+    IF(BINARYSEARCH(0, UN - 1, INDEX, UPPERCOLIND) >= 0){
+       IF(FABS(FLOOR(VALUE + 0.5) - VALUE) > ETOL){
+#IF 1
+	   IF(FIXEDIND[INDEX] == 1){
+	       ISLINKVARSINTEGRAL_ = FALSE;
 	   }
 	   
-	   if(mibs->solver()->isInteger(index)){
-	       isUpperIntegral_ = false;
-	       isIntegral_ = false;
-	       LPSolStatus_ = MibSLPSolStatusInfeasible;
+	   IF(MIBS->SOLVER()->ISINTEGER(INDEX)){
+	       ISUPPERINTEGRAL_ = FALSE;
+	       ISINTEGRAL_ = FALSE;
+	       LPSOLSTATUS_ = MIBSLPSOLSTATUSINFEASIBLE;
 	   }
-#endif
+#ENDIF
        }  
     }
-    else{
-       if(fabs(floor(value + 0.5) - value) > etol){
-#if 1
-	  //This check is failing when Blis has already declared the solution integral
-	  //It's not really needed
-	  if(mibs->solver()->isInteger(index)){
-	     isIntegral_ = false;
-	     LPSolStatus_ = MibSLPSolStatusInfeasible;
+    ELSE{
+       IF(FABS(FLOOR(VALUE + 0.5) - VALUE) > ETOL){
+#IF 1
+	  //THIS CHECK IS FAILING WHEN BLIS HAS ALREADY DECLARED THE SOLUTION INTEGRAL
+	  //IT'S NOT REALLY NEEDED
+	  IF(MIBS->SOLVER()->ISINTEGER(INDEX)){
+	     ISINTEGRAL_ = FALSE;
+	     LPSOLSTATUS_ = MIBSLPSOLSTATUSINFEASIBLE;
 	  }
-#endif
+#ENDIF
        }    
     }
   }
 
-  for(i = 0; i < N; i ++){
-      if(binarySearch(0, uN - 1, i, upperColInd) >= 0){
-	  if((fixedInd[i] == 1) && (fabs(upper[i] - lower[i]) > etol)){
-	      isLinkVarsFixed_ = false;
-	      break;
+  FOR(I = 0; I < N; I ++){
+      IF(BINARYSEARCH(0, UN - 1, I, UPPERCOLIND) >= 0){
+	  IF((FIXEDIND[I] == 1) && (FABS(UPPER[I] - LOWER[I]) > ETOL)){
+	      ISLINKVARSFIXED_ = FALSE;
+	      BREAK;
 	  }
       }
   }
 
-  if(useTenderVars == MibSAddTenderVarsIsAllowed){
-      isTenderVarsFixed_ = true;
-      for(i = N - lRowNum; i < N; i++){
-	  if(fabs(upper[i] - lower[i]) > etol){
-	      isTenderVarsFixed_ = false;
-	      break;
+  IF(USETENDERVARS == MIBSADDTENDERVARSISALLOWED){
+      ISTENDERVARSFIXED_ = TRUE;
+      FOR(I = N - LROWNUM; I < N; I++){
+	  IF(FABS(UPPER[I] - LOWER[I]) > ETOL){
+	      ISTENDERVARSFIXED_ = FALSE;
+	      BREAK;
 	  }
       }
   }
   
-  /* put the solution in order by integers first */
+  /* PUT THE SOLUTION IN ORDER BY INTEGERS FIRST */
 
-  int pos(0);
+  INT POS(0);
 
-  for (i = 0; i < numElements; i++){
-      index = indices[i];
-      pos = binarySearch(0, lN - 1, index, lowerColInd);
-      if (pos < 0){
-	  pos = binarySearch(0, uN - 1, index, upperColInd);
-	  if ((mibs->solver()->isInteger(index)) &&
-	      (((values[i] - floor(values[i])) < etol) ||
-	       ((ceil(values[i]) - values[i]) < etol))){
-	      upperSolutionOrd_[pos] = (double) floor(values[i] + 0.5);
-	  }else{
-	      upperSolutionOrd_[pos] = values[i];
+  FOR (I = 0; I < NUMELEMENTS; I++){
+      INDEX = INDICES[I];
+      POS = BINARYSEARCH(0, LN - 1, INDEX, LOWERCOLIND);
+      IF (POS < 0){
+	  POS = BINARYSEARCH(0, UN - 1, INDEX, UPPERCOLIND);
+	  IF ((MIBS->SOLVER()->ISINTEGER(INDEX)) &&
+	      (((VALUES[I] - FLOOR(VALUES[I])) < ETOL) ||
+	       ((CEIL(VALUES[I]) - VALUES[I]) < ETOL))){
+	      UPPERSOLUTIONORD_[POS] = (DOUBLE) FLOOR(VALUES[I] + 0.5);
+	  }ELSE{
+	      UPPERSOLUTIONORD_[POS] = VALUES[I];
 	  }
-	  optUpperSolutionOrd_[pos] = upperSolutionOrd_[pos];
-      }else{
-	  if ((mibs->solver()->isInteger(index)) &&
-	      (((values[i] - floor(values[i])) < etol) ||
-	       ((ceil(values[i]) - values[i]) < etol))){
-	      lowerSolutionOrd_[pos] = (double) floor(values[i] + 0.5);
-	  }else{
-	      lowerSolutionOrd_[pos] = values[i];
+	  OPTUPPERSOLUTIONORD_[POS] = UPPERSOLUTIONORD_[POS];
+      }ELSE{
+	  IF ((MIBS->SOLVER()->ISINTEGER(INDEX)) &&
+	      (((VALUES[I] - FLOOR(VALUES[I])) < ETOL) ||
+	       ((CEIL(VALUES[I]) - VALUES[I]) < ETOL))){
+	      LOWERSOLUTIONORD_[POS] = (DOUBLE) FLOOR(VALUES[I] + 0.5);
+	  }ELSE{
+	      LOWERSOLUTIONORD_[POS] = VALUES[I];
 	  }
-	  optLowerSolutionOrd_[pos] = lowerSolutionOrd_[pos];	
+	  OPTLOWERSOLUTIONORD_[POS] = LOWERSOLUTIONORD_[POS];	
       }
   }
 
-  int solType(0);
+  INT SOLTYPE(0);
 
-  //sahar: check if the following part is only
-  //necessary when use linkingPool
+  //SAHAR: CHECK IF THE FOLLOWING PART IS ONLY
+  //NECESSARY WHEN USE LINKINGPOOL
   
-  if(isLinkVarsIntegral_){
-      std::vector<double> linkSol;
-      for(i = 0; i < uN; i++){
-	  index = upperColInd[i];
-	  if(fixedInd[index] == 1){
-	      linkSol.push_back(upperSolutionOrd_[i]);
+  IF(ISLINKVARSINTEGRAL_){
+      STD::VECTOR<DOUBLE> LINKSOL;
+      FOR(I = 0; I < UN; I++){
+	  INDEX = UPPERCOLIND[I];
+	  IF(FIXEDIND[INDEX] == 1){
+	      LINKSOL.PUSH_BACK(UPPERSOLUTIONORD_[I]);
 	  }
       }
-      if(model_->seenLinkingSolutions.find(linkSol) !=
-	 model_->seenLinkingSolutions.end()){
-	  isContainedInLinkingPool_ = true;
-	  solType = model_->seenLinkingSolutions.find(linkSol)->second.tag;
+      IF(MODEL_->SEENLINKINGSOLUTIONS.FIND(LINKSOL) !=
+	 MODEL_->SEENLINKINGSOLUTIONS.END()){
+	  ISCONTAINEDINLINKINGPOOL_ = TRUE;
+	  SOLTYPE = MODEL_->SEENLINKINGSOLUTIONS.FIND(LINKSOL)->SECOND.TAG;
       }
   }
 	 
-  if(isContainedInLinkingPool_){
-      tagInSeenLinkingPool_ = static_cast<MibSLinkingPoolTag>(solType);
+  IF(ISCONTAINEDINLINKINGPOOL_){
+      TAGINSEENLINKINGPOOL_ = STATIC_CAST<MIBSLINKINGPOOLTAG>(SOLTYPE);
   }
-  if(tagInSeenLinkingPool_ == MibSLinkingPoolTagLowerIsInfeasible){
-      LPSolStatus_ = MibSLPSolStatusInfeasible;
-  }
-
-  //steps 5-6
-  if((isLinkVarsFixed_) && ((tagInSeenLinkingPool_ ==
-			     MibSLinkingPoolTagLowerIsInfeasible) ||
-			 (tagInSeenLinkingPool_ == MibSLinkingPoolTagUBIsSolved))){
-      useBilevelBranching_ = false;
-      isProvenOptimal_ = false;
-      shouldPrune_ = true;
+  IF(TAGINSEENLINKINGPOOL_ == MIBSLINKINGPOOLTAGLOWERISINFEASIBLE){
+      LPSOLSTATUS_ = MIBSLPSOLSTATUSINFEASIBLE;
   }
 
-  //step 7
-  if(!shouldPrune_){
-      if(((tagInSeenLinkingPool_ == MibSLinkingPoolTagLowerIsFeasible)
-	  || (tagInSeenLinkingPool_ == MibSLinkingPoolTagUBIsSolved)) ||
-	 ((!isContainedInLinkingPool_) &&
-	  (((branchPar == MibSBranchingStrategyLinking) &&
-	    (isIntegral_) && (isLinkVarsFixed_)) ||
-	   ((branchPar == MibSBranchingStrategyFractional)
-	    && (isIntegral_)) ||
-	   ((solveSecondLevelWhenXYVarsInt == PARAM_ON) && (isIntegral_)) ||
-	   ((solveSecondLevelWhenXVarsInt == PARAM_ON) && (isUpperIntegral_)) ||
-	   ((solveSecondLevelWhenLVarsInt == PARAM_ON) && (isLinkVarsIntegral_)) ||
-	   ((solveSecondLevelWhenLVarsFixed == PARAM_ON) && (isLinkVarsFixed_ ))) ||
-	  (isTenderVarsFixed_))){
-	  checkBilevelFeasiblity(mibs->isRoot_);
+  //STEPS 5-6
+  IF((ISLINKVARSFIXED_) && ((TAGINSEENLINKINGPOOL_ ==
+			     MIBSLINKINGPOOLTAGLOWERISINFEASIBLE) ||
+			 (TAGINSEENLINKINGPOOL_ == MIBSLINKINGPOOLTAGUBISSOLVED))){
+      USEBILEVELBRANCHING_ = FALSE;
+      ISPROVENOPTIMAL_ = FALSE;
+      SHOULDPRUNE_ = TRUE;
+  }
+
+  //STEP 7
+  IF(!SHOULDPRUNE_){
+      IF(((TAGINSEENLINKINGPOOL_ == MIBSLINKINGPOOLTAGLOWERISFEASIBLE)
+	  || (TAGINSEENLINKINGPOOL_ == MIBSLINKINGPOOLTAGUBISSOLVED)) ||
+	 ((!ISCONTAINEDINLINKINGPOOL_) &&
+	  (((BRANCHPAR == MIBSBRANCHINGSTRATEGYLINKING) &&
+	    (ISINTEGRAL_) && (ISLINKVARSFIXED_)) ||
+	   ((BRANCHPAR == MIBSBRANCHINGSTRATEGYFRACTIONAL)
+	    && (ISINTEGRAL_)) ||
+	   ((SOLVESECONDLEVELWHENXYVARSINT == PARAM_ON) && (ISINTEGRAL_)) ||
+	   ((SOLVESECONDLEVELWHENXVARSINT == PARAM_ON) && (ISUPPERINTEGRAL_)) ||
+	   ((SOLVESECONDLEVELWHENLVARSINT == PARAM_ON) && (ISLINKVARSINTEGRAL_)) ||
+	   ((SOLVESECONDLEVELWHENLVARSFIXED == PARAM_ON) && (ISLINKVARSFIXED_ ))) ||
+	  (ISTENDERVARSFIXED_))){
+	  CHECKBILEVELFEASIBLITY(MIBS->ISROOT_);
       }
   }
-  if(cutStrategy == 1){
-      useBilevelBranching_ = false;
+  IF(CUTSTRATEGY == 1){
+      USEBILEVELBRANCHING_ = FALSE;
   }
   
-  heuristic_->findHeuristicSolutions();
+  HEURISTIC_->FINDHEURISTICSOLUTIONS();
   
 }
 
 
 //#############################################################################
-void
-MibSBilevel::checkBilevelFeasiblity(bool isRoot)
+VOID
+MIBSBILEVEL::CHECKBILEVELFEASIBLITY(BOOL ISROOT)
 {
-    bool warmStartLL(model_->MibSPar_->entry
-		     (MibSParams::warmStartLL));
-    int maxThreadsLL(model_->MibSPar_->entry
-		     (MibSParams::maxThreadsLL));
-    int whichCutsLL(model_->MibSPar_->entry
-		    (MibSParams::whichCutsLL));
-    int probType(model_->MibSPar_->entry
-		 (MibSParams::bilevelProblemType));
-    std::string feasCheckSolver(model_->MibSPar_->entry
-				(MibSParams::feasCheckSolver));
-    MibSBranchingStrategy branchPar = static_cast<MibSBranchingStrategy>
-	(model_->MibSPar_->entry(MibSParams::branchStrategy));
-    int computeBestUBWhenXVarsInt(model_->MibSPar_->entry
-			      (MibSParams::computeBestUBWhenXVarsInt));
-    int computeBestUBWhenLVarsInt(model_->MibSPar_->entry
-				     (MibSParams::computeBestUBWhenLVarsInt));
-    int computeBestUBWhenLVarsFixed(model_->MibSPar_->entry
-				    (MibSParams::computeBestUBWhenLVarsFixed));
-    int useLinkingSolutionPool(model_->MibSPar_->entry
-			    (MibSParams::useLinkingSolutionPool));
-    int lN(model_->lowerDim_); // lower-level dimension
-    int uN(model_->upperDim_); // lower-level dimension
-    int i(0), index(0), length(0), pos(0);
-    int sizeFixedInd(model_->sizeFixedInd_);
-    double etol(model_->etol_), objVal(0.0), lowerObj(0.0);
-    int * fixedInd = model_->fixedInd_;
-    int * lowerColInd = model_->getLowerColInd();
-    int * upperColInd = model_->getUpperColInd();
-    double *lowerSol = new double[lN];
-    CoinFillN(lowerSol, lN, 0.0);
+    BOOL WARMSTARTLL(MODEL_->MIBSPAR_->ENTRY
+		     (MIBSPARAMS::WARMSTARTLL));
+    INT MAXTHREADSLL(MODEL_->MIBSPAR_->ENTRY
+		     (MIBSPARAMS::MAXTHREADSLL));
+    INT WHICHCUTSLL(MODEL_->MIBSPAR_->ENTRY
+		    (MIBSPARAMS::WHICHCUTSLL));
+    INT PROBTYPE(MODEL_->MIBSPAR_->ENTRY
+		 (MIBSPARAMS::BILEVELPROBLEMTYPE));
+    STD::STRING FEASCHECKSOLVER(MODEL_->MIBSPAR_->ENTRY
+				(MIBSPARAMS::FEASCHECKSOLVER));
+    MIBSBRANCHINGSTRATEGY BRANCHPAR = STATIC_CAST<MIBSBRANCHINGSTRATEGY>
+	(MODEL_->MIBSPAR_->ENTRY(MIBSPARAMS::BRANCHSTRATEGY));
+    INT COMPUTEBESTUBWHENXVARSINT(MODEL_->MIBSPAR_->ENTRY
+			      (MIBSPARAMS::COMPUTEBESTUBWHENXVARSINT));
+    INT COMPUTEBESTUBWHENLVARSINT(MODEL_->MIBSPAR_->ENTRY
+				     (MIBSPARAMS::COMPUTEBESTUBWHENLVARSINT));
+    INT COMPUTEBESTUBWHENLVARSFIXED(MODEL_->MIBSPAR_->ENTRY
+				    (MIBSPARAMS::COMPUTEBESTUBWHENLVARSFIXED));
+    INT USELINKINGSOLUTIONPOOL(MODEL_->MIBSPAR_->ENTRY
+			    (MIBSPARAMS::USELINKINGSOLUTIONPOOL));
+    INT LN(MODEL_->LOWERDIM_); // LOWER-LEVEL DIMENSION
+    INT UN(MODEL_->UPPERDIM_); // LOWER-LEVEL DIMENSION
+    INT I(0), INDEX(0), LENGTH(0), POS(0);
+    INT SIZEFIXEDIND(MODEL_->SIZEFIXEDIND_);
+    DOUBLE ETOL(MODEL_->ETOL_), OBJVAL(0.0), LOWEROBJ(0.0);
+    INT * FIXEDIND = MODEL_->FIXEDIND_;
+    INT * LOWERCOLIND = MODEL_->GETLOWERCOLIND();
+    INT * UPPERCOLIND = MODEL_->GETUPPERCOLIND();
+    DOUBLE *LOWERSOL = NEW DOUBLE[LN];
+    COINFILLN(LOWERSOL, LN, 0.0);
+
+    DOUBLE OB
     
     std::vector<double> shouldStoreValues;
 

@@ -49,6 +49,17 @@
 #include "MibSBranchStrategyPseudo.hpp"
 #include "MibSBranchStrategyStrong.hpp"
 
+#include "MibSConfig.hpp"
+
+#ifdef COIN_HAS_SYMPHONY
+#include "symphony.h"
+#include "SymConfig.h"
+#include "OsiSymSolverInterface.hpp"
+#endif
+#ifdef COIN_HAS_CPLEX
+#include "cplex.h"
+#include "OsiCpxSolverInterface.hpp"
+#endif
 //FIXME::RELIABILITY BRANCHING DOESNT WORK
 //NECESSARY DATA MEMBERS ARE DESIGNATED AS PRIVATE
 //IN PARENT CLASS.  DIDNT WANT TO ALTER BLIS CODE
@@ -404,6 +415,8 @@ MibSModel::readProblemData()
    
    int rc(-1);
    int format(MibSPar_->entry(MibSParams::upperFileFormat));
+   MibSAddTenderVars useTenderVars = static_cast<MibSAddTenderVars>
+       (MibSPar_->entry(MibSParams::useTenderVars));
 
    CoinMpsIO *mps = new CoinMpsIO;
 
@@ -442,24 +455,32 @@ MibSModel::readProblemData()
 
    int numCols = mps->getNumCols(); 
    int numRows = mps->getNumRows();
+
+   int tenderColNum(0), tenderRowNum(0);
+   if(useTenderVars == MibSAddTenderVarsIsAllowed){
+       tenderColNum = lowerRowNum_;
+       tenderRowNum = 2 * lowerRowNum_;
+   }
    
-   double *varLB = new double [numCols];
-   double *varUB = new double [numCols];
+   double *varLB = new double [numCols + tenderColNum];
+   double *varUB = new double [numCols + tenderColNum];
    
-   double *conLB = new double [numRows];
-   double *conUB = new double [numRows];
+   double *conLB = new double [numRows + tenderRowNum];
+   double *conUB = new double [numRows + tenderRowNum];
    
    memcpy(varLB, mps->getColLower(), sizeof(double) * numCols);
    memcpy(varUB, mps->getColUpper(), sizeof(double) * numCols);
    
    memcpy(conLB, mps->getRowLower(), sizeof(double) * numRows);
+   //CoinDisjointCopyN(conLB, numRows, mps->getRowLower());
+   //CoinZeroN(conLB, numRows);
    memcpy(conUB, mps->getRowUpper(), sizeof(double) * numRows);
    
    //------------------------------------------------------
    // Set colType_
    //------------------------------------------------------
    
-   colType = new char [numCols];   
+   colType = new char [numCols + tenderColNum];   
    
    for(j = 0; j < numCols; ++j) {
       if (mps->isContinuous(j)) {
@@ -482,21 +503,264 @@ MibSModel::readProblemData()
    //       for interdiction problems...
    //objSense = BlisPar_->entry(BlisParams::objSense);
 
-   double *objCoef = new double [numCols];
+   double *objCoef = new double [numCols + tenderColNum];
    
    const double *mpsObj =  mps->getObjCoefficients();
 
    memcpy(objCoef, mpsObj, sizeof(double) * numCols);
 
-   const char* rowSense = mps->getRowSense();
+   char *rowSense = new char [numRows + tenderRowNum];
    
+   const char* mpsRowSense = mps->getRowSense();
+
+   memcpy(rowSense, mpsRowSense, sizeof(char) * numRows);
+
+   
+   //related to adding tender variables: we do not use it for interdiction
+   //case or when the number of first-level vars is zero
+   //ask : how we can delete a coinpackedmatrix
+   //ToDo: manage the instance structure function
+   if(useTenderVars == MibSAddTenderVarsIsAllowed){
+       CoinPackedMatrix newMatrix;
+       //newMatrix = new CoinPackedMatrix(false, 0, 0);
+       
+       addTenderVars(newMatrix, matrix, varLB, varUB, objCoef, conLB,
+		     conUB, colType, objSense, mps->getInfinity(), rowSense);
+
+       loadProblemData(newMatrix, varLB, varUB, objCoef, conLB, conUB, colType,
+		       objSense, mps->getInfinity(), rowSense);
+   }
+   else{	    
    loadProblemData(matrix, varLB, varUB, objCoef, conLB, conUB, colType, 
 		   objSense, mps->getInfinity(), rowSense);
+   }
 
    delete mps;
+
+   delete [] varLB;
+   delete [] varUB;
+   delete [] objCoef;
+   delete [] conLB;
+   delete [] conUB;
+   delete [] colType;
+   delete [] rowSense;
 }
 
 //#############################################################################
+void
+MibSModel::addTenderVars(CoinPackedMatrix& newMatrix, const CoinPackedMatrix& matrix,
+			 double* varLB, double* varUB, double* objCoef, double* conLB,
+			 double* conUB, char *colType, double objSense, double infinity,
+			 char *rowSense)
+{
+    std::string feasCheckSolver =
+	MibSPar_->entry(MibSParams::feasCheckSolver);
+
+    int whichCutsLL(MibSPar_->entry(MibSParams::whichCutsLL));
+
+    int maxThreadsLL(MibSPar_->entry(MibSParams::maxThreadsLL));
+    
+    bool isBoundingFinished(false), isLBSet(false);
+    int i, j;
+    int start(0), cnt(0), rowIndex, colIndex;
+    double element;
+    int lCols(lowerDim_);
+    int lRows(lowerRowNum_);
+    int * lColIndices = getLowerColInd();
+    int * lRowIndices = getLowerRowInd();
+
+    CoinPackedMatrix rowMatrix;
+    rowMatrix = matrix;
+    rowMatrix.reverseOrdering();
+    
+    int numRowsOrig = rowMatrix.getNumRows();
+    int numColsOrig = rowMatrix.getNumCols();
+    int uCols(numColsOrig - lCols), tenderVarIndex(numColsOrig);
+    
+    const double * matElements = rowMatrix.getElements();
+    const int * matLength = rowMatrix.getVectorLengths();
+    const int * matIndices = rowMatrix.getIndices();
+    const int * matStarts = rowMatrix.getVectorStarts();
+
+    int * uColIndices = new int [uCols];
+    for(i = 0; i < numColsOrig; i++){
+	if(!findIndex(i, lCols, lColIndices)){
+	    uColIndices[cnt] = i;
+	    cnt++;
+	}
+    }
+
+    newMatrix = rowMatrix;
+    newMatrix.setDimensions(numRowsOrig, numColsOrig + lRows);
+
+    for(i = 0; i < lRows; i++){
+	rowIndex = lRowIndices[i];
+	CoinPackedVector row1;
+	CoinPackedVector row2;
+	start = matStarts[rowIndex];
+	for(j = start; j < start + matLength[rowIndex]; j++){
+	    element = matElements[j];
+	    colIndex = matIndices[j];
+	    if(findIndex(colIndex, uCols, uColIndices)){
+		row1.insert(colIndex, element);
+		row2.insert(colIndex, -1 * element);
+	    }
+	}
+	row1.insert(tenderVarIndex, 1.0);
+	row2.insert(tenderVarIndex, -1.0);
+	newMatrix.appendRow(row1);
+	newMatrix.appendRow(row2);
+	tenderVarIndex++;
+    }
+
+    newMatrix.reverseOrdering();
+
+
+    //setting bounds on tender variables
+    double * newObjCoef = new double [numColsOrig];
+    tenderVarIndex = numColsOrig;
+    for(i = 0; i < lRows; i++){
+	rowIndex = lRowIndices[i];
+	isBoundingFinished = false;
+	CoinZeroN(newObjCoef, numColsOrig);
+	OsiSolverInterface *boundSolver = 0;
+	while(isBoundingFinished == false){
+	    if(isLBSet == false){
+	        if (feasCheckSolver == "Cbc"){
+		    boundSolver = new OsiCbcSolverInterface();
+		}
+	        else if(feasCheckSolver == "SYMPHONY"){
+#ifdef COIN_HAS_SYMPHONY
+		    boundSolver = new OsiSymSolverInterface();
+#else
+		    throw CoinError("SYMPHONY chosen as solver, but it has not been enabled",
+				     "addTenderVars", "MibSModel");
+#endif
+		}
+	        else if(feasCheckSolver == "CPLEX"){
+#ifdef COIN_HAS_CPLEX
+		    boundSolver = new OsiCpxSolverInterface();
+#else
+		    throw CoinError("CPLEX chosen as solver, but it has not been enabled",
+				    "addTenderVars", "MibSModel");
+#endif
+		}
+	        else{
+		    throw CoinError("Unknown solver chosen",
+		      		    "addTenderVars", "MibSModel");
+		}
+	    
+	        start = matStarts[rowIndex];
+	        for(j = start; j < start + matLength[rowIndex]; j++){
+		    colIndex = matIndices[j];
+		    if(findIndex(colIndex, uCols, uColIndices)){
+			newObjCoef[colIndex] = -1 * matElements[j];
+		    }
+		}
+
+		boundSolver->loadProblem(matrix, varLB, varUB,
+					 newObjCoef, conLB, conUB);
+	    
+		boundSolver->setObjSense(1);
+	    }
+	    else{
+                //sahar:ToDo: check if this loading is necessary or not
+		boundSolver->loadProblem(matrix, varLB, varUB,
+					 newObjCoef, conLB, conUB);
+	        boundSolver->setObjSense(-1);
+	    }
+
+	    for(j = 0; j < numColsOrig; j++){
+		if(colType[j] != 'C'){
+		    boundSolver->setInteger(j);
+		}
+	    }
+
+	    if(feasCheckSolver == "Cbc"){
+		dynamic_cast<OsiCbcSolverInterface *>
+		    (boundSolver)->getModelPtr()->messageHandler()->setLogLevel(0);
+	    }
+	    else if (feasCheckSolver == "SYMPHONY"){
+#if COIN_HAS_SYMPHONY
+	        sym_environment *env = dynamic_cast<OsiSymSolverInterface *>
+		    (boundSolver)->getSymphonyEnvironment();
+	        sym_set_int_param(env, "do_primal_heuristic", FALSE);
+	        sym_set_int_param(env, "verbosity", -2);
+	        sym_set_int_param(env, "prep_level", -1);
+	        sym_set_int_param(env, "max_active_nodes", maxThreadsLL);
+	        sym_set_int_param(env, "tighten_root_bounds", FALSE);
+	        sym_set_int_param(env, "max_sp_size", 100);
+	        sym_set_int_param(env, "do_reduced_cost_fixing", FALSE);
+		if(whichCutsLL == 0){
+		    sym_set_int_param(env, "generate_cgl_cuts", FALSE);
+		}
+		else{
+		    sym_set_int_param(env, "generate_cgl_gomory_cuts", GENERATE_DEFAULT);
+		}
+		if (whichCutsLL == 1){
+		    sym_set_int_param(env, "generate_cgl_knapsack_cuts",
+				      DO_NOT_GENERATE);
+		    sym_set_int_param(env, "generate_cgl_probing_cuts",
+		  		      DO_NOT_GENERATE);
+		    sym_set_int_param(env, "generate_cgl_clique_cuts",
+				      DO_NOT_GENERATE);
+		    sym_set_int_param(env, "generate_cgl_twomir_cuts",
+				      DO_NOT_GENERATE);
+		    sym_set_int_param(env, "generate_cgl_flowcover_cuts",
+				      DO_NOT_GENERATE);
+		}
+#endif
+	    }
+	    else if (feasCheckSolver == "CPLEX"){
+#ifdef COIN_HAS_CPLEX
+		boundSolver->setHintParam(OsiDoReducePrint);
+	        boundSolver->messageHandler()->setLogLevel(0);
+	        CPXENVptr cpxEnv =
+		    dynamic_cast<OsiCpxSolverInterface*>(boundSolver)->getEnvironmentPtr();
+	        assert(cpxEnv);
+	        CPXsetintparam(cpxEnv, CPX_PARAM_SCRIND, CPX_OFF);
+	        CPXsetintparam(cpxEnv, CPX_PARAM_THREADS, maxThreadsLL);
+#endif
+	    }
+	    boundSolver->branchAndBound();
+
+	    if(isLBSet == false) {
+		if(boundSolver->isProvenOptimal()){
+		    varLB[tenderVarIndex] = boundSolver->getObjValue();
+		}
+	    //ask about else
+		isLBSet = true;
+	    }
+	    else{
+		if(boundSolver->isProvenOptimal()){
+		    varUB[tenderVarIndex] = boundSolver->getObjValue();
+		}
+	        //ask about else
+
+	        tenderVarIndex++;
+	        isLBSet = false;
+		isBoundingFinished = true;
+	        delete boundSolver;
+	    }
+	}
+    }
+
+    //setting new rows bounds
+    CoinFillN(conLB + numRowsOrig, 2 * lRows, -1 * infinity);
+    CoinFillN(conUB + numRowsOrig, 2 * lRows, 0.0);
+
+    CoinFillN(objCoef + numColsOrig, lRows, 0.0);
+
+    CoinFillN(rowSense + numRowsOrig, 2 * lRows, 'L');
+
+    CoinFillN(colType + numColsOrig, lRows, 'I');	
+	
+    
+    delete [] uColIndices;
+    delete [] newObjCoef;
+}
+
+//############################################################################# 
 void
 MibSModel::loadProblemData(const CoinPackedMatrix& matrix,
 			   const double* colLB, const double* colUB,   
@@ -1723,7 +1987,7 @@ MibSModel::userFeasibleSolution(const double * solution, bool &userFeasible)
   }
 
   userFeasible = false;
-  if(bS_->shouldPrune_){
+  if(bS_->shouldPrune_){	  
       userFeasible = true;
       if(!bS_->isProvenOptimal_){
 	  upperObj = 10000000;

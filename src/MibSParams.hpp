@@ -51,6 +51,7 @@ class MibSParams : public AlpsParameterSet {
      blisCutStrategy,
      blisBranchStrategy,
      branchStrategy,
+     useTenderVars,
      upperFileFormat,
      maxThreadsLL,
      whichCutsLL,

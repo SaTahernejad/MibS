@@ -17,6 +17,7 @@
 #define MibSModel_h_
 
 #include "OsiClpSolverInterface.hpp"
+#include "OsiSolverInterface.hpp"
 
 #include "BlisModel.h"
 #include "BlisSolution.h"
@@ -423,6 +424,13 @@ public:
 
     /** Read problem description file **/
     void readProblemData();
+
+    /** Reformulates the data collected in readProblemData() 
+        by adding tender variables **/
+    void addTenderVars(CoinPackedMatrix& newMatrix, const CoinPackedMatrix& matrix,
+		       double* varLB, double* varUB, double* objCoef, double* conLB,
+		       double* conUB, char *colType, double objSense, double infinity,
+		       char *rowSense);
 
     /** Set problem data directly when using MibS as a library **/
     void loadProblemData(const CoinPackedMatrix& matrix,

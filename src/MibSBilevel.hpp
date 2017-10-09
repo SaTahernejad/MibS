@@ -48,6 +48,7 @@ private:
     bool isLinkVarsIntegral_;
     bool useBilevelBranching_;
     bool isLinkVarsFixed_;
+    bool isTenderVarsFixed_;
     bool isProvenOptimal_;
     /** is lower-level problem solved or not **/
     bool isLowerSolved_;

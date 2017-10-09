@@ -53,7 +53,16 @@ enum MibSLinkingPoolTag{
     MibSLinkingPoolTagUBIsSolved
 };  
 
+//#############################################################################
+
+enum MibSAddTenderVars{
+    MibSAddTenderVarsIsNotSet = -1,
+    MibSAddTenderVarsIsNotAllowed,
+    MibSAddTenderVarsIsAllowed
+};
+
 //############################################################################# 
+    
 /*---------  which_active_con_method choices --------------------------------*/
 #define SIMPLE  0
 #define BASIS  1
