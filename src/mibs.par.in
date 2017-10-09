@@ -86,6 +86,7 @@ MibS_blisCutStrategy -1                 # -2: root, -1: auto, 0: disable, any po
 #MibS_blisBranchStrategy 0      # 0: max inf, 1: pseudocost, 2: relibility, 3: strong
 #MibS_upperFileFormat 0         # 0: mps, 1: AMPL/GMPL (not working, yet)
 MibS_branchStrategy  1          # 0: fractional, 1: linking
+MibS_useTenderVars 1         # 0: not use, 1: use
 MibS_warmStartLL 0
 MibS_maxThreadsLL 1
 MibS_useBendersCut 0
