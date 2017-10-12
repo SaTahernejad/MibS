@@ -408,6 +408,9 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot)
 	if(!lSolver->isProvenOptimal()){
 	    LPSolStatus_ = MibSLPSolStatusInfeasible;
 	    isProvenOptimal_ = false;
+	    if((isLinkVarsFixed_) || (isTenderVarsFixed_)){
+		shouldPrune_ = true;
+	    }
 	    if(useLinkingSolutionPool){
 	    //step 10
 	    //Adding x_L to set E
