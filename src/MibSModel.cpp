@@ -541,16 +541,9 @@ MibSModel::readProblemData()
    delete [] conLB;
    delete [] conUB;
    delete [] objCoef;
+   delete [] rowSense;
 
    delete mps;
-
-   delete [] varLB;
-   delete [] varUB;
-   delete [] objCoef;
-   delete [] conLB;
-   delete [] conUB;
-   delete [] colType;
-   delete [] rowSense;
 }
 
 //#############################################################################
