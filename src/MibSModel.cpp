@@ -535,6 +535,13 @@ MibSModel::readProblemData()
 		   objSense, mps->getInfinity(), rowSense);
    }
 
+   delete [] colType;
+   delete [] varLB;
+   delete [] varUB;
+   delete [] conLB;
+   delete [] conUB;
+   delete [] objCoef;
+
    delete mps;
 
    delete [] varLB;

@@ -262,7 +262,8 @@ MibSBilevel::createBilevel(CoinPackedVector* sol,
   }
   
   heuristic_->findHeuristicSolutions();
-  
+
+  delete heuristic_;
 }
 
 
@@ -322,9 +323,9 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot)
 	if (warmStartLL && (feasCheckSolver == "SYMPHONY") && solver_){
 	    solver_ = setUpModel(model_->getSolver(), false);
 	}else{
-	    if (solver_){
+	    /*if (solver_){
 		delete solver_;
-	    }
+	    }*/
 	    solver_ = setUpModel(model_->getSolver(), true);
 	}
 	
@@ -454,6 +455,9 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot)
 		node->setLowerUB(objVal);
 		node->setIsBoundSet(true);
 	    }
+	}
+	if (!warmStartLL){
+	    delete solver_;
 	}
     }
 
@@ -645,6 +649,7 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot)
 		}
 	    }
 	}
+	delete UBSolver;
     }
     delete [] lowerSol;
 }
@@ -828,7 +833,13 @@ MibSBilevel::setUpUBModel(OsiSolverInterface * oSolver, double objValLL,
     nSolver->setHintParam(OsiDoReducePrint, true, OsiHintDo);
 
     delete [] integerVars;
-
+    delete [] rowUb;
+    delete [] rowLb;
+    delete [] colUb;
+    delete [] colLb;
+    delete [] objCoeffs;
+    delete [] newRow;
+    delete newMat;
 
     return nSolver;
 
@@ -992,6 +1003,8 @@ MibSBilevel::setUpModel(OsiSolverInterface * oSolver, bool newOsi,
      }
 #endif
      delete [] integerVars;
+     delete [] objCoeffs;
+     delete newMat;
 
   }else{
      nSolver = solver_;
@@ -1142,6 +1155,11 @@ MibSBilevel::setUpModel(OsiSolverInterface * oSolver, bool newOsi,
   //if(!getWarmStart())
   //  setWarmStart(nSolver->getWarmStart());
 
+  delete [] rowLb;
+  delete [] rowUb;
+  delete [] colLb;
+  delete [] colUb;
+ 
   return nSolver;
 
 }
