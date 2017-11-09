@@ -622,6 +622,8 @@ MibSModel::loadProblemData(const CoinPackedMatrix& matrix,
    int problemType(MibSPar_->entry(MibSParams::bilevelProblemType));
 
    bool checkInstanceStructure(MibSPar_->entry(MibSParams::checkInstanceStructure));
+
+   int msgLevel(AlpsPar()->entry(AlpsParams::msgLevel));
    
    int i(0);
    
@@ -630,7 +632,9 @@ MibSModel::loadProblemData(const CoinPackedMatrix& matrix,
 	   MibSPar()->setEntry(MibSParams::bilevelProblemType, INTERDICT);
        }
        else if(problemType == GENERAL){
-	   std::cout << "Wrong value for MibSProblemType. Automatically modifying its value." << std::endl;
+	   if(msgLevel >= 1){
+	       std::cout << "Wrong value for MibSProblemType. Automatically modifying its value." << std::endl;
+	   }
 	   MibSPar()->setEntry(MibSParams::bilevelProblemType, INTERDICT);
        }
    }
@@ -639,8 +643,10 @@ MibSModel::loadProblemData(const CoinPackedMatrix& matrix,
 	   MibSPar()->setEntry(MibSParams::bilevelProblemType, GENERAL);
        }
    else if(problemType == INTERDICT){
-   	   std::cout << "Wrong value for MibSProblemType. Automatically modifying its value." << std::endl;
-   	   MibSPar()->setEntry(MibSParams::bilevelProblemType, GENERAL);
+       if(msgLevel >= 1){
+	   std::cout << "Wrong value for MibSProblemType. Automatically modifying its value." << std::endl;
+       }
+       MibSPar()->setEntry(MibSParams::bilevelProblemType, GENERAL);
      }
    }
 
@@ -2967,19 +2973,25 @@ MibSModel::setRequiredFixedList(const CoinPackedMatrix *newMatrix)
 }
 
 //#############################################################################
-void                                                                                                                                                                             
+void                      
 MibSModel::instanceStructure(const CoinPackedMatrix *newMatrix, const double* rowLB,
 			     const double* rowUB, const char *rowSense)
 {
-    
-    /** Determines the properties of instance **/
-    std::cout<<"======================================="<<std::endl;                                                                                                              
-    std::cout<<"             Problem Structure          "<<std::endl;                                                                                                             
-    std::cout<<"======================================="<<std::endl;                                                                                                              
-    std::cout<<"Number of UL Variables: "<<upperDim_<<std::endl;
-    std::cout<<"Number of LL Variables: "<<lowerDim_<<std::endl;
-    std::cout<<"Number of UL Rows: "<<upperRowNum_<<std::endl;                                                                                         
-    std::cout<<"Number of LL Rows: "<<lowerRowNum_<<std::endl;
+    int msgLevel(AlpsPar()->entry(AlpsParams::msgLevel));
+
+    if(msgLevel >= 1){
+	/** Determines the properties of instance **/
+        std::cout<<"======================================="<<std::endl;
+	
+        std::cout<<"             Problem Structure          "<<std::endl;
+	
+        std::cout<<"======================================="<<std::endl;
+
+	std::cout<<"Number of UL Variables: "<<upperDim_<<std::endl;
+        std::cout<<"Number of LL Variables: "<<lowerDim_<<std::endl;
+        std::cout<<"Number of UL Rows: "<<upperRowNum_<<std::endl;                                                                                         
+        std::cout<<"Number of LL Rows: "<<lowerRowNum_<<std::endl;
+    }
     
     int i(0),j(0),index(0);                                                                                                                                
     int numCols(numVars_);
@@ -3002,14 +3014,18 @@ MibSModel::instanceStructure(const CoinPackedMatrix *newMatrix, const double* ro
 		numUpperInt ++;
 	    }
 	}
-	std::cout <<"Number of integer UL Variables: " << numUpperInt << std::endl;
+	if(msgLevel >= 1){
+	    std::cout <<"Number of integer UL Variables: " << numUpperInt << std::endl;
+	}
 	for(i = 0; i < lCols; i++){
 	    index = lColIndices[i];
 	    if(colType_[index] != 'C'){
 		numLowerInt++;
 	    }
 	}
-	std::cout <<"Number of integer LL Variables: " << numLowerInt << std::endl;
+	if(msgLevel >= 1){
+	    std::cout <<"Number of integer LL Variables: " << numLowerInt << std::endl;
+	}
     }
 
 
@@ -3026,7 +3042,7 @@ MibSModel::instanceStructure(const CoinPackedMatrix *newMatrix, const double* ro
     }
     
     //Checks general or interdiction 
-    if(isInterdict_ == true){
+    if((isInterdict_ == true) && (msgLevel >= 1)){
 	std::cout << "This instance is an interdiction bilevel optimization problem." << std::endl;
     }
 
@@ -3055,19 +3071,19 @@ MibSModel::instanceStructure(const CoinPackedMatrix *newMatrix, const double* ro
 	}
     }
 
-    if(isPureInteger_ == true){
+    if((isPureInteger_ == true) && (msgLevel >= 1)){
 	std::cout << "This instance is a pure integer bilevel optimization problem" << std::endl;
     }
-    else{
+    else if(msgLevel >= 1){
 	std::cout << "This instance is a mixed_integer bilevel optimization problem" << std::endl;
     }
 	
                                                                                                                                                                          
-    if(allUpperBin_ == true){
+    if((allUpperBin_ == true) && (msgLevel >= 1)){
 	std::cout << "All of UL varibles are binary." << std::endl;
     }                                                                                                                                                                             
                                                                                                                                                                                   
-    if(allLowerBin_ == true){
+    if((allLowerBin_ == true) && (msgLevel >= 1)){
 	std::cout << "All of LL varibles are binary." << std::endl; 
     }                                                                                                                                                                             
                                                                                                                                                                                   
@@ -3160,19 +3176,19 @@ MibSModel::instanceStructure(const CoinPackedMatrix *newMatrix, const double* ro
 	}
     }
     
-    if(positiveA1_ == true){
+    if((positiveA1_ == true) && (msgLevel >= 1)){
 	std::cout << "Matrix A1 is positive." << std::endl;
     }
     
-    if(positiveG1_ == true){
+    if((positiveG1_ == true) && (msgLevel >= 1)){
 	std::cout << "Matrix G1 is positive." << std::endl;
     }
     
-    if(positiveA2_ == true){
+    if((positiveA2_ == true) && (msgLevel >= 1)){
 	std::cout << "Matrix A2 is positive." << std::endl;
     }
     
-    if(positiveG2_ == true){
+    if((positiveG2_ == true) && (msgLevel >= 1)){
 	std::cout << "Matrix G2 is positive." << std::endl;
     }
 
@@ -3196,7 +3212,9 @@ MibSModel::instanceStructure(const CoinPackedMatrix *newMatrix, const double* ro
     if(paramValue == PARAM_NOTSET)
 	MibSPar()->setEntry(MibSParams::usePreprocessor, PARAM_OFF);
     else if(paramValue == PARAM_ON){
-	std::cout << "The preprocessor is not currently functional. Automatically disabling your parameter choice." << std::endl;
+	if(msgLevel >= 1){
+	    std::cout << "The preprocessor is not currently functional. Automatically disabling your parameter choice." << std::endl;
+	}
 	MibSPar()->setEntry(MibSParams::usePreprocessor, PARAM_OFF);
     }
 
@@ -3208,7 +3226,9 @@ MibSModel::instanceStructure(const CoinPackedMatrix *newMatrix, const double* ro
     else if(paramValue == PARAM_ON){
 	if(isInterdict_ == false){
 	    MibSPar()->setEntry(MibSParams::useGreedyHeuristic, PARAM_OFF);
-	    std::cout << "This heuristic only works for interdiction problems. Automatically disabling this heuristic." << std::endl;
+	    if(msgLevel >= 1){
+		std::cout << "This heuristic only works for interdiction problems. Automatically disabling this heuristic." << std::endl;
+	    }
 	}
     }
 
@@ -3224,7 +3244,9 @@ MibSModel::instanceStructure(const CoinPackedMatrix *newMatrix, const double* ro
 	MibSPar()->setEntry(MibSParams::useIncObjCut, PARAM_OFF);
     else if(paramValue == PARAM_ON){
 	if((allUpperBin_ == false) || (positiveA2_ == false)){
-	    std::cout << "The increasing objective cut does not work for this problem. Automatically disabling this cut." << std::endl;
+	    if(msgLevel >= 1){
+		std::cout << "The increasing objective cut does not work for this problem. Automatically disabling this cut." << std::endl;
+	    }
 	    MibSPar()->setEntry(MibSParams::useIncObjCut, PARAM_OFF);
 	}
     }
@@ -3244,8 +3266,10 @@ MibSModel::instanceStructure(const CoinPackedMatrix *newMatrix, const double* ro
 	cutType =  MibSPar_->entry(MibSParams::intersectionCutType);
 	if(cutType == 1){
 	    if((isPureInteger_ == false) || (isLowerCoeffInt_ == false)){
-		std::cout << "The intersection cut 1 does not work for this problem.  Automatically disabling this cut."
-			  << std::endl;
+		if(msgLevel >= 1){
+		    std::cout << "The intersection cut 1 does not work for this problem.  Automatically disabling this cut."
+			      << std::endl;
+		}
 		MibSPar()->setEntry(MibSParams::useIntersectionCut, PARAM_OFF);
 	    }
 	}
@@ -3268,7 +3292,9 @@ MibSModel::instanceStructure(const CoinPackedMatrix *newMatrix, const double* ro
     }
     else if(paramValue == PARAM_ON){
 	if((isInterdict_ == false) || (positiveG2_ == false)){
-	    std::cout << "The benders cut does not work for this problem. Automatically disabling this cut." << std::endl;
+	    if(msgLevel >= 1){
+		std::cout << "The benders cut does not work for this problem. Automatically disabling this cut." << std::endl;
+	    }
 	    MibSPar()->setEntry(MibSParams::useBendersCut, PARAM_OFF);
 	}
     }
@@ -3294,7 +3320,9 @@ MibSModel::instanceStructure(const CoinPackedMatrix *newMatrix, const double* ro
 	    }
     }	    
     else if((paramValue == PARAM_ON) && (allUpperBin_ == false)){
-	std::cout << "The no-good cut does not work for this problem. Automatically disabling this cut." << std::endl;
+	if(msgLevel >= 1){
+	    std::cout << "The no-good cut does not work for this problem. Automatically disabling this cut." << std::endl;
+	}
 	MibSPar()->setEntry(MibSParams::useNoGoodCut, PARAM_OFF);
     }
     if(MibSPar_->entry(MibSParams::useNoGoodCut) == PARAM_ON){
@@ -3318,7 +3346,9 @@ MibSModel::instanceStructure(const CoinPackedMatrix *newMatrix, const double* ro
 	}
     }
     else if((paramValue == PARAM_ON) && (allLinkingBin_ == false)){
-	std::cout << "Generalized no-good cut does not work for this problem. Automatically disabling this cut." << std::endl;
+	if(msgLevel >= 1){
+	    std::cout << "Generalized no-good cut does not work for this problem. Automatically disabling this cut." << std::endl;
+	}
 	MibSPar()->setEntry(MibSParams::useGeneralNoGoodCut, PARAM_OFF);
     }
     if(MibSPar_->entry(MibSParams::useGeneralNoGoodCut) == PARAM_ON){
@@ -3345,7 +3375,9 @@ MibSModel::instanceStructure(const CoinPackedMatrix *newMatrix, const double* ro
     }
     else if((paramValue == PARAM_ON) && ((isPureInteger_ == false) || (isUpperCoeffInt_ == false)
 					 || (isLowerCoeffInt_ == false))){
-	std::cout << "The pure integer cut does not work for this problem. Automatically disabling this cut." << std::endl;
+	if(msgLevel >= 1){
+	    std::cout << "The pure integer cut does not work for this problem. Automatically disabling this cut." << std::endl;
+	}
 	MibSPar()->setEntry(MibSParams::usePureIntegerCut, PARAM_OFF);
     }
     if(MibSPar_->entry(MibSParams::usePureIntegerCut) == PARAM_ON){
@@ -3372,58 +3404,63 @@ MibSModel::instanceStructure(const CoinPackedMatrix *newMatrix, const double* ro
 	  (MibSPar_->entry(MibSParams::branchStrategy));
     if(branchPar == MibSBranchingStrategyNotSet){
 	if((isInterdict_ == true) || (numUpperInt <= numLowerInt)){
-	MibSPar()->setEntry(MibSParams::branchStrategy,
-			    MibSBranchingStrategyLinking);
-	std::cout << "Since no branching procedure is selected, it is set to 'MibSBranchingStrategyLinking' automatically."
-		  << std::endl;
+	    MibSPar()->setEntry(MibSParams::branchStrategy,
+				MibSBranchingStrategyLinking);
+	    if(msgLevel >= 1){
+		std::cout << "Since no branching procedure is selected, it is set to 'MibSBranchingStrategyLinking' automatically."
+			  << std::endl;
+	    }
 	}
 	else{
 	    MibSPar()->setEntry(MibSParams::branchStrategy,
 				MibSBranchingStrategyFractional);
-	    std::cout << "Since no branching procedure is selected, it is set to 'MibSBranchingStrategyFractional' automatically."
+	    if(msgLevel >= 1){
+		std::cout << "Since no branching procedure is selected, it is set to 'MibSBranchingStrategyFractional' automatically."
+			  << std::endl;
+	    }
+	}
+    }
+
+    if(msgLevel >= 1){
+	if(MibSPar_->entry(MibSParams::useIncObjCut) == PARAM_ON){
+	    std::cout << "'Increasing objective cut' genertor is on." << std::endl;
+	}
+
+	if(MibSPar_->entry(MibSParams::useBendersCut) == PARAM_ON){
+	    std::cout << "'Benders cut' genertor is on." << std::endl;
+	}
+
+	if(MibSPar_->entry(MibSParams::usePureIntegerCut) == PARAM_ON){
+	    std::cout << "'Pure integer cut' genertor is on."<< std::endl;
+	}
+
+	if(MibSPar_->entry(MibSParams::useNoGoodCut) == PARAM_ON){
+	    std::cout << "'No-good cut' genertor is on."<< std::endl;
+	}
+
+	if(MibSPar_->entry(MibSParams::useGeneralNoGoodCut) == PARAM_ON){
+	    std::cout << "'Generalized no-good cut' genertor is on."<< std::endl;
+	}
+
+	if(MibSPar_->entry(MibSParams::useIntersectionCut) == PARAM_ON){
+	    if(MibSPar_->entry(MibSParams::intersectionCutType) == 1){
+		std::cout << "'Intersection cut 1' generator is on." << std::endl;
+	    }
+	    if(MibSPar_->entry(MibSParams::intersectionCutType) == 2){
+		std::cout << "'hypercube IC' generator is on." << std::endl;
+	    }
+	}
+
+	if(MibSPar_->entry(MibSParams::branchStrategy) ==
+	   MibSBranchingStrategyLinking){
+	    std::cout << "Branching procedure is set to 'MibSBranchingStrategyLinking'."
 		      << std::endl;
 	}
-    }
-
-
-    if(MibSPar_->entry(MibSParams::useIncObjCut) == PARAM_ON){
-	std::cout << "'Increasing objective cut' genertor is on." << std::endl;
-    }
-
-    if(MibSPar_->entry(MibSParams::useBendersCut) == PARAM_ON){
-	std::cout << "'Benders cut' genertor is on." << std::endl;
-    }
-
-    if(MibSPar_->entry(MibSParams::usePureIntegerCut) == PARAM_ON){
-	std::cout << "'Pure integer cut' genertor is on."<< std::endl;
-    }
-
-    if(MibSPar_->entry(MibSParams::useNoGoodCut) == PARAM_ON){
-	std::cout << "'No-good cut' genertor is on."<< std::endl;
-    }
-
-    if(MibSPar_->entry(MibSParams::useGeneralNoGoodCut) == PARAM_ON){
-	std::cout << "'Generalized no-good cut' genertor is on."<< std::endl;
-    }
-
-    if(MibSPar_->entry(MibSParams::useIntersectionCut) == PARAM_ON){
-	if(MibSPar_->entry(MibSParams::intersectionCutType) == 1){
-	    std::cout << "'Intersection cut 1' generator is on." << std::endl;
+	else if(MibSPar_->entry(MibSParams::branchStrategy) ==
+		MibSBranchingStrategyFractional){
+	    std::cout << "Branching procedure is set to 'MibSBranchingStrategyFractional'."
+		      << std::endl;
 	}
-	if(MibSPar_->entry(MibSParams::intersectionCutType) == 2){
-	    std::cout << "'hypercube IC' generator is on." << std::endl;
-	}
-    }
-
-    if(MibSPar_->entry(MibSParams::branchStrategy) ==
-       MibSBranchingStrategyLinking){
-	std::cout << "Branching procedure is set to 'MibSBranchingStrategyLinking'."
-		  << std::endl;
-    }
-    else if(MibSPar_->entry(MibSParams::branchStrategy) ==
-	    MibSBranchingStrategyFractional){
-	std::cout << "Branching procedure is set to 'MibSBranchingStrategyFractional'."
-		  << std::endl;
     }
 	
     //Setting parameters of solving (VF) and (UB)
@@ -3454,32 +3491,34 @@ MibSModel::instanceStructure(const CoinPackedMatrix *newMatrix, const double* ro
 	MibSPar()->setEntry(MibSParams::computeBestUBWhenLVarsFixed, PARAM_ON);
     }
 
-    if(MibSPar_->entry(MibSParams::solveSecondLevelWhenXYVarsInt) == PARAM_ON){
-	std::cout << "'solveSecondLevelWhenXYVarsInt' is true." << std::endl;
-    }
-    
-    if(MibSPar_->entry(MibSParams::solveSecondLevelWhenXVarsInt) == PARAM_ON){
-	std::cout << "'solveSecondLevelWhenXVarsInt' is true." <<std::endl;
-    }
+    if(msgLevel >= 1){
+	if(MibSPar_->entry(MibSParams::solveSecondLevelWhenXYVarsInt) == PARAM_ON){
+	    std::cout << "'solveSecondLevelWhenXYVarsInt' is true." << std::endl;
+	}
 
-    if(MibSPar_->entry(MibSParams::solveSecondLevelWhenLVarsInt) == PARAM_ON){
-	std::cout << "'solveSecondLevelWhenLVarsInt' is true." <<std::endl;
-    }
+	if(MibSPar_->entry(MibSParams::solveSecondLevelWhenXVarsInt) == PARAM_ON){
+	    std::cout << "'solveSecondLevelWhenXVarsInt' is true." <<std::endl;
+	}
 
-    if(MibSPar_->entry(MibSParams::solveSecondLevelWhenLVarsFixed) == PARAM_ON){
-	std::cout << "'solveSecondLevelWhenLVarsFixed' is true." <<std::endl;
-    }
+	if(MibSPar_->entry(MibSParams::solveSecondLevelWhenLVarsInt) == PARAM_ON){
+	    std::cout << "'solveSecondLevelWhenLVarsInt' is true." <<std::endl;
+	}
 
-    if(MibSPar_->entry(MibSParams::computeBestUBWhenXVarsInt) == PARAM_ON){
-	std::cout << "'computeBestUBWhenXVarsInt' is true." <<std::endl;
-    }
+        if(MibSPar_->entry(MibSParams::solveSecondLevelWhenLVarsFixed) == PARAM_ON){
+	    std::cout << "'solveSecondLevelWhenLVarsFixed' is true." <<std::endl;
+	}
 
-    if(MibSPar_->entry(MibSParams::computeBestUBWhenLVarsInt) == PARAM_ON){
-	std::cout << "'computeBestUBWhenLVarsInt' is true." <<std::endl;
-    }
+        if(MibSPar_->entry(MibSParams::computeBestUBWhenXVarsInt) == PARAM_ON){
+	    std::cout << "'computeBestUBWhenXVarsInt' is true." <<std::endl;
+	}
 
-    if(MibSPar_->entry(MibSParams::computeBestUBWhenLVarsFixed) == PARAM_ON){
-	std::cout << "'computeBestUBWhenLVarsFixed' is true." <<std::endl;
+        if(MibSPar_->entry(MibSParams::computeBestUBWhenLVarsInt) == PARAM_ON){
+	    std::cout << "'computeBestUBWhenLVarsInt' is true." <<std::endl;
+	}
+
+        if(MibSPar_->entry(MibSParams::computeBestUBWhenLVarsFixed) == PARAM_ON){
+	    std::cout << "'computeBestUBWhenLVarsFixed' is true." <<std::endl;
+	}
     }
 
     //Setting "saveSeenLinkingSols" parameter
@@ -3488,11 +3527,13 @@ MibSModel::instanceStructure(const CoinPackedMatrix *newMatrix, const double* ro
 	MibSPar()->setEntry(MibSParams::useLinkingSolutionPool, PARAM_ON);
     }
 
-    if(MibSPar_->entry(MibSParams::useLinkingSolutionPool) == PARAM_ON){
-	std::cout << "'seenLinkingSolutions' pool is used." << std::endl;
-    }
-    else{
-	std::cout << "'seenLinkingSolutions' pool is not used." << std::endl;
+    if(msgLevel >= 1){
+	if(MibSPar_->entry(MibSParams::useLinkingSolutionPool) == PARAM_ON){
+	    std::cout << "'seenLinkingSolutions' pool is used." << std::endl;
+	}
+	else{
+	    std::cout << "'seenLinkingSolutions' pool is not used." << std::endl;
+	}
     }
 	
     delete [] newRowSense;
