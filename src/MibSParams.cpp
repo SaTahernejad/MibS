@@ -30,6 +30,9 @@ MibSParams::createKeywordList() {
    // BoolPar
    //--------------------------------------------------------
   
+   keys_.push_back(make_pair(std::string("MibS_checkInstanceStructure"),
+			     AlpsParameter(AlpsBoolPar, checkInstanceStructure)));
+    
    keys_.push_back(make_pair(std::string("MibS_useValFuncCut"),
 			     AlpsParameter(AlpsBoolPar, useValFuncCut)));
 
@@ -64,9 +67,6 @@ MibSParams::createKeywordList() {
    //--------------------------------------------------------
    // Int Parameters
    //--------------------------------------------------------
-   
-   //keys_.push_back(make_pair(std::string("MibS_verbosity"),
-   //		    AlpsParameter(AlpsIntPar, verbosity)));
    
    keys_.push_back(make_pair(std::string("MibS_whichActiveConMethod"),
 			     AlpsParameter(AlpsIntPar, 
@@ -191,7 +191,8 @@ MibSParams::setDefaultEntries() {
    //-------------------------------------------------------------
    // Bool Parameters.
    //-------------------------------------------------------------
-
+   setEntry(checkInstanceStructure, true);
+   
    setEntry(useValFuncCut, false);
      
    setEntry(useBoundCut, false);

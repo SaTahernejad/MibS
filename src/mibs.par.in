@@ -77,6 +77,7 @@ Blis_heurRound     0   # -2: root, -1: auto, 0: disable, any positive integer
 
 #Blis_checkMemory 1
 
+MibS_checkInstanceStructure 0   # 0: false  1: true
 MibS_usePreprocessor 0          # -1: auto, 0: false, 1: true
 MibS_useLowerObjHeuristic 0     # -1: auto, 0: false, 1: true
 MibS_useObjCutHeuristic 0       # -1: auto, 0: false, 1: true

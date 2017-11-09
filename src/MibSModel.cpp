@@ -621,6 +621,8 @@ MibSModel::loadProblemData(const CoinPackedMatrix& matrix,
 
    int problemType(MibSPar_->entry(MibSParams::bilevelProblemType));
 
+   bool checkInstanceStructure(MibSPar_->entry(MibSParams::checkInstanceStructure));
+   
    int i(0);
    
    if(isInterdict_ == true){
@@ -917,7 +919,10 @@ MibSModel::loadProblemData(const CoinPackedMatrix& matrix,
    setProblemType(); //determine the type of MIBLP
    //determine the list of first-stage variables participate in second-stage constraints
    setRequiredFixedList(newMatrix);
-   instanceStructure(newMatrix, conLB, conUB, rowSense);
+
+   if(checkInstanceStructure == true){
+       instanceStructure(newMatrix, conLB, conUB, rowSense);
+   }
 }
 
 //#############################################################################

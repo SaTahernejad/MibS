@@ -27,6 +27,7 @@ class MibSParams : public AlpsParameterSet {
   /** Character parameters. All of these variable are used as booleans
       (true = 1, false = 0). */
   enum boolParams{
+     checkInstanceStructure,
      useValFuncCut,
      useBoundCut,
      boundCutOptimal,
