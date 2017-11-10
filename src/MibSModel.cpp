@@ -123,6 +123,7 @@ MibSModel::initialize()
   positiveA2_ = true;
   positiveG1_ = true;
   positiveG2_ = true;
+  isBoundProbSolved_ = false;
   upperColInd_ = NULL;
   lowerColInd_ = NULL;
   upperRowInd_ = NULL;
@@ -3077,16 +3078,15 @@ MibSModel::instanceStructure(const CoinPackedMatrix *newMatrix, const double* ro
     else if(msgLevel >= 1){
 	std::cout << "This instance is a mixed_integer bilevel optimization problem" << std::endl;
     }
-	
-                                                                                                                                                                         
+    
     if((allUpperBin_ == true) && (msgLevel >= 1)){
 	std::cout << "All of UL varibles are binary." << std::endl;
-    }                                                                                                                                                                             
-                                                                                                                                                                                  
+    }
+    
     if((allLowerBin_ == true) && (msgLevel >= 1)){
 	std::cout << "All of LL varibles are binary." << std::endl; 
-    }                                                                                                                                                                             
-                                                                                                                                                                                  
+    }
+    
     int nonZero (newMatrix->getNumElements());
     int counterStart, counterEnd;
     int rowIndex, posRow, posCol;
@@ -3096,12 +3096,13 @@ MibSModel::instanceStructure(const CoinPackedMatrix *newMatrix, const double* ro
     const int * matIndices = newMatrix->getIndices();           
     const int * matStarts = newMatrix->getVectorStarts();
     
-    for(i = 0; i < numCols; i++){                                                                                                                                                 
-        counterStart = matStarts[i];                                                                                                                                              
-        counterEnd = matStarts[i+1];                                                                                                                                              
+    for(i = 0; i < numCols; i++){
+	counterStart = matStarts[i];
+        counterEnd = matStarts[i+1];
+	
         for(j = counterStart; j < counterEnd; j++){                                                                  
-	    rowIndex = matIndices[j];                                                                                                                                         
-	    posRow = binarySearch(0, lRows - 1, rowIndex, lRowIndices);                                                                                                       
+	    rowIndex = matIndices[j];           
+	    posRow = binarySearch(0, lRows - 1, rowIndex, lRowIndices);           
 	    posCol = binarySearch(0, lCols - 1, i, lColIndices);
 	    if((fabs(matElements[j] - floor(matElements[j])) > etol_) &&
 	       (fabs(matElements[j] - ceil(matElements[j])) > etol_)){

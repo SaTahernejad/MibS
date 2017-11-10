@@ -133,6 +133,9 @@ private:
 
     /** Determines if matrix G2 is positive or not **/
     bool positiveG2_;
+
+    /** Determine if bounding problem is solved or not **/
+    bool isBoundProbSolved_;
   
     /** the left (negative) slope of the lower-level value function **/
     double leftSlope_;

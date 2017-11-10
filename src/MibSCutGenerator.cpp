@@ -1246,7 +1246,17 @@ MibSCutGenerator::getAlphaIntersectionCutType3(double** extRay, int numNonBasic,
 int
 MibSCutGenerator::boundCuts(BcpsConstraintPool &conPool)
 {
+    /*sahar:ToDo
+    1. I defined boundCutType as an integer param and its default value is not
+       set, work on it more. 
+    2.define boundCutType wit enum.
+    3.define parameters for the time limit of solving bound problems.
+    */
+    
    /* Derive a bound on the lower level objective function value */
+
+   int boundCutType
+       = localModel_->MibSPar_->entry(MibSParams::boundCutType);
 
    bool boundCutOptimal 
       = localModel_->MibSPar_->entry(MibSParams::boundCutOptimal);
@@ -1272,6 +1282,7 @@ MibSCutGenerator::boundCuts(BcpsConstraintPool &conPool)
    int uCols(localModel_->getUpperDim());
    int * uColIndices = localModel_->getUpperColInd();
    int i(0), index(0);
+   bool isBoundProbSolved = localModel_->isBoundProbSolved_;
    
    OsiSolverInterface * oSolver = localModel_->getSolver();
 
@@ -1297,82 +1308,96 @@ MibSCutGenerator::boundCuts(BcpsConstraintPool &conPool)
    double lower_objval = -oSolver->getInfinity();
 
    if (boundCutOptimal){
+       if((isBoundProbSolved == false) || (boundCutType == 1)){
+	   /** Create new MibS model to solve bilevel **/
+	   MibSModel *boundModel = new MibSModel();
+           boundModel->setSolver(&lpSolver);
+           boundModel->AlpsPar()->setEntry(AlpsParams::msgLevel, -1);
+           boundModel->AlpsPar()->setEntry(AlpsParams::timeLimit, 10);
+           char * colType;
+           if (boundCutRelaxUpper){
+	       colType = new char[tCols];
+	       memcpy(colType, localModel_->colType_, tCols);
+	       for (i = 0; i < uCols; i++){
+		   colType[uColIndices[i]] = 'C';
+	       }
+	   }else{
+	       colType = localModel_->colType_;
+	   }
 
-      /** Create new MibS model to solve bilevel **/
-      MibSModel *boundModel = new MibSModel();
-      boundModel->setSolver(&lpSolver);
-      boundModel->AlpsPar()->setEntry(AlpsParams::msgLevel, -1);
-      boundModel->AlpsPar()->setEntry(AlpsParams::timeLimit, 10);
-      char * colType;
-      if (boundCutRelaxUpper){
-	 colType = new char[tCols];
-	 memcpy(colType, localModel_->colType_, tCols);
-	 for (i = 0; i < uCols; i++){
-	    colType[uColIndices[i]] = 'C';
-	 }
-      }else{
-	 colType = localModel_->colType_;
-      }
+           boundModel->loadProblemData(matrix,
+				       oSolver->getColLower(), oSolver->getColUpper(),
+				       nObjCoeffs,
+				       oSolver->getRowLower(), oSolver->getRowUpper(),
+				       colType, 1.0, oSolver->getInfinity(),
+				       oSolver->getRowSense());
+      
+           boundModel->loadAuxiliaryData(localModel_->getLowerDim(),
+					 localModel_->getLowerRowNum(),
+				         localModel_->getLowerColInd(),
+				         localModel_->getLowerRowInd(),
+				         localModel_->getLowerObjSense(), 
+				         localModel_->getLowerObjCoeffs(),
+				         localModel_->getUpperDim(),
+				         localModel_->getUpperRowNum(),
+				         localModel_->getUpperColInd(),
+				         localModel_->getUpperRowInd(),
+				         localModel_->structRowNum_,
+				         localModel_->structRowInd_,
+				         0, NULL);
 
-      boundModel->loadProblemData(matrix,
-				  oSolver->getColLower(), oSolver->getColUpper(),
-				  nObjCoeffs,
-				  oSolver->getRowLower(), oSolver->getRowUpper(),
-				  colType, 1.0, oSolver->getInfinity(),
-				  oSolver->getRowSense());
+	   delete[] indDel;
       
-      boundModel->loadAuxiliaryData(localModel_->getLowerDim(),
-				    localModel_->getLowerRowNum(),
-				    localModel_->getLowerColInd(),
-				    localModel_->getLowerRowInd(),
-				    localModel_->getLowerObjSense(), 
-				    localModel_->getLowerObjCoeffs(),
-				    localModel_->getUpperDim(),
-				    localModel_->getUpperRowNum(),
-				    localModel_->getUpperColInd(),
-				    localModel_->getUpperRowInd(),
-				    localModel_->structRowNum_,
-				    localModel_->structRowInd_,
-				    0, NULL);
-      
-      delete[] indDel;
-      
-      int argc = 1;
-      char** argv = new char* [1];
-      argv[0] = (char *) "mibs";
+           int argc = 1;
+           char** argv = new char* [1];
+           argv[0] = (char *) "mibs";
       
 #ifdef  COIN_HAS_MPI
-      AlpsKnowledgeBrokerMPI broker(argc, argv, *boundModel);
+	   AlpsKnowledgeBrokerMPI broker(argc, argv, *boundModel);
 #else
-      AlpsKnowledgeBrokerSerial broker(argc, argv, *boundModel);
+           AlpsKnowledgeBrokerSerial broker(argc, argv, *boundModel);
 #endif
+	   boundModel->BlisPar()->setEntry(BlisParams::heurStrategy, 0);
+	   //boundModel->BlisPar()->setEntry(BlisParams::heurRound, 0);
+	   boundModel->MibSPar()->setEntry(MibSParams::feasCheckSolver, feasCheckSolver.c_str());
+
+	   if(boundCutType == 0){
+	       boundModel->MibSPar()->setEntry(MibSParams::checkInstanceStructure, false);
+	       boundModel->MibSPar()->setEntry(MibSParams::usePreprocessor, 0);
+	       boundModel->MibSPar()->setEntry(MibSParams::useLowerObjHeuristic, 0);
+	       boundModel->MibSPar()->setEntry(MibSParams::useObjCutHeuristic, 0);
+	       boundModel->MibSPar()->setEntry(MibSParams::useWSHeuristic, 0);
+	       boundModel->MibSPar()->setEntry(MibSParams::useGreedyHeuristic, 0);
+	       //the bounding problem should be solved with pure branch-and-bound
+	       boundModel->MibSPar()->setEntry(MibSParams::bilevelCutTypes, -1);
+	       boundModel->MibSPar()->setEntry(MibSParams::branchStrategy, 1);
+	       boundModel->MibSPar()->setEntry(MibSParams::solveSecondLevelWhenXYVarsInt, 1);
+	       boundModel->MibSPar()->setEntry(MibSParams::MibS_solveSecondLevelWhenLVarsFixed, 1);
+	       boundModel->MibSPar()->setEntry(MibSParams::MibS_computeBestUBWhenLVarsFixed, 1);
+	       boundModel->MibSPar()->setEntry(MibSParams::MibS_useLinkingSolutionPool, 1);
+	   }
+	   
+	   if (boundCutRelaxUpper){
+	       boundModel->MibSPar()->setEntry(MibSParams::usePureIntegerCut, false);
+	   }
+	   
+           broker.search(boundModel);
+
+           localModel_->isBoundProbSolved_ = true;
       
-      boundModel->MibSPar()->setEntry(MibSParams::bilevelCutTypes, 0);
-      if (boundCutRelaxUpper){
-	 boundModel->MibSPar()->setEntry(MibSParams::usePureIntegerCut, false);
-      }
-      boundModel->MibSPar()->setEntry(MibSParams::feasCheckSolver, feasCheckSolver.c_str());
-      //boundModel->MibSPar()->setEntry(MibSParams::useBendersCut, true);
+           if (boundModel->getNumSolutions() > 0){
+	       double *solution = boundModel->incumbent();
+	   }
       
-      boundModel->MibSPar()->setEntry(MibSParams::useLowerObjHeuristic, false);
-      boundModel->MibSPar()->setEntry(MibSParams::useObjCutHeuristic, false);
-      boundModel->MibSPar()->setEntry(MibSParams::useWSHeuristic, false);
-      boundModel->MibSPar()->setEntry(MibSParams::useGreedyHeuristic, false);
-      
-      broker.search(boundModel);
-      
-      if (boundModel->getNumSolutions() > 0){
-	 double *solution = boundModel->incumbent();
-      }
-      
-      broker.printBestSolution();
-      objval = boundModel->getKnowledgeBroker()->getBestQuality();
-      if (broker.getBestNode()){
-	 lower_objval = broker.getBestNode()->getQuality();
-      }else{
-	 lower_objval = objval;
-      }
-      //delete boundModel;
+           broker.printBestSolution();
+           objval = boundModel->getKnowledgeBroker()->getBestQuality();
+           if (broker.getBestNode()){
+	       lower_objval = broker.getBestNode()->getQuality();
+	   }else{
+	       lower_objval = objval;
+	   }
+           //delete boundModel;
+       }//until here
    }else if (localModel_->getNumSolutions() > 0){
       //Change this when we actually add a cut
       //double objval;
