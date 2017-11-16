@@ -345,6 +345,12 @@ MibSTreeNode::process(bool isRoot, bool rampUp)
 
         lpStatus = static_cast<BlisLpStatus> (bound(model));
 
+        if(index_ == 3){
+	    std::cout << "lpStatus = " << lpStatus << std::endl;
+	    std::cout << "The lpStatus should be BlisLpStatusOptimal, "
+		"but it is BlisLpStatusPrimalInfeasible." << std::endl;
+	}
+
 	if (model->boundingPass_ == 1) {
 	    int iter = model->solver()->getIterationCount();
 	    model->addNumIterations(iter);
