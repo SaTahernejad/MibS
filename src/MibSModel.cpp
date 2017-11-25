@@ -86,6 +86,8 @@ MibSModel::~MibSModel()
   if(boundCutRhsDualProd_) delete [] boundCutRhsDualProd_;
   if(boundCutLeafLbs_) delete [] boundCutLeafLbs_;
   if(boundCutLeafUbs_) delete [] boundCutLeafUbs_;
+  if(boundCutPosDjs_) delete boundCutPosDjs_;
+  if(boundCutNegDjs_) delete boundCutNegDjs_;
 }
 
 //#############################################################################
@@ -145,8 +147,8 @@ MibSModel::initialize()
   origConstCoefMatrix_ = NULL;
   usefulLeafNum_ = 0;
   boundCutRhsDualProd_ = NULL;
-  boundCutPosDjs_ = *new CoinPackedMatrix();
-  boundCutNegDjs_ = *new CoinPackedMatrix();
+  boundCutPosDjs_ = NULL;
+  boundCutNegDjs_ = NULL;
   boundCutLeafLbs_ = NULL;
   boundCutLeafUbs_ = NULL;
   bS_ = new MibSBilevel();
@@ -3555,9 +3557,9 @@ MibSModel::instanceStructure(const CoinPackedMatrix *newMatrix, const double* ro
 //############################################################################# 
 void
 MibSModel::generateMibsWarmStart(AlpsSubTree *ast, int usefulLeafNum,
-				 CoinPackedMatrix &leafDualsByRowCopy,
-				 CoinPackedMatrix &leafPosDjsByRowCopy,
-				 CoinPackedMatrix &leafNegDjsByRowCopy,
+				 CoinPackedMatrix *leafDualsByRowCopy,
+				 CoinPackedMatrix *leafPosDjsByRowCopy,
+				 CoinPackedMatrix *leafNegDjsByRowCopy,
 				 double **leafLb, double **leafUb,
 				 bool *leafUseUBObj)
 {
@@ -3592,25 +3594,25 @@ MibSModel::generateMibsWarmStart(AlpsSubTree *ast, int usefulLeafNum,
 
     assert(usefulLeafNum == leafNum);
     
-    CoinPackedMatrix leafDualsByRow = *new CoinPackedMatrix
+    CoinPackedMatrix *leafDualsByRow = new CoinPackedMatrix
 	(false, leafDualsRowIndex, leafDualsColIndex, leafDualsVal,
 	 leafDualsNonzeroNum);
 
-    CoinPackedMatrix leafPosDjsByRow = *new CoinPackedMatrix
+    CoinPackedMatrix *leafPosDjsByRow = new CoinPackedMatrix
 	(false, leafPosDjsRowIndex, leafPosDjsColIndex, leafPosDjsVal,
 	 leafPosDjsNonzeroNum);
 
-    CoinPackedMatrix leafNegDjsByRow = *new CoinPackedMatrix
+    CoinPackedMatrix *leafNegDjsByRow = new CoinPackedMatrix
 	(false, leafNegDjsRowIndex, leafNegDjsColIndex, leafNegDjsVal,
 	 leafNegDjsNonzeroNum);
 
-    leafDualsByRowCopy.reverseOrdering();
+    /*leafDualsByRowCopy.reverseOrdering();
     leafPosDjsByRowCopy.reverseOrdering();
-    leafNegDjsByRowCopy.reverseOrdering();
+    leafNegDjsByRowCopy.reverseOrdering();*/
 
-    leafDualsByRowCopy = leafDualsByRow;
-    leafPosDjsByRowCopy = leafPosDjsByRow;
-    leafNegDjsByRowCopy = leafNegDjsByRow;
+    *leafDualsByRowCopy = CoinPackedMatrix(*leafDualsByRow);
+    *leafPosDjsByRowCopy = CoinPackedMatrix(*leafPosDjsByRow);
+    *leafNegDjsByRowCopy = CoinPackedMatrix(*leafNegDjsByRow);
    
     delete [] leafNegDjsVal;
     delete [] leafNegDjsColIndex;
@@ -3621,6 +3623,9 @@ MibSModel::generateMibsWarmStart(AlpsSubTree *ast, int usefulLeafNum,
     delete [] leafDualsVal;
     delete [] leafDualsColIndex;
     delete [] leafDualsRowIndex;
+    delete leafDualsByRow;
+    delete leafPosDjsByRow;
+    delete leafNegDjsByRow;
 }
     
 //#############################################################################

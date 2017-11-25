@@ -1531,12 +1531,14 @@ MibSCutGenerator::boundCuts(BcpsConstraintPool &conPool)
 	       }
 	       node->setBoundCutRhs(lower_objval);
 	       isRhsSet = true;
+	       //delete [] argv[0];
+	       //delete [] argv;
                //delete boundModel;
 	       //getting the primal function for second-level problem from leaf nodes
 	       if(boundCutType == 1){
-		   CoinPackedMatrix boundCutDuals;
-	           CoinPackedMatrix boundCutPosDjs;
-	           CoinPackedMatrix boundCutNegDjs;
+		   CoinPackedMatrix *boundCutDuals = new CoinPackedMatrix();
+	           CoinPackedMatrix *boundCutPosDjs = new CoinPackedMatrix();
+	           CoinPackedMatrix *boundCutNegDjs = new CoinPackedMatrix();
 
 		   //getting dual information to bilevel bounding problem
 	           AlpsSubTree *boundProbTree = broker.getWorkingSubTree(); 
@@ -1557,7 +1559,7 @@ MibSCutGenerator::boundCuts(BcpsConstraintPool &conPool)
 	           //Product of RHS  and dual matrix (leafDualByRow)
 	           double *boundCutRhsDualProd = new double[usefulLeafNum];
 	           memset(boundCutRhsDualProd, 0, sizeof(double)*usefulLeafNum);
-	           boundCutDuals.times(boundProbRhs, boundCutRhsDualProd);
+	           boundCutDuals->times(boundProbRhs, boundCutRhsDualProd);
 	           localModel_->setUsefulLeafNum(usefulLeafNum);
 	           localModel_->setBoundCutRhsDualProd(boundCutRhsDualProd);
 	           localModel_->setBoundCutPosDjs(boundCutPosDjs);
@@ -1674,12 +1676,12 @@ MibSCutGenerator::boundCuts(BcpsConstraintPool &conPool)
            double *tmpUb = new double[numCols];
 	   std::map<std::vector<double>, LINKING_SOLUTION> linkingPool
 	       = localModel_->getBoundCutLinkingPool();
-	   CoinPackedMatrix posDjsMat = localModel_->getBoundCutPosDjs();
-           CoinPackedMatrix negDjsMat = localModel_->getBoundCutNegDjs();
+	   CoinPackedMatrix *posDjsMat = localModel_->getBoundCutPosDjs();
+           CoinPackedMatrix *negDjsMat = localModel_->getBoundCutNegDjs();
 	   // the max index of useful leaf node with non-zero positive dj
-	   int posDjsMatMajorDim(posDjsMat.getMajorDim());
+	   int posDjsMatMajorDim(posDjsMat->getMajorDim());
 	   // the max index of useful leaf node with non-zero negative dj
-	   int negDjsMatMajorDim(negDjsMat.getMajorDim());
+	   int negDjsMatMajorDim(negDjsMat->getMajorDim());
            CoinShallowPackedVector posDjVec;
            int posDjNum(0);
            const int *posDjIndices = NULL;
@@ -1731,9 +1733,9 @@ MibSCutGenerator::boundCuts(BcpsConstraintPool &conPool)
 	   
 	       if(isValueSet == false){
 		   if(i < posDjsMatMajorDim){
-		       if(posDjsMat.getVectorSize(i)){
+		       if(posDjsMat->getVectorSize(i)){
 			   //Data of i-th useful leaf node's positive reduced costs
-			   posDjVec = posDjsMat.getVector(i);
+			   posDjVec = posDjsMat->getVector(i);
 		           posDjNum = posDjVec.getNumElements();
 		           posDjIndices = posDjVec.getIndices();
 		           posDjElements = posDjVec.getElements();
@@ -1744,9 +1746,9 @@ MibSCutGenerator::boundCuts(BcpsConstraintPool &conPool)
 		   }
 
 	           if(i < negDjsMatMajorDim){
-		       if(negDjsMat.getVectorSize(i)){
+		       if(negDjsMat->getVectorSize(i)){
 			   //Data of i-th useful leaf node's negative reduced costs
-			   negDjVec = negDjsMat.getVector(i);
+			   negDjVec = negDjsMat->getVector(i);
 		           negDjNum = negDjVec.getNumElements();
 		           negDjIndices = negDjVec.getIndices();
 		           negDjElements = negDjVec.getElements();
@@ -1767,7 +1769,7 @@ MibSCutGenerator::boundCuts(BcpsConstraintPool &conPool)
            delete [] tmpLb;
            delete [] tmpUb;
            delete [] candidateCutLb;
-       }	       
+       }
    }
 		   
    if (lower_objval > -oSolver->getInfinity()){
@@ -1782,13 +1784,17 @@ MibSCutGenerator::boundCuts(BcpsConstraintPool &conPool)
 	 indexList.push_back(index);
 	 valsList.push_back(-lObjSense *lObjCoeffs[i]);
       }
-      /*numCuts += addCut(conPool, lower_objval, cutub, indexList, valsList,
-	false);*/
+      numCuts += addCut(conPool, lower_objval, cutub, indexList, valsList,
+	false);
       indexList.clear();
       valsList.clear();
    }
 
    delete[] indDel;
+   delete [] nObjCoeffs;
+   if(boundProbRhs){
+       delete [] boundProbRhs;
+   }
    
    return numCuts;
 }

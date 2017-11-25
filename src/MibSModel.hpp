@@ -236,10 +236,10 @@ private:
     double *boundCutRhsDualProd_;
 
     /** Positive reduced costs from solving bounding problem **/
-    CoinPackedMatrix boundCutPosDjs_;
+    CoinPackedMatrix *boundCutPosDjs_;
 
     /** Negative reduced costs from solving bounding problem **/
-    CoinPackedMatrix boundCutNegDjs_;
+    CoinPackedMatrix *boundCutNegDjs_;
 
     /** Lower bounds of leaf nodes of bounding problem **/
     double **boundCutLeafLbs_;
@@ -362,10 +362,10 @@ public:
     void setBoundCutRhsDualProd(double *rhsDualProd) {boundCutRhsDualProd_ = rhsDualProd;}
 
     /** Set the positive reduced costs from solving bounding problem **/
-    void setBoundCutPosDjs(CoinPackedMatrix posDjs) {boundCutPosDjs_ = posDjs;}
+    void setBoundCutPosDjs(CoinPackedMatrix *posDjs) {boundCutPosDjs_ = posDjs;}
 
     /** Set the negative reduced costs from solving bounding problem **/
-    void setBoundCutNegDjs(CoinPackedMatrix negDjs) {boundCutNegDjs_ = negDjs;}
+    void setBoundCutNegDjs(CoinPackedMatrix *negDjs) {boundCutNegDjs_ = negDjs;}
 
     /** Set the lower bounds of the leaf nodes of the bounding problem **/
     void setBoundCutLeafLbs(double **leafLbs) {boundCutLeafLbs_ = leafLbs;}
@@ -483,10 +483,10 @@ public:
     double * getBoundCutRhsDualProd() {return boundCutRhsDualProd_;}
 
     /** Get the positive reduced costs from solving bounding problem **/
-    CoinPackedMatrix getBoundCutPosDjs() {return boundCutPosDjs_;}
+    CoinPackedMatrix * getBoundCutPosDjs() {return boundCutPosDjs_;}
 
     /** Get the negative reduced costs from solving bounding problem **/
-    CoinPackedMatrix getBoundCutNegDjs() {return boundCutNegDjs_;}
+    CoinPackedMatrix * getBoundCutNegDjs() {return boundCutNegDjs_;}
 
     /** Get the lower bounds of the leaf nodes of the bounding problem **/
     double ** getBoundCutLeafLbs() {return boundCutLeafLbs_;}
@@ -595,9 +595,9 @@ public:
     double interdictionBound();
 
     void generateMibsWarmStart(AlpsSubTree *ast, int usefulLeafNum,
-			       CoinPackedMatrix &boundCutDualsByRowCopy,
-			       CoinPackedMatrix &leafPosDjsByRowCopy,
-			       CoinPackedMatrix &leafNegDjsByRowCopy,
+			       CoinPackedMatrix *boundCutDualsByRowCopy,
+			       CoinPackedMatrix *leafPosDjsByRowCopy,
+			       CoinPackedMatrix *leafNegDjsByRowCopy,
 			       double **leafLb, double **leafUb,
 			       bool *leafUseUBObj);
     
