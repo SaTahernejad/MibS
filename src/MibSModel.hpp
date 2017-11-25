@@ -199,6 +199,9 @@ private:
     /** MibSBilevel object **/
     MibSBilevel *bS_;
 
+    /** Bound problem tree (for generating bound cut) **/
+    //AlpsSubTree *boundProbTree_;
+
     /** Tolerance parameter, used for testing equality **/
     double etol_;
 
@@ -224,6 +227,31 @@ private:
 
     std::map<std::vector<double>, LINKING_SOLUTION> seenLinkingSolutions;
     //std::map<std::vector<double>, LINKING_SOLUTION>::iterator it;
+
+    //information for generating parametric bound cut    
+    /** Nmber of useful leaf nodes **/
+    int usefulLeafNum_;
+
+    /** Product of the orig RHS and dual **/
+    double *boundCutRhsDualProd_;
+
+    /** Positive reduced costs from solving bounding problem **/
+    CoinPackedMatrix boundCutPosDjs_;
+
+    /** Negative reduced costs from solving bounding problem **/
+    CoinPackedMatrix boundCutNegDjs_;
+
+    /** Lower bounds of leaf nodes of bounding problem **/
+    double **boundCutLeafLbs_;
+
+    /** Upper bounds of leaf nodes of bounding problem **/
+    double **boundCutLeafUbs_;
+
+    /** Status of the leaf node from the point of how to get an approximation at that node**/
+    bool *boundCutLeafUseUBObj_;
+
+    /** Linking Pool resulting from the bounding problem **/
+    std::map<std::vector<double>, LINKING_SOLUTION> boundCutLinkingPool_;
     
 public:
 
@@ -253,6 +281,10 @@ public:
 
     /** Set the MibsBilevel pointer **/
     inline void setMibSBilevel(MibSBilevel *bs) {bS_ = bs;}
+
+    /** Set the bound problem tree pointer **/
+    /*inline void setBoundProbTree(AlpsSubTree *boundProbTree)
+      {boundProbTree_ = boundProbTree;}*/
 
     /** Set the number of rows **/
     inline void setNumRows(int val) {numCons_ = val;}
@@ -320,8 +352,33 @@ public:
     /** Set the number of original constraints **/
     void setNumOrigCons(int num) {numOrigCons_ = num;}
   
-    /** set the slopes of the lower-level value function **/
+    /** Set the slopes of the lower-level value function **/
     void setValFuncSlopes();
+
+    /** Set the number of useful leaf nodes **/
+    void setUsefulLeafNum(int nodeNum) {usefulLeafNum_ = nodeNum;}
+
+    /** Set the product of the orig RHS and dual **/
+    void setBoundCutRhsDualProd(double *rhsDualProd) {boundCutRhsDualProd_ = rhsDualProd;}
+
+    /** Set the positive reduced costs from solving bounding problem **/
+    void setBoundCutPosDjs(CoinPackedMatrix posDjs) {boundCutPosDjs_ = posDjs;}
+
+    /** Set the negative reduced costs from solving bounding problem **/
+    void setBoundCutNegDjs(CoinPackedMatrix negDjs) {boundCutNegDjs_ = negDjs;}
+
+    /** Set the lower bounds of the leaf nodes of the bounding problem **/
+    void setBoundCutLeafLbs(double **leafLbs) {boundCutLeafLbs_ = leafLbs;}
+
+    /** Set the upper bounds of the leaf nodes of the bounding problem **/
+    void setBoundCutLeafUbs(double **leafUbs) {boundCutLeafUbs_ = leafUbs;}
+
+    /** Set the values if should use the optimal solution of UB as the approximation or not **/
+    void setBoundCutLeafUseUBObj(bool *leafUseUBObj) {boundCutLeafUseUBObj_ = leafUseUBObj;}
+
+    /** Set the linking pool resulting from bounding problem **/
+    void setBoundCutLinkingPool(std::map<std::vector<double>, LINKING_SOLUTION> linkingPool)
+    {boundCutLinkingPool_ = linkingPool;}
   
     /** Get the upper-level file **/
     std::string getUpperFile() {return ulDataFile_;}
@@ -413,8 +470,36 @@ public:
     /** Get the pointer to MibsBilevel **/
     inline MibSBilevel *getMibSBilevel() {return bS_;}
 
+    /** Get the pointer to the bound problem tree**/
+    //inline AlpsSubTree *getBoundProbTree() {return boundProbTree_;}
+
     /** Get the parameters **/
-    MibSParams *MibSPar() {return MibSPar_;} 
+    MibSParams *MibSPar() {return MibSPar_;}
+
+    /** Get the number of useful leaf nodes **/
+    int getUsefulLeafNum() {return usefulLeafNum_;}
+
+    /** Get the product of the orig RHS and dual **/
+    double * getBoundCutRhsDualProd() {return boundCutRhsDualProd_;}
+
+    /** Get the positive reduced costs from solving bounding problem **/
+    CoinPackedMatrix getBoundCutPosDjs() {return boundCutPosDjs_;}
+
+    /** Get the negative reduced costs from solving bounding problem **/
+    CoinPackedMatrix getBoundCutNegDjs() {return boundCutNegDjs_;}
+
+    /** Get the lower bounds of the leaf nodes of the bounding problem **/
+    double ** getBoundCutLeafLbs() {return boundCutLeafLbs_;}
+
+    /** Get the upper bounds of the leaf nodes of the bounding problem **/
+    double ** getBoundCutLeafUbs() {return boundCutLeafUbs_;}
+
+    /** Get the values if should use the optimal solution of UB as the approximation or not **/
+    bool * getBoundCutLeafUseUBObj() {return boundCutLeafUseUBObj_;}
+
+    /** Get the linking pool resulting from bounding problem **/
+    std::map<std::vector<double>, LINKING_SOLUTION> getBoundCutLinkingPool()
+    {return boundCutLinkingPool_ ;}
 
     /** Set the Blis parameters **/
     void setBlisParameters();
@@ -488,7 +573,7 @@ public:
     /** Determines the properties of instance. */
     void instanceStructure(const CoinPackedMatrix *newMatrix, const double* rowLB,
 			   const double* rowUB, const char *rowSense);
-                                                                                                                                                               
+                                                                                                              
     AlpsTreeNode * createRoot();
 
     virtual bool setupSelf();
@@ -506,8 +591,27 @@ public:
     double getObjectiveBound();
 
     double lowerObjectiveBound();
-
+    
     double interdictionBound();
+
+    void generateMibsWarmStart(AlpsSubTree *ast, int usefulLeafNum,
+			       CoinPackedMatrix &boundCutDualsByRowCopy,
+			       CoinPackedMatrix &leafPosDjsByRowCopy,
+			       CoinPackedMatrix &leafNegDjsByRowCopy,
+			       double **leafLb, double **leafUb,
+			       bool *leafUseUBObj);
+    
+    int findLeafNodeNum(AlpsTreeNode *node, int *leafNum);
+    
+    void collectLeafNodeData(AlpsTreeNode *node, int *leafNum,
+			     double **leafLb, double **leafUb,
+			     int *leafDualsNonzeroNum, int *leafDualsRowIndex,
+			     int *leafDualsColIndex, double *leafDualsVal,
+			     int *leafPosDjsNonzeroNum, int *leafPosDjsRowIndex,
+			     int *leafPosDjsColIndex, double *leafPosDjsVal,
+			     int *leafNegDjsNonzeroNum, int *leafNegDjsRowIndex,
+			     int *leafNegDjsColIndex, double *leafNegDjsVal,
+			     bool *leafUseUBObj);
 
 private:
 

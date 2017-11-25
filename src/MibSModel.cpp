@@ -82,7 +82,10 @@ MibSModel::~MibSModel()
   if(rowName_) delete [] rowName_;
   if(MibSPar_) delete MibSPar_;
   if(bS_) delete bS_;
-    
+  //if (boundProbTree_) delete boundProbTree_;
+  if(boundCutRhsDualProd_) delete [] boundCutRhsDualProd_;
+  if(boundCutLeafLbs_) delete [] boundCutLeafLbs_;
+  if(boundCutLeafUbs_) delete [] boundCutLeafUbs_;
 }
 
 //#############################################################################
@@ -140,7 +143,14 @@ MibSModel::initialize()
   rowName_ = NULL;
   interdictCost_ = NULL;
   origConstCoefMatrix_ = NULL;
+  usefulLeafNum_ = 0;
+  boundCutRhsDualProd_ = NULL;
+  boundCutPosDjs_ = *new CoinPackedMatrix();
+  boundCutNegDjs_ = *new CoinPackedMatrix();
+  boundCutLeafLbs_ = NULL;
+  boundCutLeafUbs_ = NULL;
   bS_ = new MibSBilevel();
+  //boundProbTree_ = NULL;
   //simpleCutOnly_ = true; //FIXME: should make this a parameter
   //bindingMethod_ = "BLAND"; //FIXME: should make this a parameter
   //bindingMethod_ = "BASIS"; //FIXME: should make this a parameter
@@ -729,9 +739,11 @@ MibSModel::loadProblemData(const CoinPackedMatrix& matrix,
       numTotalRows = numRows + auxRows;
       
       int structRows(numTotalRows - interdictRows);
-      structRowInd_ = new int[structRows];
-      CoinIotaN(structRowInd_, structRows, 0);
-      structRowNum_ = structRows;
+      if(!structRowInd_){
+	  structRowInd_ = new int[structRows];
+          CoinIotaN(structRowInd_, structRows, 0);
+          structRowNum_ = structRows;
+      }
       
       varLB = new double [numTotalCols];
       varUB = new double [numTotalCols];
@@ -918,7 +930,7 @@ MibSModel::loadProblemData(const CoinPackedMatrix& matrix,
        //origConstCoefMatrix_ = new CoinPackedMatrix();
    origConstCoefMatrix_ = newMatrix;
    }
-
+   
    setUpperColData();
    setUpperRowData();
    setBounds(); // stores the original column and row bounds
@@ -3540,4 +3552,174 @@ MibSModel::instanceStructure(const CoinPackedMatrix *newMatrix, const double* ro
     delete [] newRowSense;
 }
 
+//############################################################################# 
+void
+MibSModel::generateMibsWarmStart(AlpsSubTree *ast, int usefulLeafNum,
+				 CoinPackedMatrix &leafDualsByRowCopy,
+				 CoinPackedMatrix &leafPosDjsByRowCopy,
+				 CoinPackedMatrix &leafNegDjsByRowCopy,
+				 double **leafLb, double **leafUb,
+				 bool *leafUseUBObj)
+{
+    AlpsTreeNode *root = ast->getRoot();
+
+    int leafNum = 0;
+
+    //int leafNodeNum = findLeafNodeNum(root, &leafNum);
+
+    int leafDualsNonzeroNum = 0;
+    int *leafDualsRowIndex = new int[usefulLeafNum*numCons_];
+    int *leafDualsColIndex = new int[usefulLeafNum*numCons_];
+    double *leafDualsVal = new double[usefulLeafNum*numCons_];
+
+    int leafPosDjsNonzeroNum = 0;
+    int *leafPosDjsRowIndex = new int[usefulLeafNum*numVars_];
+    int *leafPosDjsColIndex = new int[usefulLeafNum*numVars_];
+    double *leafPosDjsVal = new double[usefulLeafNum*numVars_];
+
+    int leafNegDjsNonzeroNum = 0;
+    int *leafNegDjsRowIndex = new int[usefulLeafNum*numVars_];
+    int *leafNegDjsColIndex = new int[usefulLeafNum*numVars_];
+    double *leafNegDjsVal = new double[usefulLeafNum*numVars_];
+
+    collectLeafNodeData(root, &leafNum, leafLb, leafUb,
+			&leafDualsNonzeroNum, leafDualsRowIndex,
+			leafDualsColIndex, leafDualsVal,
+			&leafPosDjsNonzeroNum, leafPosDjsRowIndex,
+			leafPosDjsColIndex, leafPosDjsVal,
+			&leafNegDjsNonzeroNum, leafNegDjsRowIndex,
+			leafNegDjsColIndex, leafNegDjsVal, leafUseUBObj);
+
+    assert(usefulLeafNum == leafNum);
+    
+    CoinPackedMatrix leafDualsByRow = *new CoinPackedMatrix
+	(false, leafDualsRowIndex, leafDualsColIndex, leafDualsVal,
+	 leafDualsNonzeroNum);
+
+    CoinPackedMatrix leafPosDjsByRow = *new CoinPackedMatrix
+	(false, leafPosDjsRowIndex, leafPosDjsColIndex, leafPosDjsVal,
+	 leafPosDjsNonzeroNum);
+
+    CoinPackedMatrix leafNegDjsByRow = *new CoinPackedMatrix
+	(false, leafNegDjsRowIndex, leafNegDjsColIndex, leafNegDjsVal,
+	 leafNegDjsNonzeroNum);
+
+    leafDualsByRowCopy.reverseOrdering();
+    leafPosDjsByRowCopy.reverseOrdering();
+    leafNegDjsByRowCopy.reverseOrdering();
+
+    leafDualsByRowCopy = leafDualsByRow;
+    leafPosDjsByRowCopy = leafPosDjsByRow;
+    leafNegDjsByRowCopy = leafNegDjsByRow;
+   
+    delete [] leafNegDjsVal;
+    delete [] leafNegDjsColIndex;
+    delete [] leafNegDjsRowIndex;
+    delete [] leafPosDjsVal;
+    delete [] leafPosDjsColIndex;
+    delete [] leafPosDjsRowIndex;
+    delete [] leafDualsVal;
+    delete [] leafDualsColIndex;
+    delete [] leafDualsRowIndex;
+}
+    
+//#############################################################################
+int
+MibSModel::findLeafNodeNum(AlpsTreeNode *node, int *leafNum)
+{
+    assert(node);
+
+    int numChildren = node->getNumChildren();
+    if(numChildren == 0){
+	MibSTreeNode *mibsNode = dynamic_cast<MibSTreeNode*>(node);
+	if(mibsNode->getDuals()){
+	    *leafNum = *leafNum + 1;
+	}   
+	return 1;
+    }
+    else if(numChildren == 2){
+	return (findLeafNodeNum(node->getChild(0), leafNum) + findLeafNodeNum(node->getChild(1), leafNum));
+    }
+    else if(numChildren == 1){
+	return (findLeafNodeNum(node->getChild(0), leafNum));
+    }
+    else{
+	throw CoinError("Unknown number of children.",
+			"findLeafNodeNum",
+			"MibSModel");
+    }
+}
+
+//#############################################################################
+void
+MibSModel::collectLeafNodeData(AlpsTreeNode *node, int *leafNum,
+			       double **leafLb, double **leafUb,
+			       int *leafDualsNonzeroNum, int *leafDualsRowIndex,
+			       int *leafDualsColIndex, double *leafDualsVal,
+			       int *leafPosDjsNonzeroNum, int *leafPosDjsRowIndex,
+			       int *leafPosDjsColIndex, double *leafPosDjsVal,
+			       int *leafNegDjsNonzeroNum, int *leafNegDjsRowIndex,
+			       int *leafNegDjsColIndex, double *leafNegDjsVal,
+			       bool *leafUseUBObj)
+{
+    if(node == NULL){
+	throw CoinError("A valid node is required.",
+			"collectLeafNodeData",
+			"MibSModel");
+    }
+
+    int numChildren = node->getNumChildren();
+    int i;
+    
+    //if numChildren>0, then do recursion on child nodes
+    for(i = 0; i < numChildren; i++){
+	collectLeafNodeData(node->getChild(i), leafNum, leafLb, leafUb,
+			    leafDualsNonzeroNum, leafDualsRowIndex,
+			    leafDualsColIndex, leafDualsVal,
+			    leafPosDjsNonzeroNum, leafPosDjsRowIndex,
+			    leafPosDjsColIndex, leafPosDjsVal,
+			    leafNegDjsNonzeroNum, leafNegDjsRowIndex,
+			    leafNegDjsColIndex, leafNegDjsVal, leafUseUBObj);
+    }
+
+    //if numChildren=0, then copy and save various data
+    if(!numChildren){
+	MibSTreeNode *mibsNode = dynamic_cast<MibSTreeNode*>(node);
+	if(mibsNode->getDuals()){
+	    double *duals = mibsNode->getDuals();
+	    double *djs = mibsNode->getDjs();
+
+            for(i = 0; i < numCons_; i++){
+		if(fabs(duals[i]) > etol_){
+		    leafDualsRowIndex[*leafDualsNonzeroNum] = *leafNum;
+		    leafDualsColIndex[*leafDualsNonzeroNum] = i;
+		    leafDualsVal[*leafDualsNonzeroNum] = duals[i];
+		    *leafDualsNonzeroNum = *leafDualsNonzeroNum + 1;
+		}
+	    }
+
+	    for(i = 0; i < numVars_; i++){
+		if((fabs(djs[i]) > etol_) && (djs[i] > etol_)){
+		    leafPosDjsRowIndex[*leafPosDjsNonzeroNum] = *leafNum;
+		    leafPosDjsColIndex[*leafPosDjsNonzeroNum] = i;
+		    leafPosDjsVal[*leafPosDjsNonzeroNum] = djs[i];
+		    *leafPosDjsNonzeroNum = *leafPosDjsNonzeroNum + 1;
+		}
+                if((fabs(djs[i]) > etol_) && (djs[i] < -etol_)){
+		    leafNegDjsRowIndex[*leafNegDjsNonzeroNum] = *leafNum;
+		    leafNegDjsColIndex[*leafNegDjsNonzeroNum] = i;
+		    leafNegDjsVal[*leafNegDjsNonzeroNum] = djs[i];
+		    *leafNegDjsNonzeroNum = *leafNegDjsNonzeroNum + 1;
+		}
+	    }
+
+	    leafLb[*leafNum] = new double[numVars_];
+	    leafUb[*leafNum] = new double[numVars_];
+	    memcpy(leafLb[*leafNum], mibsNode->getLb(), sizeof(double)*numVars_);
+	    memcpy(leafUb[*leafNum], mibsNode->getUb(), sizeof(double)*numVars_);
+	    leafUseUBObj[*leafNum] = mibsNode->getUseUBObj();
+	    *leafNum = *leafNum + 1;
+	}
+    }
+}
 
