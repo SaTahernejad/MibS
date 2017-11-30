@@ -37,6 +37,7 @@ class MibSParams : public AlpsParameterSet {
      warmStartLL,
      doDualFixing,
      turnOffOtherCuts,
+     storeWarmStartInfo,
      endOfBoolParams
   };
   

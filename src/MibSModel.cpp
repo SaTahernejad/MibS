@@ -55,6 +55,11 @@
 //#include "MibSBranchStrategyRel.h"
 #include "MibSBranchStrategyStrong.hpp"
 
+#ifdef COIN_HAS_CPLEX
+#include "cplex.h"
+#include "OsiCpxSolverInterface.hpp"
+#endif
+
 //#############################################################################
 MibSModel::MibSModel()
 {
@@ -3637,6 +3642,9 @@ MibSModel::findLeafNodeNum(AlpsTreeNode *node, int *leafNum)
     int numChildren = node->getNumChildren();
     if(numChildren == 0){
 	MibSTreeNode *mibsNode = dynamic_cast<MibSTreeNode*>(node);
+	if(mibsNode->getLpStatus() == BlisLpStatusUnknown){
+	    setExtraDualDj(node);
+	}
 	if(mibsNode->getDuals()){
 	    *leafNum = *leafNum + 1;
 	}   
@@ -3690,6 +3698,9 @@ MibSModel::collectLeafNodeData(AlpsTreeNode *node, int *leafNum,
     //if numChildren=0, then copy and save various data
     if(!numChildren){
 	MibSTreeNode *mibsNode = dynamic_cast<MibSTreeNode*>(node);
+	if(mibsNode->getLpStatus() == BlisLpStatusUnknown){
+	    setExtraDualDj(node);
+	}
 	if(mibsNode->getDuals()){
 	    double *duals = mibsNode->getDuals();
 	    double *djs = mibsNode->getDjs();
@@ -3728,3 +3739,92 @@ MibSModel::collectLeafNodeData(AlpsTreeNode *node, int *leafNum,
     }
 }
 
+//#############################################################################
+void
+MibSModel::setExtraDualDj(AlpsTreeNode *node)
+{
+    MibSTreeNode *mibsNode = dynamic_cast<MibSTreeNode*>(node);
+
+    MibSTreeNode *parentMibsNode = dynamic_cast<MibSTreeNode*>(node->getParent());
+    
+    int numRows = lpSolver_->getNumRows();
+    int numCols = lpSolver_->getNumCols();
+
+    double branchObjLb(0.0), branchObjUb(0.0);
+
+    int i, j, rowNum;
+    double value;
+    
+    const CoinPackedMatrix *matrix = lpSolver_->getMatrixByCol();
+    const int *matInd = matrix->getIndices();
+    const CoinBigIndex *matBeg = matrix->getVectorStarts();
+    const double *matVal = matrix->getElements();
+
+    const double *objCoeff = lpSolver_->getObjCoefficients();
+
+    const double *rowLb = lpSolver_->getRowLower();
+    const double *rowUb = lpSolver_->getRowUpper();
+    
+    double *lb = new double[numCols];
+    double *ub  = new double[numCols];
+    
+    memcpy(lb, parentMibsNode->getLb(), numCols * sizeof(double));
+    memcpy(ub, parentMibsNode->getUb(), numCols * sizeof(double));
+    
+    int branchDir = dynamic_cast<BlisNodeDesc *>(node->getDesc())->getBranchedDir();
+    int branchInd = dynamic_cast<BlisNodeDesc *>(node->getDesc())->getBranchedInd();
+    double lpX = dynamic_cast<BlisNodeDesc *>(node->getDesc())->getBranchedVal();
+    
+    if(branchDir == -1){
+	branchObjLb = lb[branchInd];
+	branchObjUb = floor(lpX);
+	if((floor(lpX) == ceil(lpX)) && (ceil(lpX) == floor(ub[branchInd]))){
+		branchObjUb-=1;
+	    }
+    }
+    else{
+	branchObjLb = ceil(lpX);
+	branchObjUb = ub[branchInd];
+	if((floor(lpX) == ceil(lpX)) && (ceil(lpX) != floor(ub[branchInd]))){
+	    branchObjLb += 1;
+	}
+    }
+
+    lb[branchInd] = branchObjLb;
+    ub[branchInd] = branchObjUb;
+    mibsNode->setLb(lb);
+    mibsNode->setUb(ub);
+
+    //solving lp relaxation
+    OsiSolverInterface *leafSolver = new OsiClpSolverInterface();
+    leafSolver->loadProblem(*matrix, lb, ub, objCoeff,
+			    rowLb, rowUb);
+
+    leafSolver->setObjSense(1);
+    leafSolver->messageHandler()->setLogLevel(0);
+    leafSolver->initialSolve();
+
+    if(leafSolver->isProvenOptimal()){
+	double *dual = new double [numRows];
+	double *dj = new double [numCols];
+	memcpy(dual, leafSolver->getRowPrice(), numRows * sizeof(double));
+	memcpy(dj, leafSolver->getReducedCost(), numCols * sizeof(double));
+	for(i = 0; i < numCols; i++){
+	    if(fabs(lb[i] - ub[i]) <= etol_){
+		value = objCoeff[i];
+		for(j = matBeg[i]; j < matBeg[i+1]; j++){
+		    rowNum = matInd[j];
+		    value -= matVal[j]*dual[rowNum];
+		}
+		dj[i] = value;
+	    }
+	}
+        mibsNode->setDuals(dual);
+	mibsNode->setDjs(dj);
+	mibsNode->setLpStatus(BlisLpStatusOptimal);
+    }else{
+	//sahar:Fix me
+	mibsNode->setLpStatus(BlisLpStatusPrimalInfeasible);
+    }
+    delete leafSolver;
+}

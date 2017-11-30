@@ -612,6 +612,8 @@ public:
 			     int *leafNegDjsNonzeroNum, int *leafNegDjsRowIndex,
 			     int *leafNegDjsColIndex, double *leafNegDjsVal,
 			     bool *leafUseUBObj);
+    
+    void setExtraDualDj(AlpsTreeNode *node);
 
 private:
 

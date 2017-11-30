@@ -48,12 +48,18 @@ class MibSTreeNode : public BlisTreeNode {
   
   void setIsBoundSet(bool val) {boundSet_ = val;}
   void setLowerUB(double bound) {lowerUpperBound_ = bound;}
+  void setLpStatus(BlisLpStatus lpStatus) {lpStatus_ = lpStatus;}
+  void setDuals(double *dual) {dual_ = dual;}
+  void setDjs(double *dj) {dj_ = dj;}
+  void setLb(double *lb) {lb_ = lb;}
+  void setUb(double *ub) {ub_ = ub;}
   void setBoundCutRhs(double rhs) {boundCutRhs_ = rhs;}
   inline bool isBoundSet() {return boundSet_;}
   inline double getLowerUB() {return lowerUpperBound_;}
   AlpsTreeNode* createNewTreeNode(AlpsNodeDesc *&desc) const;
   int process(bool isRoot, bool rampUp);
 
+    
   BlisLpStatus getLpStatus() {return lpStatus_;}
   bool getUseUBObj() {return useUBObj_;}
   double * getDuals() {return dual_;}

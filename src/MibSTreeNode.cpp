@@ -30,6 +30,8 @@ MibSTreeNode::MibSTreeNode()
    lpStatus_ = BlisLpStatusUnknown;
    dual_ = NULL;
    dj_ = NULL;
+   lb_ = NULL;
+   ub_ = NULL;
    boundCutRhs_ = ALPS_DBL_MAX;
 
 }
@@ -197,6 +199,9 @@ MibSTreeNode::process(bool isRoot, bool rampUp)
 
     MibSBranchingStrategy branchPar = static_cast<MibSBranchingStrategy>
 	(mibsModel->MibSPar_->entry(MibSParams::branchStrategy));
+
+    bool storeWarmStartInfo = static_cast<MibSBranchingStrategy>
+	(mibsModel->MibSPar_->entry(MibSParams::storeWarmStartInfo));
 
     //tailOffTol = 1e-7;
 
@@ -370,7 +375,7 @@ MibSTreeNode::process(bool isRoot, bool rampUp)
 	   model->solver()->writeLp("treenode");
 	
         lpStatus = static_cast<BlisLpStatus> (bound(model));
-
+	
 	if (model->boundingPass_ == 1) {
 	    int iter = model->solver()->getIterationCount();
 	    model->addNumIterations(iter);
@@ -1559,10 +1564,13 @@ MibSTreeNode::process(bool isRoot, bool rampUp)
     lpStatus_ = tempLpStatus;
     if (tempLpStatus != BlisLpStatusAbandoned &&
 	tempLpStatus != BlisLpStatusDualInfeasible &&
+	tempLpStatus != BlisLpStatusUnknown &&
 	tempLpStatus != BlisLpStatusPrimalInfeasible) {
 	//TODO: are all cases of tempLpStatus covered properly here?
 	//TODO: is the tolerance usage correct?
-	setDualDj(model, mibsModel->getTolerance());
+	if(storeWarmStartInfo == true){
+	    setDualDj(model, mibsModel->getTolerance());
+	}
     }
     
     return returnStatus;
