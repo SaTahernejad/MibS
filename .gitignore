@@ -28,3 +28,16 @@
 *.app
 
 *~
+
+.subdirs
+Alps/
+Bcps/
+BuildTools/
+CHiPPS-BLIS/
+Cbc/
+Cgl/
+Clp/
+CoinUtils/
+Osi/
+SYMPHONY/
+ThirdParty/
