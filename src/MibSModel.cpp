@@ -82,6 +82,7 @@ MibSModel::~MibSModel()
   if(rowName_) delete [] rowName_;
   if(MibSPar_) delete MibSPar_;
   if(bS_) delete bS_;
+  if(zs_) delete zs_;
     
 }
 
@@ -145,6 +146,7 @@ MibSModel::initialize()
   //bindingMethod_ = "BASIS"; //FIXME: should make this a parameter
   MibSPar_ = new MibSParams;
   //maxAuxCols_ = 0; //FIXME: should make this a parameter
+  zs_ = new MibSZeroSum();
 
   MibSCutGenerator *cg = new MibSCutGenerator(this);
 
@@ -591,6 +593,10 @@ MibSModel::readProblemData()
    memcpy(objCoef, mpsObj, sizeof(double) * numCols);
 
    const char* rowSense = mps->getRowSense();
+
+   //set original row sense
+   origRowSense_ = new char[numRows];
+   memcpy(origRowSense_, rowSense, numRows);
 
    readAuxiliaryData(numCols, numRows); // reads in lower-level vars, rows, obj coeffs 
    
@@ -1770,6 +1776,25 @@ BlisSolution *
 MibSModel::userFeasibleSolution(const double * solution, bool &userFeasible)
 {
 
+    /*sahar: comments for zero-sum algorithm      
+     --1)the modifications in this function should be changed after making sure about
+       the way that we implement the infeasible nodes with fixed linking vars.
+     2) define useZeroSumAlg as a parameter later.
+     3) think about bounds on R
+     4) think about big M: I solved the lp which is similar to the main relaxation
+        problem.        
+     5) for finding big M, although it needed solving an LP. I formulated that 
+        as an MIP with setting all variables as continuous one. Change that.
+     6) modify the upper bound on R.
+     7) I assume that all original bounds on variables are integer values.
+     8) I assume that the objective functions are min.
+     9) currently, I terminate solving first phase model by setting the lower 
+        bound to the upper bound.
+     10) I have a function in zero sum class that initiates the lower-level solver. 
+         Change it after modifying the lower-level solver in MibSBilevel class. 
+         I have also matrixA2. Change it also.
+    */
+    
   /** User's criteria for a feasible solution.
    *  If solution is feasible then need to
    *     1) set userFeasible to true, and
@@ -1790,8 +1815,11 @@ MibSModel::userFeasibleSolution(const double * solution, bool &userFeasible)
     solver()->writeLp("userfeasible1");
 
   int i(0), index(0);
+  int numArtCols(0);
   double upperObj(0.0);
   bool isHeurSolution(true);
+  bool useZeroSumAlg(true);
+  bool feasSolFound(false);
   int * upperColInd = getUpperColInd();
   int * lowerColInd = getLowerColInd();
   double * lpSolution = new double[getNumCols()];
@@ -1835,6 +1863,12 @@ MibSModel::userFeasibleSolution(const double * solution, bool &userFeasible)
       }
   }
 
+  //feasible solution is found, so we initiate the zero-sum algorithm.
+  //if it has not been started yet.
+  if((useZeroSumAlg) && (solType != MibSNoSol) && (!zs_->isFirstPhaseStarted_)){
+      zs_->solveZeroSum(this, bS_->optLowerSolutionOrd_);
+  }
+
   userFeasible = false;
   if(solType == MibSRelaxationSol){
       userFeasible = true;
@@ -1859,6 +1893,26 @@ MibSModel::userFeasibleSolution(const double * solution, bool &userFeasible)
 	  mibSol = NULL;
       }
   }
+  
+  //if we are at the first phase of zero-sum algorithm,
+  //we terminate solving the first phase model if we find
+  //a bilevel feasible solution whose at least one of artificial
+  //variables are greater than 0.
+  if((zs_->isAlgStarted_) && (!zs_->isFirstPhaseFinished_)){
+      if((solType != MibSNoSol) && ((userFeasible) ||
+				    (isHeurSolution))){
+	  numArtCols = lowerRowNum_/2;
+	  index = numVars_ - numArtCols;
+	  for(i = index; i < numVars_; i++){
+	      if(lpSolution[i] > etol){
+		  broker_->getBestNode()->setQuality(upperObj);
+		  break;
+	      }
+	  }
+      }
+  }
+	      
+	      
 
   delete sol;
   delete [] lpSolution;
