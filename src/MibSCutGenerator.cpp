@@ -3668,6 +3668,43 @@ MibSCutGenerator::noGoodCut(BcpsConstraintPool &conPool)
 
 //###########################################################################
 int
+MibSCutGenerator::bendersInterdictionCutsTest(BcpsConstraintPool &conPool, double *lSolution)
+{
+    int i;
+    int indexU(0), indexL(0);
+    int numCuts(0);
+    double etol(localModel_->etol_);
+    int uN(localModel_->upperDim_);
+    int * upperColInd = localModel_->getUpperColInd();
+    int * lowerColInd = localModel_->getLowerColInd();
+    double * lObjCoeffs = localModel_->getLowerObjCoeffs();
+    double cutub(localModel_->solver()->getInfinity());
+    double cutlb(0.0);
+    std::vector<int> indexList;
+    std::vector<double> valsList;
+
+    for(i = 0; i < uN; i++){
+	indexU = upperColInd[i];
+	indexL = lowerColInd[i];
+	indexList.push_back(indexL);
+	valsList.push_back(-lObjCoeffs[i]);
+	cutlb += -1 * lObjCoeffs[i] * lSolution[i];
+	if(lSolution[i] > etol){
+	    indexList.push_back(indexU);
+	    valsList.push_back(-lObjCoeffs[i]*lSolution[i]);
+	}
+    }
+    assert(indexList.size() == valsList.size());
+    numCuts += addCut(conPool, cutlb, cutub, indexList, valsList, false);
+
+    indexList.clear();
+    valsList.clear();
+
+    return numCuts;
+}
+	    
+//###########################################################################
+int
 MibSCutGenerator::bendersInterdictionCuts(BcpsConstraintPool &conPool)
 {
 
@@ -3893,7 +3930,9 @@ MibSCutGenerator::generateConstraints(BcpsConstraintPool &conPool)
 	      generalNoGoodCut(conPool);
 			}
 	  if (useBendersCut == PARAM_ON){
-	      numCuts += bendersInterdictionCuts(conPool);
+	      //numCuts += bendersInterdictionCuts(conPool);
+	      numCuts += bendersInterdictionCutsTest(conPool,
+						 bS->optLowerSolutionOrd_);
 	  }
 	  if (useIncObjCut == true){
 	      numCuts += weakIncObjCutCurrent(conPool);
