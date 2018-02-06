@@ -21,12 +21,14 @@
 #include "BlisModel.h"
 #include "BlisSolution.h"
 #include "MibSBilevel.hpp"
+#include "MibSZeroSum.hpp"
 #include "MibSParams.hpp"
 #include "MibSHelp.hpp"
 #include "MibSConstants.hpp"
 
 class MibSBilevel;
 class MibSCutGenerator;
+class MibSZeroSum;
 
 //#############################################################################
 
@@ -40,6 +42,7 @@ class MibSModel : public BlisModel {
     friend class MibSTreeNode;
     friend class MibSHeuristic;
     friend class MibSSolution;
+    friend class MibSZeroSum;
 
 private:
 

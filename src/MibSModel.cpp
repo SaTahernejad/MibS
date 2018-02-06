@@ -43,7 +43,8 @@
 #include "MibSCutGenerator.hpp"
 #include "MibSBilevel.hpp"
 #include "MibSTreeNode.hpp"
-#include "MibSConstants.hpp"	
+#include "MibSConstants.hpp"
+#include "MibSZeroSum.hpp"
 
 #include "MibSBranchStrategyMaxInf.hpp"
 #include "MibSBranchStrategyPseudo.hpp"
@@ -1865,7 +1866,7 @@ MibSModel::userFeasibleSolution(const double * solution, bool &userFeasible)
 
   //feasible solution is found, so we initiate the zero-sum algorithm.
   //if it has not been started yet.
-  if((useZeroSumAlg) && (solType != MibSNoSol) && (!zs_->isFirstPhaseStarted_)){
+  if((useZeroSumAlg) && (solType != MibSNoSol) && (!zs_->isAlgStarted_)){
       zs_->solveZeroSum(this, bS_->optLowerSolutionOrd_);
   }
 
@@ -1904,7 +1905,7 @@ MibSModel::userFeasibleSolution(const double * solution, bool &userFeasible)
 	  numArtCols = lowerRowNum_/2;
 	  index = numVars_ - numArtCols;
 	  for(i = index; i < numVars_; i++){
-	      if(lpSolution[i] > etol){
+	      if(lpSolution[i] > etol_){
 		  broker_->getBestNode()->setQuality(upperObj);
 		  break;
 	      }
@@ -1912,8 +1913,9 @@ MibSModel::userFeasibleSolution(const double * solution, bool &userFeasible)
       }
   }
 	      
-	      
 
+
+  
   delete sol;
   delete [] lpSolution;
   return mibSol;

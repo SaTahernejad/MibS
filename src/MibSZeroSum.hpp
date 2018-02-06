@@ -18,6 +18,8 @@
 
 #include "MibSModel.hpp"
 
+class MibSModel;
+
 //#############################################################################
 
 class MibSZeroSum {
@@ -49,16 +51,19 @@ public:
     double findBigM();
 
     /** Find the bounds on the lower-level variables **/
-    double *findBoundsOnLLCols(double *newLb, double* newUb, double *LLSol);
+    void findBoundsOnLLCols(double *newLb, double* newUb, double *LLSol);
 
     /** Set the initial part of lower-level solver **/
     void initialSetUpLowerSolver(CoinPackedMatrix *matrixA2);
 
     /** Modify the initial lower-level solver **/
-    void modifyLowerSolver(double *sol);
+    void modifyLowerSolver(double *sol, CoinPackedMatrix *matrixA2);
 
     /** Finds the lower part of the solution **/
     void findLowerSol(double *sol, double *LLSol);
+
+    void solveLowerProblem();
+
 
 };
 

@@ -13,13 +13,30 @@
 /* accompanying file for terms.                                              */
 /*===========================================================================*/
 
+#include "MibSZeroSum.hpp"
 #include "MibSModel.hpp"
+#include "MibSConfig.hpp"
 
 #if  COIN_HAS_MPI
 #include "AlpsKnowledgeBrokerMPI.h"
 #else
 #include "AlpsKnowledgeBrokerSerial.h"
 #endif
+
+#include "OsiCbcSolverInterface.hpp"
+
+#include "OsiCbcSolverInterface.hpp"
+
+#ifdef COIN_HAS_SYMPHONY
+#include "symphony.h"
+#include "SymConfig.h"
+#include "OsiSymSolverInterface.hpp"
+#endif
+#ifdef COIN_HAS_CPLEX
+#include "cplex.h"
+#include "OsiCpxSolverInterface.hpp"
+#endif
+
 
 //#############################################################################
 MibSZeroSum::MibSZeroSum()
@@ -45,7 +62,7 @@ MibSZeroSum::solveZeroSum(MibSModel *mibs, double *sol)
     isAlgStarted_ = true;
 
     int numCols(model_->getNumOrigVars());
-    int lCols(model_->getLoweDim());
+    int lCols(model_->getLowerDim());
     bool isUnbounded(false), foundOptimal(false);
 
     double *lColLb = new double[lCols];
@@ -82,12 +99,13 @@ MibSZeroSum::doFirstPhase(double *LLSol, double *lColLb, double *lColUb,
     int i;
     int colIndex(0);
     int numAddedArtCols(0), numAddedRows(0), numAddedLrows(0), numAdddedURows(0);
+    double etol(model_->etol_);
     double infinity(oSolver->getInfinity());
     int numCols(model_->getNumOrigVars());
     int numRows(model_->getNumOrigCons());
-    int lCols(model_->getLoweDim());
+    int lCols(model_->getLowerDim());
     int lRows(model_->getLowerRowNum());
-    int newUCols(model_->getUpperDim);
+    int newUCols(model_->getUpperDim());
     int newLCols(lCols + lRows);
     int initURows(model_->getOrigUpperRowNum());
     int newLRows(2 * lRows);
@@ -98,9 +116,10 @@ MibSZeroSum::doFirstPhase(double *LLSol, double *lColLb, double *lColUb,
     const char *rowSense(model_->getOrigRowSense());
     int *lColInd(model_->getLowerColInd());
     int *lRowInd(model_->getLowerRowInd());
+    double *lObjCoeffs(model_->getLowerObjCoeffs());
     CoinPackedMatrix matrix = *model_->getOrigConstCoefMatrix();
     /** matrix of upper-level vars in lower-level problem **/
-    CoinPackedMatrix *matrixA2;
+    CoinPackedMatrix *matrixA2 = new CoinPackedMatrix(false, 0, 0);;
     
     //finding the bounds on the lower-level variables
     //for the first step
@@ -127,9 +146,7 @@ MibSZeroSum::doFirstPhase(double *LLSol, double *lColLb, double *lColUb,
     //set col type
     char * newColType = new char[newNumCols];
     memcpy(newColType, model_->colType_, numCols);
-    for(i = numCols; i < newNumCols; i++){
-	newColType[i] = 'C';
-    }
+    CoinFillN(newColType + numCols, lRows, 'C'); 
 
     //set initial matrix, row bounds, row senses and lower and upper row indices
     CoinShallowPackedVector origVec;
@@ -140,7 +157,10 @@ MibSZeroSum::doFirstPhase(double *LLSol, double *lColLb, double *lColUb,
     double *initRowUB = new double[initNumRows];
     char *initRowSense = new char[initNumRows];
     int *newLRowInd = new int[newLRows];
-    int *initURowInd = new int[initUROws];
+    int *initURowInd = NULL;
+    if(initURows > 0){
+	initURowInd = new int[initURows];
+    }
     
     matrix.reverseOrdering();
     initMatrix->setDimensions(0, newNumCols);
@@ -150,7 +170,7 @@ MibSZeroSum::doFirstPhase(double *LLSol, double *lColLb, double *lColUb,
     numAdddedURows = 0;
     for(i = 0; i < numRows; i++){
 	origVec = matrix.getVector(i);
-	if(binarySearch(0, lRows - 1, i, lRowInd) < 0){
+	if(model_->binarySearch(0, lRows - 1, i, lRowInd) < 0){
 	    initMatrix->appendRow(origVec);
 	    initRowLB[numAddedRows] = rowLB[i];
 	    initRowUB[numAddedRows] = rowUB[i];
@@ -158,13 +178,13 @@ MibSZeroSum::doFirstPhase(double *LLSol, double *lColLb, double *lColUb,
 	    initURowInd[numAdddedURows] = numAddedRows;
 	    numAddedRows++;
 	    numAdddedURows++;
-	    origVec.clear();
+	    //origVec.clear();
 	}
 	else{
 	    if(rowSense[i] == 'L'){
 		appendedVec.insert(numCols + numAddedArtCols, -1);
 	    }
-	    else if(origRowSense[i] == 'G'){
+	    else if(rowSense[i] == 'G'){
 		appendedVec.insert(numCols + numAddedArtCols, 1);
 	    }
 	    else{
@@ -193,43 +213,48 @@ MibSZeroSum::doFirstPhase(double *LLSol, double *lColLb, double *lColUb,
 	    newLRowInd[numAddedLrows] = numAddedRows;
 	    numAddedRows++;
 	    numAddedLrows++;
-	    origVec.clear();
+	    //origVec.clear();
 	    appendedVec.clear();
 	    modifiedVec.clear();
 	    numAddedArtCols++;
 	}
     }
-    newMatrix->reverseOrdering();
 
     //set col bounds
     double *newColLB = new double[newNumCols];
     double *newColUB = new double[newNumCols];
     memcpy(newColLB, model_->getOrigColLb(), sizeof(double) * numCols);
     memcpy(newColUB, model_->getOrigColUb(), sizeof(double) * numCols);
-    for(i = numOrigCols; i < numCols; i++){
+    CoinFillN(newColLB + numCols, lRows, 0.0);
+    //sahar:modify it
+    CoinFillN(newColUB + numCols, lRows, infinity);
+    /*for(i = numCols; i < newNumCols; i++){
 	newColLB[i] = 0;
 	//sahar:modify it
 	newColUB[i] = infinity;
-    }
+	}*/
 
     //set the upper- and lower-level objectives
     double *newUObjCoeffs = new double[newNumCols];
     double *newLObjCoeffs = new double[newLCols];
-    memcpy(newObjCoeffs, oSolver->getObjCoefficients(), sizeof(double) * numCols);
-    memcpy(newLObjCoeffs, oSolver->getLowerObjCoeffs(), sizeof(double) * lCols);
+    memcpy(newUObjCoeffs, oSolver->getObjCoefficients(), sizeof(double) * numCols);
+    memcpy(newLObjCoeffs, lObjCoeffs, sizeof(double) * lCols);
     CoinFill(&newUObjCoeffs[numCols], &newUObjCoeffs[newNumCols], -1 * bigM);
-    CoinFill(&lObjCoeffs[lCols], &lObjCoeffs[newLCols], bigM);
+    CoinFill(&newLObjCoeffs[lCols], &newLObjCoeffs[newLCols], bigM);
 
     //set upper and lower column indices
     int *newUColInd = new int[newUCols];
     int *newLColInd = new int[newLCols];
-    memcpy(newUColInd, model_->getUpperColInd(), sizeof(int) * newUcols);
+    memcpy(newUColInd, model_->getUpperColInd(), sizeof(int) * newUCols);
     memcpy(newLColInd, lColInd, sizeof(int) * lCols);
-    CoinIotaN(newLColInd, lRows, numCols);
+    CoinIotaN(newLColInd + lCols, lRows, numCols);
 
     //set structure row indices
     int *initStructRowInd = new int[initNumRows];
-    CoinIotaN(initStructRowInd, initnumRows, 0);
+    CoinIotaN(initStructRowInd, initNumRows, 0);
+
+    double *firstPhaseSol = new double[newNumCols];
+    CoinZeroN(firstPhaseSol, newNumCols);
 
     int newURows(0), newNumRows(0), newStructRowNum(0);
     double objVal(0.0), realLObj(0.0), lObj(0.0);
@@ -248,47 +273,53 @@ MibSZeroSum::doFirstPhase(double *LLSol, double *lColLb, double *lColUb,
 
 	MibSModel *firstPhaseModel = new MibSModel();
 	firstPhaseModel->setSolver(&lpSolver);
-	
+
+	CoinPackedMatrix tmpMatrix;
 	if(!hasValidBound){
+	    tmpMatrix = *initMatrix;
+	    tmpMatrix.reverseOrdering();
+	    
 	    firstPhaseModel->loadAuxiliaryData(newLCols, newLRows,
 					       newLColInd, newLRowInd, 1,
 					       newLObjCoeffs, newUCols, initURows,
-					       newUColInd, initURowInd, initRowNum,
+					       newUColInd, initURowInd, initNumRows,
 					       initStructRowInd, 0, NULL);
-	    firstPhaseModel->loadProblemData(initMatrix, newColLB, newColUB, newUObjCoeffs,
+	    firstPhaseModel->loadProblemData(tmpMatrix, newColLB, newColUB, newUObjCoeffs,
 					     initRowLB, initRowUB, newColType, 1, infinity,
 					     initRowSense);
 	}
 	else{
-	    newURows = initUrows + 1;
+	    newURows = initURows + 1;
 	    newNumRows = initNumRows + 1;
 	    int *newURowInd = new int[newURows];
 	    memcpy(newURowInd, initURowInd, sizeof(int) * initURows);
-	    newURowInd[newURows] = newNumRows;
-	    int *newRowLB = new double[newURows];
-	    int *newRowUB = new double[newURows];
+	    newURowInd[newURows - 1] = newNumRows;
+	    double *newRowLB = new double[newURows];
+	    double *newRowUB = new double[newURows];
 	    char *newRowSense = new char[newURows];
-	    memcpy(newURowLB, initRowLB, sizeof(double) * initNumRows);
-	    memcpy(newURowUB, initRowUB, sizeof(double) * initNumRows);
-	    memcpy(newURowSense, initRowSense, initNumRows);
-	    newRowLB[newNumRows] = objVal;
-	    newRowUB[newNumRows] = infinity;
-	    newRowSense[newNumRows] = 'G';
+	    memcpy(newRowLB, initRowLB, sizeof(double) * initNumRows);
+	    memcpy(newRowUB, initRowUB, sizeof(double) * initNumRows);
+	    memcpy(newRowSense, initRowSense, initNumRows);
+	    newRowLB[newNumRows - 1] = objVal;
+	    newRowUB[newNumRows - 1] = infinity;
+	    newRowSense[newNumRows - 1] = 'G';
 	    CoinPackedMatrix newMatrix = *new CoinPackedMatrix(false, 0, 0);
 	    initMatrix->setDimensions(0, newNumCols);
 	    newMatrix = *initMatrix;
 	    for(i = 0; i < newNumCols; i++){
-		appendedVec.insert(i, newUObjCoeffs[i]);
+		if(fabs(newUObjCoeffs[i]) > etol){
+		    appendedVec.insert(i, newUObjCoeffs[i]);
+		}
 	    }
 	    newMatrix.appendRow(appendedVec);
-	    delete appendedVec;
+	    appendedVec.clear();
 	    int *newStructRowInd = new int[newNumRows];
 	    memcpy(newStructRowInd, initStructRowInd, sizeof(int) * initNumRows);
-	    newStructRowInd[newNumRows] = newNumRows;
+	    newStructRowInd[newNumRows - 1] = newNumRows - 1;
 	    firstPhaseModel->loadAuxiliaryData(newLCols, newLRows,
 					       newLColInd, newLRowInd, 1,
 					       newLObjCoeffs, newUCols, newURows,
-					       newUColInd, newURowInd, newRowNum,
+					       newUColInd, newURowInd, newNumRows,
 					       newStructRowInd, 0, NULL);
 	    firstPhaseModel->loadProblemData(newMatrix, newColLB, newColUB, newUObjCoeffs,
 					     newRowLB, newRowUB, newColType, 1, infinity,
@@ -303,8 +334,9 @@ MibSZeroSum::doFirstPhase(double *LLSol, double *lColLb, double *lColUb,
 	broker.search(firstPhaseModel);
 
 	if(firstPhaseModel->getNumSolutions() > 0){
-	    double *firstPhaseSol = firstPhaseModel->incumbent();
+	    memcpy(firstPhaseSol, firstPhaseModel->incumbent(), sizeof(double) * newNumCols);
 	    objVal = broker.getBestNode()->getQuality();
+	    hasValidBound = true;
 	}
 	else{
 	    assert(0);
@@ -328,7 +360,7 @@ MibSZeroSum::doFirstPhase(double *LLSol, double *lColLb, double *lColUb,
 	//solve the lower-level problem
 	solveLowerProblem();
 
-	if(hasPositiveArtCols){
+	if(hasPositiveArtCol){
 	    if(!lSolver_->isProvenOptimal()){
 		isUnbounded = true;
 		isFirstPhaseFinished = true;
@@ -342,12 +374,16 @@ MibSZeroSum::doFirstPhase(double *LLSol, double *lColLb, double *lColUb,
 	    isFirstPhaseFinished = true;
 	    if(lSolver_->isProvenOptimal()){
 		realLObj = lSolver_->getObjValue();
-		lObj = model_->bS_->getLowerObj(firstPhaseSol, 1);
+		lObj = 0.0;
+		for(i = 0; i < lCols; i++){
+		    colIndex = lColInd[i];
+		    lObj += lObjCoeffs[i] * firstPhaseSol[lColInd[i]];
+		}
 		if(fabs(realLObj - lObj) <= etol){
 		    foundOptimal = true;
 		}
 		else{
-		    indLowerSol(firstPhaseSol, LLSol);
+		    findLowerSol(firstPhaseSol, LLSol);
 		    findBoundsOnLLCols(lColLb, lColUb, LLSol);
 		}
 	    }
@@ -451,10 +487,13 @@ MibSZeroSum::findBigM()
 
     int i;
     int intCnt(0);
+    double bigM(0.0), value(0.0);
+    double etol(model_->etol_);
     int numCols(model_->getNumOrigVars());
     OsiSolverInterface *oSolver = model_->solver();
     
     int * integerVars = new int[numCols];
+
     OsiSolverInterface *nSolver;
 
     CoinFillN(integerVars, numCols, 0);
@@ -470,19 +509,19 @@ MibSZeroSum::findBigM()
     if (feasCheckSolver == "Cbc"){
 	nSolver = new OsiCbcSolverInterface();
     }else if (feasCheckSolver == "SYMPHONY"){
-	        #ifdef COIN_HAS_SYMPHONY
+#ifdef COIN_HAS_SYMPHONY
 	nSolver = new OsiSymSolverInterface();
-	        #else
+#else
 	throw CoinError("SYMPHONY chosen as solver, but it has not been enabled",
 			"findBigM", "MibSZeroSum");
-	        #endif
+#endif
     }else if (feasCheckSolver == "CPLEX"){
-	        #ifdef COIN_HAS_CPLEX
+#ifdef COIN_HAS_CPLEX
 	nSolver = new OsiCpxSolverInterface();
-	        #else
+#else
 	throw CoinError("CPLEX chosen as solver, but it has not been enabled",
 			"findBigM", "MibSZeroSum");
-	        #endif
+#endif
     }else{
 	throw CoinError("Unknown solver chosen",
 			"findBigM", "MibSZeroSum");
@@ -491,7 +530,7 @@ MibSZeroSum::findBigM()
     const CoinPackedMatrix *matrix = model_->getOrigConstCoefMatrix();
 
     nSolver->loadProblem(*matrix, model_->getOrigColLb(), model_->getOrigColUb(),
-			 model_->getObjCoefficients(), model_->getOrigRowLb(),
+			 oSolver->getObjCoefficients(), model_->getOrigRowLb(),
 			 model_->getOrigRowUb());
 
     nSolver->setObjSense(1);
@@ -538,7 +577,7 @@ MibSZeroSum::findBigM()
 	nSolver->setHintParam(OsiDoReducePrint);
 	nSolver->messageHandler()->setLogLevel(0);
 	CPXENVptr cpxEnv =
-	    dynamic_cast<OsiCpxSolverInterface*>(lSolver)->getEnvironmentPtr();
+	    dynamic_cast<OsiCpxSolverInterface*>(nSolver)->getEnvironmentPtr();
 	assert(cpxEnv);
 	CPXsetintparam(cpxEnv, CPX_PARAM_SCRIND, CPX_OFF);
 	CPXsetintparam(cpxEnv, CPX_PARAM_THREADS, maxThreadsLL);
@@ -548,13 +587,22 @@ MibSZeroSum::findBigM()
     nSolver->branchAndBound();
 
     if(nSolver->isProvenOptimal()){
-	bigM = -2 * nSolver->getObjValue();
+	value = nSolver->getObjValue();
+	if(value < etol){
+	    bigM = -1 * value + 5;
+	}
+	else{
+	    bigM = 5;
+	}
     }
     //this should not happen because we assume that the relaxation
     //is bounded and feasible
     else{
 	assert(0);
     }
+
+    delete nSolver;
+    delete [] integerVars;
 
     return bigM;
 }
@@ -568,14 +616,14 @@ MibSZeroSum::findBoundsOnLLCols(double *newLb, double *newUb, double *LLSol)
     double value(0.0);
     int colIndex(0);
     double etol(model_->etol_);
-    int lCols(model_->getLoweDim());
+    int lCols(model_->getLowerDim());
     const double *origColLb(model_->getOrigColLb());
     const double *origColUb(model_->getOrigColUb());
     int *lColInd(model_->getLowerColInd());
     
     for(i = 0; i < lCols; i++){
-	value = LLSol[i];
 	colIndex = lColInd[i];
+	value = LLSol[i];
 	if(fabs(floor(value + 0.5) - value) <= etol){
 	    value = floor(value + 0.5);
 	    if(1 - value + origColLb[colIndex] <= 0){
@@ -600,10 +648,10 @@ MibSZeroSum::findBoundsOnLLCols(double *newLb, double *newUb, double *LLSol)
 
 //#############################################################################
 void
-MibSZeroSum::initialSetUpLowerSolver(CoinPackedMatrix *A2Matrix)
+MibSZeroSum::initialSetUpLowerSolver(CoinPackedMatrix *matrixA2)
 {
     OsiSolverInterface * oSolver = model_->solver();
-    int i;
+    int i, j;
     int colIndex(0), rowIndex(0), numElements(0), pos(0), cntInt(0);
     int uCols(model_->getUpperDim());
     int lCols(model_->getLowerDim());
@@ -614,7 +662,7 @@ MibSZeroSum::initialSetUpLowerSolver(CoinPackedMatrix *A2Matrix)
     double *origRowUb(model_->getOrigRowUb());
     int *uColInd(model_->getUpperColInd());
     int *lColInd(model_->getLowerColInd());
-    int *lRowInd(model_->getLowerrowInd());
+    int *lRowInd(model_->getLowerRowInd());
 
     CoinShallowPackedVector origVec;
     CoinPackedVector vecG2;
@@ -657,8 +705,8 @@ MibSZeroSum::initialSetUpLowerSolver(CoinPackedMatrix *A2Matrix)
 		vecA2.insert(pos, elements[j]);
 	    }
 	}
-	matrixG2->append(vecG2);
-	matrixA2->append(vecA2);
+	matrixG2->appendRow(vecG2);
+	matrixA2->appendRow(vecA2);
 	origVec.clear();
 	vecA2.clear();
 	vecG2.clear();
@@ -705,9 +753,15 @@ void
 MibSZeroSum::modifyLowerSolver(double *sol, CoinPackedMatrix *matrixA2)
 {
     int i;
-    int colIndex(0);
+    int colIndex(0), rowIndex(0);
+    double value(0.0);
     int uCols(model_->getUpperDim());
+    int lRows(model_->getLowerRowNum());
     int *uColInd(model_->getUpperColInd());
+    int *lColInd(model_->getLowerColInd());
+    int *lRowInd(model_->getLowerRowInd());
+    double *origRowLb(model_->getOrigRowLb());
+    double *origRowUb(model_->getOrigRowUb());
 
     double *mult = new double[lRows];
     CoinZeroN(mult, lRows);
@@ -723,11 +777,10 @@ MibSZeroSum::modifyLowerSolver(double *sol, CoinPackedMatrix *matrixA2)
     matrixA2->times(uSol, mult);
 
     for(i = 0; i < lRows; i++){
-	lower = lSolver_getRowLower()[i];
-	upper =lSolver_getRowUpper()[i];
+	rowIndex = lRowInd[i];
 	value = mult[i];
-	lSolver_->setRowBounds(i, lower-value, upper-value);
-
+	lSolver_->setRowBounds(i, origRowLb[rowIndex] - value,
+			       origRowUb[rowIndex] - value);
     }
 
     delete [] mult;
@@ -738,6 +791,13 @@ MibSZeroSum::modifyLowerSolver(double *sol, CoinPackedMatrix *matrixA2)
 void
 MibSZeroSum::solveLowerProblem()
 {
+
+    std::string feasCheckSolver(model_->MibSPar_->
+				entry(MibSParams::feasCheckSolver));
+    int maxThreadsLL(model_->MibSPar_->entry
+		     (MibSParams::maxThreadsLL));
+    int whichCutsLL(model_->MibSPar_->entry
+		    (MibSParams::whichCutsLL));
 
     if(feasCheckSolver == "Cbc"){
 	            dynamic_cast<OsiCbcSolverInterface *>
@@ -782,26 +842,20 @@ MibSZeroSum::solveLowerProblem()
 	CPXsetintparam(cpxEnv, CPX_PARAM_THREADS, maxThreadsLL);
 #endif
     }
-
+    lSolver_->branchAndBound();
 }
 
 //#############################################################################
 void
 MibSZeroSum::findLowerSol(double *sol, double *LLSol)
 {
+    int i;
+    int colIndex(0);
+    int lCols(model_->getLowerDim());
+    int *lColInd = model_->getLowerColInd();
+    
     for(i = 0; i < lCols; i++){
 	colIndex = lColInd[i];
 	LLSol[i] = sol[colIndex];
     }
 }
-				    
-	
-	
-
-	
-		
-	
-	    
-    
-	
-	
