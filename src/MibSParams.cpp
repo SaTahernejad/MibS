@@ -168,6 +168,9 @@ MibSParams::createKeywordList() {
    keys_.push_back(make_pair(std::string("MibS_useLinkingSolutionPool"),
 			     AlpsParameter(AlpsIntPar, useLinkingSolutionPool)));
 
+   keys_.push_back(make_pair(std::string("MibS_useZeroSumAlg"),
+			     AlpsParameter(AlpsIntPar, useZeroSumAlg)));
+
    //--------------------------------------------------------
    // String Parameters.
    //--------------------------------------------------------
@@ -279,6 +282,8 @@ MibSParams::setDefaultEntries() {
    setEntry(computeBestUBWhenLVarsFixed, PARAM_NOTSET);
 
    setEntry(useLinkingSolutionPool, PARAM_NOTSET);
+
+   setEntry(useZeroSumAlg, PARAM_OFF);
 
    //-------------------------------------------------------------
    // Double Parameters

@@ -137,6 +137,9 @@ private:
 
     /** Determines if matrix G2 is positive or not **/
     bool positiveG2_;
+
+    /** Determines if we are solving the first phase of zero sum alg or not **/
+    bool isFirstPhaseZeroSum_;
   
     /** the left (negative) slope of the lower-level value function **/
     double leftSlope_;
@@ -457,7 +460,8 @@ public:
 			 const double* colLB, const double* colUB,
 			 const double* obj, const double* rowLB,
 			 const double* rowUB, const char *types,
-			 double objSense, double infinity,  const char *rowSense);
+			 double objSense, double infinity,  const char *rowSense,
+			 bool isFirstPhaseZeroSum);
   
     /** Set integer indices and number of integer variables **/
     void findIntegers();

@@ -125,6 +125,7 @@ MibSModel::initialize()
   positiveA2_ = true;
   positiveG1_ = true;
   positiveG2_ = true;
+  isFirstPhaseZeroSum_ = false;
   upperColInd_ = NULL;
   lowerColInd_ = NULL;
   upperRowInd_ = NULL;
@@ -602,7 +603,7 @@ MibSModel::readProblemData()
    readAuxiliaryData(numCols, numRows); // reads in lower-level vars, rows, obj coeffs 
    
    loadProblemData(matrix, varLB, varUB, objCoef, conLB, conUB, colType, 
-		   objSense, mps->getInfinity(), rowSense);
+		   objSense, mps->getInfinity(), rowSense, false);
 
    delete [] colType;
    delete [] varLB;
@@ -620,7 +621,8 @@ MibSModel::loadProblemData(const CoinPackedMatrix& matrix,
 			   const double* colLB, const double* colUB,   
 			   const double* obj, const double* rowLB,
 			   const double* rowUB, const char *types,
-			   double objSense, double infinity, const char *rowSense)
+			   double objSense, double infinity, const char *rowSense,
+			   bool isFirstPhaseZeroSum)
 {
    //FIXME: THIS ISN'T TRUE IF WE LOAD AN INTERDICTION PROBLEM 
    //AS A "GENERAL" PROBLEM.  FOR NOW, IT'S OK SINCE WE ONLY
@@ -650,6 +652,8 @@ MibSModel::loadProblemData(const CoinPackedMatrix& matrix,
    }
 
    problemType = MibSPar_->entry(MibSParams::bilevelProblemType);
+
+   isFirstPhaseZeroSum_ = isFirstPhaseZeroSum;
   
    int j(0);
    int beg(0);
@@ -691,6 +695,14 @@ MibSModel::loadProblemData(const CoinPackedMatrix& matrix,
       CoinDisjointCopyN(colUB, numCols, varUB);
       CoinDisjointCopyN(rowLB, numRows, conLB);
       CoinDisjointCopyN(rowUB, numRows, conUB);
+      for(i = 0; i < numCols; i++){
+	  objCoef[i] = 0;
+      }
+
+      /*for(i = 0; i < lowerDim_; i++){
+	  objCoef[lowerColInd_[i]] = -1 * lowerObjCoeffs_[i];
+	  }*/
+      
       CoinDisjointCopyN(obj, numCols, objCoef);
       memcpy(colType, types, numCols);
 
@@ -1794,6 +1806,13 @@ MibSModel::userFeasibleSolution(const double * solution, bool &userFeasible)
      10) I have a function in zero sum class that initiates the lower-level solver. 
          Change it after modifying the lower-level solver in MibSBilevel class. 
          I have also matrixA2. Change it also.
+
+     11) When we are solving the first phase of algoritm, we need an indicitor to 
+         show that we are at the first phase. For now, I defined a member of MibSModel 
+         names isZeroSumFirstPhase_. 
+
+     12) second phase model should be changed to be also used for the 
+         interdiction problems.
     */
     
   /** User's criteria for a feasible solution.
@@ -1815,11 +1834,13 @@ MibSModel::userFeasibleSolution(const double * solution, bool &userFeasible)
   if(0)
     solver()->writeLp("userfeasible1");
 
+  int useZeroSumAlg(MibSPar_->entry(MibSParams::useZeroSumAlg));
+
+  double infinity(solver()->getInfinity());
   int i(0), index(0);
   int numArtCols(0);
   double upperObj(0.0);
   bool isHeurSolution(true);
-  bool useZeroSumAlg(true);
   bool feasSolFound(false);
   int * upperColInd = getUpperColInd();
   int * lowerColInd = getLowerColInd();
@@ -1869,52 +1890,80 @@ MibSModel::userFeasibleSolution(const double * solution, bool &userFeasible)
   if((useZeroSumAlg) && (solType != MibSNoSol) && (!zs_->isAlgStarted_)){
       zs_->solveZeroSum(this, bS_->optLowerSolutionOrd_);
   }
-
-  userFeasible = false;
-  if(solType == MibSRelaxationSol){
-      userFeasible = true;
-  }
-
-  if(userFeasible == true){
-      mibSol = new MibSSolution(getNumCols(),
-				lpSolution,
-				upperObj,
-				this);
-  }
-  else if(solType == MibSHeurSol){
-      if(!bS_->isUBSolved_){
-	  isHeurSolution = checkUpperFeasibility(lpSolution);
+  else{
+      userFeasible = false;
+      if(solType == MibSRelaxationSol){
+	  userFeasible = true;
       }
-      if(isHeurSolution == true){
+
+      if(userFeasible == true){
 	  mibSol = new MibSSolution(getNumCols(),
 				    lpSolution,
 				    upperObj,
 				    this);
-	  storeSolution(BlisSolutionTypeHeuristic, mibSol);
-	  mibSol = NULL;
       }
-  }
-  
-  //if we are at the first phase of zero-sum algorithm,
-  //we terminate solving the first phase model if we find
-  //a bilevel feasible solution whose at least one of artificial
-  //variables are greater than 0.
-  if((zs_->isAlgStarted_) && (!zs_->isFirstPhaseFinished_)){
-      if((solType != MibSNoSol) && ((userFeasible) ||
-				    (isHeurSolution))){
-	  numArtCols = lowerRowNum_/2;
-	  index = numVars_ - numArtCols;
-	  for(i = index; i < numVars_; i++){
-	      if(lpSolution[i] > etol_){
-		  broker_->getBestNode()->setQuality(upperObj);
-		  break;
+      else if(solType == MibSHeurSol){
+	  if(!bS_->isUBSolved_){
+	      isHeurSolution = checkUpperFeasibility(lpSolution);
+	  }
+	  if(isHeurSolution == true){
+	      mibSol = new MibSSolution(getNumCols(),
+					lpSolution,
+					upperObj,
+					this);
+	      storeSolution(BlisSolutionTypeHeuristic, mibSol);
+	      mibSol = NULL;
+	  }
+      }
+      else if(isFirstPhaseZeroSum_){
+	  if((bS_->isUpperIntegral_) && ((bS_->tagInSeenLinkingPool_ ==
+					  MibSLinkingPoolTagLowerIsInfeasible)
+					 || ((bS_->isLowerSolved_) &&
+					     (!bS_->isUBSolved_) &&
+					     (!bS_->isProvenOptimal_)))){
+	      for(i = 0; i < upperDim_; i++){
+		  index = upperColInd[i];
+	          lpSolution[index] = bS_->optUpperSolutionOrd_[i];
 	      }
+	      for(i = 0; i < lowerDim_; i++){
+		  index = lowerColInd[i];
+	          lpSolution[index] = bS_->optLowerSolutionOrd_[i];
+	      }
+	      upperObj = -infinity;
+	      mibSol = new MibSSolution(getNumCols(),
+					lpSolution,
+					upperObj,
+					this);
+	      userFeasible = true;
+	  //broker_->getBestNode()->setQuality(-solver()->getInfinity());
 	  }
       }
   }
-	      
 
+  if((zs_->isUnbounded_) || (zs_->foundOptimal_)){
+      memcpy(lpSolution, zs_->optimalSol_, sizeof(double) * numOrigVars_);
+      if(zs_->isUnbounded_){
+	  upperObj = -infinity;
+      }
+      else{
+	  upperObj = 0.0;
+	  for(i = 0; i < lowerDim_; i++){
+	      index = lowerColInd[i];
+	      upperObj += solver()->getObjCoefficients()[index] * lpSolution[index];
+	  }
+      }
+      mibSol = new MibSSolution(getNumCols(),
+				lpSolution,
+				upperObj,
+				this);
+      userFeasible = true;
+      broker_->getBestNode()->setQuality(upperObj);
+  }
+      
+      
 
+  
+ 
   
   delete sol;
   delete [] lpSolution;

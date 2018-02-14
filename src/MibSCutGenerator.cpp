@@ -1313,7 +1313,7 @@ MibSCutGenerator::boundCuts(BcpsConstraintPool &conPool)
 				  nObjCoeffs,
 				  oSolver->getRowLower(), oSolver->getRowUpper(),
 				  colType, 1.0, oSolver->getInfinity(),
-				  oSolver->getRowSense());
+				  oSolver->getRowSense(), false);
       
       boundModel->loadAuxiliaryData(localModel_->getLowerDim(),
 				    localModel_->getLowerRowNum(),
@@ -1420,7 +1420,8 @@ MibSCutGenerator::boundCuts(BcpsConstraintPool &conPool)
 				    oSolver->getRowLower(),
 				    oSolver->getRowUpper(),
 				    localModel_->colType_, 1.0,
-				    oSolver->getInfinity(), oSolver->getRowSense());
+				    oSolver->getInfinity(), oSolver->getRowSense(),
+				    false);
       
       int argc1 = 1;
       char** argv1 = new char* [1];

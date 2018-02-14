@@ -40,6 +40,7 @@ class MibSBilevel {
     friend class MibSTreeNode;
     friend class MibSBranchStrategyPseudo;
     friend class MibSBranchStrategyStrong;
+    friend class MibSZeroSum;
 
 private:
 

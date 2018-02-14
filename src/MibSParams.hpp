@@ -74,6 +74,7 @@ class MibSParams : public AlpsParameterSet {
      computeBestUBWhenLVarsInt,
      computeBestUBWhenLVarsFixed,
      useLinkingSolutionPool,
+     useZeroSumAlg,
      endOfIntParams
   };
 

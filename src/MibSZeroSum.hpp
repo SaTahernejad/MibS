@@ -25,13 +25,18 @@ class MibSModel;
 class MibSZeroSum {
 
     friend class MibSModel;
+    friend class MibSBilevel;
 
 private:
 
     MibSModel *model_;
     OsiSolverInterface *lSolver_;
     bool isAlgStarted_;
+    bool isUnbounded_;
+    bool foundOptimal_;
     bool isFirstPhaseFinished_;
+    double *optimalSol_;
+    CoinPackedMatrix *matrixA2_;
 
 public:
 
@@ -43,15 +48,19 @@ public:
     void solveZeroSum(MibSModel *mibs, double *sol);
 
     /** First phase of the algorithm **/
-    void doFirstPhase(double *LLSol, double *lColLb, double *lColUb,
-		      double *optimalSol, bool &isUnbounded,
-		      bool &foundOptimal);
+    void doFirstPhase(double *LLSol, double *lColLb, double *lColUb, double &initialBoundSecondPh);
 
-    /** Find the value of big M **/
-    double findBigM();
+    /** Second phase of the algorithm **/
+    void doSecondPhase(double *lColLb, double *lColUb, double objBound);
+
+    /** Find the value of big M objective **/
+    double findBigMObj();
+
+    /** Find the value of big M constraint **/
+    double findBigMConst(double &artColLower, double &artColUpper);
 
     /** Find the bounds on the lower-level variables **/
-    void findBoundsOnLLCols(double *newLb, double* newUb, double *LLSol);
+    void findBoundsOnLLCols(double *newLb, double* newUb, double *LLSol, bool isFirstTime);
 
     /** Set the initial part of lower-level solver **/
     void initialSetUpLowerSolver(CoinPackedMatrix *matrixA2);
