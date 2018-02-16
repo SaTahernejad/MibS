@@ -373,7 +373,7 @@ MibSTreeNode::process(bool isRoot, bool rampUp)
 	  // mibs->runPreprocessor();
 	  //}
 
-	  // Check if IP feasible 
+	  // Check if IP feasible
 	  ipSol = model->feasibleSolution(numIntInfs, numObjInfs);
 
 	  //if((bS->useBilevelBranching_ == false) &&

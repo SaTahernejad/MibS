@@ -477,9 +477,9 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot)
 	}
 	lowerObj = getLowerObj(sol, model_->getLowerObjSense());
 	
-	if(isIntegral_){
+	/*if(isIntegral_){
 	    assert((objVal - lowerObj) <= etol);
-	}
+	}*/
 	
 	LPSolStatus_ = MibSLPSolStatusInfeasible;
 	
@@ -908,6 +908,7 @@ MibSBilevel::setUpModel(OsiSolverInterface * oSolver, bool newOsi,
   if (!lpSol){
      lpSol = oSolver->getColSolution();   
   }
+
   const double * origRowLb = model_->getOrigRowLb();
   const double * origRowUb = model_->getOrigRowUb();
   const double * origColLb = model_->getOrigColLb();

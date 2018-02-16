@@ -386,7 +386,13 @@ MibSCutGenerator::intersectionCuts(BcpsConstraintPool &conPool,
 		for(j = 0; j < numStruct; j++){
 		    extRay[cnt][j] = 0;
 		}
-		solver->getBInvACol(i,coef);
+		//solver->getBInvACol(i,coef);
+		if(i >= numStruct){
+		    solver->getBInvACol(numStruct-i-1,coef);
+		}
+		else{
+		    solver->getBInvACol(i,coef);
+		}
 		if((i >= numStruct) && (i-numStruct < numArtf)){
 		    if(rowsense[i-numStruct] == 'G'){
 			mult = -1;

@@ -600,7 +600,7 @@ MibSModel::readProblemData()
    origRowSense_ = new char[numRows];
    memcpy(origRowSense_, rowSense, numRows);
 
-   readAuxiliaryData(numCols, numRows); // reads in lower-level vars, rows, obj coeffs 
+   readAuxiliaryData(numCols, numRows); // reads in lower-level vars, rows, obj coeffs
    
    loadProblemData(matrix, varLB, varUB, objCoef, conLB, conUB, colType, 
 		   objSense, mps->getInfinity(), rowSense, false);
@@ -699,11 +699,12 @@ MibSModel::loadProblemData(const CoinPackedMatrix& matrix,
 	  objCoef[i] = 0;
       }
 
-      /*for(i = 0; i < lowerDim_; i++){
+      //sahar:added  
+      for(i = 0; i < lowerDim_; i++){
 	  objCoef[lowerColInd_[i]] = -1 * lowerObjCoeffs_[i];
-	  }*/
+      }
       
-      CoinDisjointCopyN(obj, numCols, objCoef);
+      //CoinDisjointCopyN(obj, numCols, objCoef);
       memcpy(colType, types, numCols);
 
       break;
@@ -1958,6 +1959,30 @@ MibSModel::userFeasibleSolution(const double * solution, bool &userFeasible)
 				this);
       userFeasible = true;
       broker_->getBestNode()->setQuality(upperObj);
+
+      if(zs_->isUnbounded_){
+	  std::cout << "zero-sum detected unbounded." << std::endl;
+      }
+      else{
+	  std::cout << "zero-sum returned optimal solution." << std::endl;
+      }
+	  
+  }
+
+  if((zs_->returnedNothing_) || (zs_->returnedLowerBound_)){
+      CoinZeroN(lpSolution, getNumCols());
+      upperObj = infinity;
+      mibSol = new MibSSolution(getNumCols(),
+				lpSolution,
+				upperObj,
+				this);
+      broker_->getBestNode()->setQuality(upperObj);
+      if(zs_->returnedNothing_){
+	  std::cout << "zero-sum returned nothing." << std::endl;
+      }
+      else{
+	  std::cout << "zero-sum returned lower bound." << std::endl;
+      }
   }
       
       

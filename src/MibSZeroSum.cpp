@@ -46,7 +46,8 @@ MibSZeroSum::MibSZeroSum()
     isAlgStarted_ = false;
     isUnbounded_ = false;
     foundOptimal_ = false;
-    isFirstPhaseFinished_ = false;
+    returnedNothing_ = false;
+    returnedLowerBound_ = false;
     optimalSol_ = NULL;
     matrixA2_ = NULL;
 }
@@ -84,7 +85,7 @@ MibSZeroSum::solveZeroSum(MibSModel *mibs, double *sol)
     //all feasible first-level variables
     doFirstPhase(LLSol, lColLb, lColUb, initialBoundSecondPh);
 
-    if((!foundOptimal_) && (!isUnbounded_)){
+    if((!foundOptimal_) && (!isUnbounded_) && (!returnedNothing_)){
 	//start second phase
 	doSecondPhase(lColLb, lColUb, initialBoundSecondPh);
     }
@@ -105,11 +106,14 @@ void
     std::string feasCheckSolver(model_->MibSPar_->
 				entry(MibSParams::feasCheckSolver));
 
+    double timeLimit(model_->AlpsPar()->entry(AlpsParams::timeLimit));
+
     bool isFirstPhaseFinished(false), hasPositiveArtCol(false);
     int i;
     int tmpIndex(0), colIndex(0);
     int numAddedArtCols(0), numAddedRows(0), numAddedLrows(0), numAdddedURows(0);
     double artColLower(0.0), artColUpper(0.0);
+    double remainingTime(0.0);
     double etol(model_->etol_);
     double infinity(oSolver->getInfinity());
     int numCols(model_->getNumOrigVars());
@@ -142,8 +146,8 @@ void
 
     /*for(i = 0; i < lCols; i++){
 	lColLb[i] = 0;
-	lColUb[i] = 1500;
-    }*/
+	lColUb[i] = 20;
+	}*/
 
     //find upper bound of the artificial variables
     //double *artColsUB = findUBOnArtCols();
@@ -158,8 +162,11 @@ void
     //the same for all steps
 
     //Set up lp solver
-    OsiClpSolverInterface lpSolver;
+    /*OsiClpSolverInterface lpSolver;
     lpSolver.getModelPtr()->setDualBound(1.0e10);
+    lpSolver.messageHandler()->setLogLevel(0);*/
+
+    OsiCpxSolverInterface lpSolver;
     lpSolver.messageHandler()->setLogLevel(0);
 
     //set col type
@@ -326,7 +333,9 @@ void
 	tmpMatrix = *newMatrix;
 	tmpMatrix.reverseOrdering();
 
-	firstPhaseModel->AlpsPar()->setEntry(AlpsParams::timeLimit, 3600);
+	remainingTime = timeLimit - model_->broker_->subTreeTimer().getTime();
+
+	firstPhaseModel->AlpsPar()->setEntry(AlpsParams::timeLimit, remainingTime);
 	firstPhaseModel->BlisPar()->setEntry(BlisParams::heurStrategy, PARAM_OFF);
 	//firstPhaseModel->BlisPar()->setEntry(BlisParams::heurRound, PARAM_OFF);
 	//firstPhaseModel->MibSPar()->setEntry(MibSParams::checkInstanceStructure, false);
@@ -397,41 +406,22 @@ void
 	    }
 	}*/
 
-	if(!lSolver_){
-	    initialSetUpLowerSolver(matrixA2_);
-	}
+	if(timeLimit > model_->broker_->subTreeTimer().getTime()){
 
-	//correct the lower-level solver
-	modifyLowerSolver(firstPhaseSol, matrixA2_);
-
-	//solve the lower-level problem
-	solveLowerProblem();
-
-	if(objVal < -10000000000){
-	    if(!lSolver_->isProvenOptimal()){
-		isUnbounded_ = true;
-		isFirstPhaseFinished = true;
-		if(!optimalSol_){
-		    optimalSol_ = new double[numCols];
-		}
-		memcpy(optimalSol_, firstPhaseSol, sizeof(double) * numCols);
+	    if(!lSolver_){
+		initialSetUpLowerSolver(matrixA2_);
 	    }
-	    else{
-		memcpy(LLSol, lSolver_->getColSolution(), sizeof(double) * lCols);
-		findBoundsOnLLCols(lColLb, lColUb, LLSol, false);
-	    }
-	}
-	else{
-	    isFirstPhaseFinished = true;
-	    if(lSolver_->isProvenOptimal()){
-		realLObj = lSolver_->getObjValue();
-		lObj = 0.0;
-		for(i = 0; i < lCols; i++){
-		    colIndex = lColInd[i];
-		    lObj += lObjCoeffs[i] * firstPhaseSol[lColInd[i]];
-		}
-		if(fabs(realLObj - lObj) <= etol){
-		    foundOptimal_ = true;
+
+	    //correct the lower-level solver
+	    modifyLowerSolver(firstPhaseSol, matrixA2_);
+
+	    //solve the lower-level problem
+	    solveLowerProblem();
+
+	    if(objVal < -10000000000){
+		if(!lSolver_->isProvenOptimal()){
+		    isUnbounded_ = true;
+		    isFirstPhaseFinished = true;
 		    if(!optimalSol_){
 			optimalSol_ = new double[numCols];
 		    }
@@ -440,15 +430,39 @@ void
 		else{
 		    memcpy(LLSol, lSolver_->getColSolution(), sizeof(double) * lCols);
 		    findBoundsOnLLCols(lColLb, lColUb, LLSol, false);
-		    initialBoundSecondPh = -1 * realLObj;
 		}
 	    }
 	    else{
-		assert(0);
+		isFirstPhaseFinished = true;
+	        if(lSolver_->isProvenOptimal()){
+		    realLObj = lSolver_->getObjValue();
+		    lObj = 0.0;
+		    for(i = 0; i < lCols; i++){
+			colIndex = lColInd[i];
+			lObj += lObjCoeffs[i] * firstPhaseSol[lColInd[i]];
+		    }
+		    if(fabs(realLObj - lObj) <= etol){
+			foundOptimal_ = true;
+			if(!optimalSol_){
+			    optimalSol_ = new double[numCols];
+			}
+		        memcpy(optimalSol_, firstPhaseSol, sizeof(double) * numCols);
+		    }
+		    else{
+			memcpy(LLSol, lSolver_->getColSolution(), sizeof(double) * lCols);
+		        findBoundsOnLLCols(lColLb, lColUb, LLSol, false);
+		        initialBoundSecondPh = -1 * lObj;
+		    }
+		}
+	        else{
+		    assert(0);
+		}   
 	    }
-		    
 	}
-
+	else{
+	    returnedNothing_ = true;
+	    isFirstPhaseFinished = true;
+	}
 	delete firstPhaseModel;
     }
 
@@ -481,11 +495,14 @@ MibSZeroSum::doSecondPhase(double *lColLb, double *lColUb, double objBound)
 
     std::string feasCheckSolver(model_->MibSPar_->
 				entry(MibSParams::feasCheckSolver));
+
+    double timeLimit(model_->AlpsPar()->entry(AlpsParams::timeLimit));
     
     int i;
     int colIndex(0);
     double value(0.0);
     bool isSecondPhaseFinished(false);
+    double remainingTime(0.0);
     double infinity(oSolver->getInfinity());
     double etol(model_->etol_);
     int newNumCols(model_->getNumOrigVars());
@@ -550,8 +567,11 @@ MibSZeroSum::doSecondPhase(double *lColLb, double *lColUb, double objBound)
     CoinZeroN(LLSol, newLCols);
 
     //Set up lp solver
-    OsiClpSolverInterface lpSolver;
+    /*OsiClpSolverInterface lpSolver;
     lpSolver.getModelPtr()->setDualBound(1.0e10);
+    lpSolver.messageHandler()->setLogLevel(0);*/
+
+    OsiCpxSolverInterface lpSolver;
     lpSolver.messageHandler()->setLogLevel(0);
 
     double objVal(0.0), realLObj(0.0), lObj(0.0);
@@ -571,7 +591,9 @@ MibSZeroSum::doSecondPhase(double *lColLb, double *lColUb, double objBound)
 	MibSModel *secondPhaseModel = new MibSModel();
 	secondPhaseModel->setSolver(&lpSolver);
 
-	secondPhaseModel->AlpsPar()->setEntry(AlpsParams::timeLimit, 3600);
+	remainingTime = timeLimit - model_->broker_->subTreeTimer().getTime();
+	
+	secondPhaseModel->AlpsPar()->setEntry(AlpsParams::timeLimit, remainingTime);
 	secondPhaseModel->BlisPar()->setEntry(BlisParams::heurStrategy, PARAM_OFF);
 	//firstPhaseModel->BlisPar()->setEntry(BlisParams::heurRound, PARAM_OFF);
 	//firstPhaseModel->MibSPar()->setEntry(MibSParams::checkInstanceStructure, false);
@@ -634,37 +656,43 @@ MibSZeroSum::doSecondPhase(double *lColLb, double *lColUb, double objBound)
 
 	broker.printBestSolution();
 
-	//correct the lower-level solver
-	modifyLowerSolver(secondPhaseSol, matrixA2_);
+	if(timeLimit > model_->broker_->subTreeTimer().getTime()){
 
-	//solve the lower-level problem
-	solveLowerProblem();
+	    //correct the lower-level solver
+	    modifyLowerSolver(secondPhaseSol, matrixA2_);
 
-	if(lSolver_->isProvenOptimal()){
-	    realLObj = lSolver_->getObjValue();
-	    lObj = 0.0;
-	    for(i = 0; i < newLCols; i++){
-		lObj += newLObjCoeffs[i] * secondPhaseSol[newLColInd[i]];
-	    }
-	    
-	    if(fabs(realLObj - lObj) <= etol){
-		isSecondPhaseFinished = true;
-		foundOptimal_ = true;
-		if(!optimalSol_){
-		    optimalSol_ = new double[newNumCols];
+	    //solve the lower-level problem
+	    solveLowerProblem();
+
+	    if(lSolver_->isProvenOptimal()){
+		realLObj = lSolver_->getObjValue();
+	        lObj = 0.0;
+	        for(i = 0; i < newLCols; i++){
+		    lObj += newLObjCoeffs[i] * secondPhaseSol[newLColInd[i]];
 		}
-		memcpy(optimalSol_, secondPhaseSol, sizeof(double) * newNumCols);
+	    
+	        if(fabs(realLObj - lObj) <= etol){
+		    isSecondPhaseFinished = true;
+		    foundOptimal_ = true;
+		    if(!optimalSol_){
+			optimalSol_ = new double[newNumCols];
+		    }
+		    memcpy(optimalSol_, secondPhaseSol, sizeof(double) * newNumCols);
+		}
+	        else{
+		    memcpy(LLSol, lSolver_->getColSolution(), sizeof(double) * newLCols);
+		    findBoundsOnLLCols(lColLb, lColUb, LLSol, false);
+		    objBound = -1 * lObj;
+		}
 	    }
 	    else{
-		memcpy(LLSol, lSolver_->getColSolution(), sizeof(double) * newLCols);
-		findBoundsOnLLCols(lColLb, lColUb, LLSol, false);
-		objBound = -1 * realLObj;
+		assert(0);
 	    }
 	}
 	else{
-	    assert(0);
+	    returnedLowerBound_ = true;
+	    isSecondPhaseFinished = true;
 	}
-
 	delete secondPhaseModel;
     }
 

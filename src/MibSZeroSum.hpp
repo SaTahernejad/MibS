@@ -34,7 +34,8 @@ private:
     bool isAlgStarted_;
     bool isUnbounded_;
     bool foundOptimal_;
-    bool isFirstPhaseFinished_;
+    bool returnedNothing_;
+    bool returnedLowerBound_;
     double *optimalSol_;
     CoinPackedMatrix *matrixA2_;
 
