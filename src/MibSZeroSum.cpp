@@ -168,6 +168,10 @@ void
 
     OsiCpxSolverInterface lpSolver;
     lpSolver.messageHandler()->setLogLevel(0);
+    CPXENVptr cpxEnv = lpSolver.getEnvironmentPtr();
+    assert(cpxEnv);
+    CPXsetintparam(cpxEnv, CPX_PARAM_SCRIND, CPX_OFF);
+    CPXsetintparam(cpxEnv, CPX_PARAM_THREADS, 1);
 
     //set col type
     char * newColType = new char[newNumCols];
@@ -573,6 +577,10 @@ MibSZeroSum::doSecondPhase(double *lColLb, double *lColUb, double objBound)
 
     OsiCpxSolverInterface lpSolver;
     lpSolver.messageHandler()->setLogLevel(0);
+    CPXENVptr cpxEnv = lpSolver.getEnvironmentPtr();
+    assert(cpxEnv);
+    CPXsetintparam(cpxEnv, CPX_PARAM_SCRIND, CPX_OFF);
+    CPXsetintparam(cpxEnv, CPX_PARAM_THREADS, 1);
 
     double objVal(0.0), realLObj(0.0), lObj(0.0);
     int argc = 1;
