@@ -292,6 +292,22 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot)
     std::vector<double> shouldStoreValues;
 
     const double * sol = model_->solver()->getColSolution();
+
+    bool isTargetSol(false);
+    if((fabs(sol[0]) < etol) && (fabs(sol[1] - 1) < etol) && (fabs(sol[2]) < etol) &&
+       (fabs(sol[3]) < etol) && (fabs(sol[4] - 1) < etol) && (fabs(sol[5]) < etol) &&
+       (fabs(sol[6] - 19) < etol) && (fabs(sol[7]) < etol) && (fabs(sol[8]) < etol)&&
+       (fabs(sol[9] - 13) < etol) && (fabs(sol[88] - 19) < etol) &&
+       (fabs(sol[89] - 5) < etol) && (fabs(sol[90] - 8) < etol)){
+	isTargetSol = true;
+	std::cout << "This is target sol" << std::endl;
+	if(isContainedInLinkingPool_){
+	    std::cout << "target solution is in pool" << std::endl;
+	}
+	else{
+	    std::cout << "target solution is NOT in pool" << std::endl;
+	}
+    }
     
     std::vector<double> linkSol;
     for(i = 0; i < uN; i++){
@@ -318,7 +334,7 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot)
 	
 	OsiSolverInterface *lSolver = solver_;
 	
-	if(1)
+	if(0)
 	    lSolver->writeLp("lowerlevel");
 	
 	if (feasCheckSolver == "Cbc"){
@@ -380,7 +396,14 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot)
 	    CPXsetintparam(cpxEnv, CPX_PARAM_THREADS, maxThreadsLL);
 #endif
 	}
-	
+
+	//if(model_->counterVF_ == 67123){
+	    lSolver->writeMps("probBeforeSolve", "mps", lSolver->getObjSense());
+	    //}
+
+	if(isTargetSol){
+	    lSolver->writeMps("lowerLevelTargetSolBeforeSolve", "mps", lSolver->getObjSense());
+	}
 	//step 8
 	if (warmStartLL && feasCheckSolver == "SYMPHONY"){
 	    lSolver->resolve();
@@ -388,11 +411,24 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot)
 	}else{
 	    lSolver->branchAndBound();
 	}
+
+	//if(model_->counterVF_ == 67123){
+	    lSolver->writeMps("afterSolve", "mps", lSolver->getObjSense());
+	    //}
+
+	   
+
+	if(isTargetSol){
+	    lSolver->writeMps("lowerLevelTargetSolAfterSolve", "mps", lSolver->getObjSense());
+	}
   
 	model_->counterVF_ ++;
 	isLowerSolved_ = true;
   
 	if(!lSolver->isProvenOptimal()){
+	    if(isTargetSol){
+		std::cout << "second-level is infeasible!!!!" << std::endl;
+	    }
 	    LPSolStatus_ = MibSLPSolStatusInfeasible;
 	    isProvenOptimal_ = false;
 	    if(useLinkingSolutionPool){
@@ -407,8 +443,27 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot)
 	    objVal = lSolver->getObjValue() * model_->getLowerObjSense();
 
 	    objVal_ = objVal;
+	    std::cout << "objVal =" <<objVal << std::endl;
+
+	    if(isTargetSol){
+		std::cout << "second-level problem for target sol is solved and is feasible" << std::endl;
+		std::cout << "obj val for target sol after solving second-level is" << objVal << std::endl;
+	    }
 
 	    const double * values = lSolver->getColSolution();
+
+	    if(model_->counterVF_ == 67124){
+		std::cout << "objValFinal =" << objVal << std::endl;
+		for(i = 0; i < 75; i++){
+		    std::cout << "values[" << i << "]=" << values[i] << std::endl;;
+		}
+
+		for(i = 0; i < 91; i++){
+		    std::cout << "sol[" << i << "]=" << sol[i] << std::endl;
+		}
+	    }
+
+		
 	    
 	    if(useLinkingSolutionPool){
 		for(i = 0; i < lN; i++){
@@ -462,7 +517,11 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot)
 	    //get optimal value  of (VF) from solution pool
 	    //model_->it = seenLinkingSolutions.find(linkSol);
 	    //objVal = model_->it->second.lowerObjVal1;
-	    objVal = model_->seenLinkingSolutions[linkSol].lowerObjValue; 
+	    objVal = model_->seenLinkingSolutions[linkSol].lowerObjValue;
+
+	    if(isTargetSol){
+		std::cout << "obj val for target sol from linking pool is" << objVal << std::endl;
+	    }
 	    //objVal = seenLinkingSolutions.find(linkSol).
 	    objVal_ = objVal;
 	    for(i = 0; i < lN; i++){
@@ -496,6 +555,12 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot)
 		if(UBSolver){
 		    delete UBSolver;
 		}
+
+		if(isTargetSol){
+		    std::cout << "passedObjValForTargetSol =" << objVal << std::endl;
+		}
+		
+		std::cout << "passedObjVal =" << objVal << std::endl;
 		UBSolver = setUpUBModel(model_->getSolver(), objVal, true);
 	    
 		/*#ifndef COIN_HAS_SYMPHONY
@@ -572,12 +637,23 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot)
 		}
 
 		//step 19
+		if(model_->counterUB_ == 67032){
+		    UBSolver->writeMps("UBprobBeforeSolve", "mps", UBSolver->getObjSense());
+		}
 		UBSolver->branchAndBound();
+		if(model_->counterUB_ == 67032){
+		    UBSolver->writeMps("UBprobAfterSolve", "mps", UBSolver->getObjSense());
+		}
 		model_->counterUB_ ++;
 		isUBSolved_ = true;
 		if (UBSolver->isProvenOptimal()){
 		    isProvenOptimal_ = true;
 		    const double * valuesUB = UBSolver->getColSolution();
+		    if(model_->counterUB_ == 67033){
+			for(i = 0; i < 91; i++){
+			    std::cout << "valuesUB[" << i << "]=" << valuesUB[i] << std::endl;;
+			}
+		    }
 		    for (i = 0; i < uN + lN; i++){
 			shouldStoreValues.push_back(valuesUB[i]);
 			pos = binarySearch(0, uN - 1, i, upperColInd);
@@ -604,6 +680,9 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot)
 		    storeSol = MibSHeurSol;
 		}else{
 		    isProvenOptimal_ = false;
+		    if(model_->counterUB_ == 67033){
+			std::cout << "UB was infeasible." << std::endl;
+		    }
 		}
 		//step 22
 		//Adding x_L to set E
@@ -835,7 +914,7 @@ MibSBilevel::setUpUBModel(OsiSolverInterface * oSolver, double objValLL,
 //#############################################################################
 OsiSolverInterface *
 MibSBilevel::setUpModel(OsiSolverInterface * oSolver, bool newOsi,
-			const double *lpSol)
+			const double *lpSol1)
 {
 
   /** Create lower-level model with fixed upper-level vars **/
@@ -868,9 +947,45 @@ MibSBilevel::setUpModel(OsiSolverInterface * oSolver, bool newOsi,
      
   const CoinPackedMatrix * matrix = oSolver->getMatrixByRow();
   double coeff(0.0);
-  if (!lpSol){
-     lpSol = oSolver->getColSolution();   
+  if (!lpSol1){
+     lpSol1 = oSolver->getColSolution();   
   }
+
+  double *lpSol = new double[91];
+
+  for(i = 0; i < 91; i++){
+      lpSol[i] = lpSol1[i];
+  }
+
+  for(i = 0; i < 10; i++){
+      lpSol[i] = 0;
+  }
+
+  for(i = 85; i < 91; i++){
+      lpSol[i] = 0;
+  }
+
+  lpSol[1] = 1;
+  lpSol[4] = 1;
+  lpSol[6] = 19;
+  lpSol[9] = 13;
+  lpSol[88] = 19;
+  lpSol[89] = 5;
+  lpSol[90] = 8;
+  
+
+  
+  /*lpSol[1] = 1;
+  lpSol[4] = 1;
+  lpSol[6] = 19;
+  lpSol[9] = 13;
+  lpSol[85] = 1;
+  lpSol[86] = 1;
+  lpSol[87] = 1;
+  lpSol[88] = 19;
+  lpSol[89] = 5;
+  lpSol[90] = 8;*/
+
   const double * origRowLb = model_->getOrigRowLb();
   const double * origRowUb = model_->getOrigRowUb();
   const double * origColLb = model_->getOrigColLb();

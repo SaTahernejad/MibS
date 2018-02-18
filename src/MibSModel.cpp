@@ -1848,6 +1848,78 @@ MibSModel::userFeasibleSolution(const double * solution, bool &userFeasible)
   }
   else if(solType == MibSHeurSol){
       if(!bS_->isUBSolved_){
+	  /*std::cout << "here" << std::endl;
+	  for(i = 0; i < 91; i++){
+	      lpSolution[i] = 0;
+	  }
+
+	  lpSolution[1] = 1;
+	  lpSolution[4] = 1;
+	  lpSolution[6] = 19;
+	  lpSolution[9] = 13;
+	  lpSolution[10] = -3;
+	  lpSolution[13] = -8;
+	  lpSolution[16] = -4;
+	  lpSolution[17] = -4;
+	  lpSolution[19] = 1;
+	  lpSolution[20] = 1;
+	  lpSolution[21] = 1;
+	  lpSolution[22] = 1;
+	  lpSolution[23] = 1;
+	  lpSolution[25] = 1;
+	  lpSolution[26] = 1;
+	  lpSolution[27] = 1;
+	  lpSolution[30] = 1;
+	  lpSolution[34] = 1;
+	  lpSolution[35] = 1;
+	  lpSolution[36] = 14;
+	  lpSolution[37] = 13;
+	  lpSolution[39] = 13;
+	  lpSolution[40] = 30;
+	  lpSolution[42] = 16;
+	  lpSolution[43] = 5;
+	  lpSolution[44] = 24;
+	  lpSolution[47] = 16;
+	  lpSolution[51] = 16;
+	  lpSolution[52] = 8;
+	  lpSolution[53] = 1;
+	  lpSolution[54] = 1;
+	  lpSolution[55] = 1;
+	  lpSolution[56] = 1;
+	  lpSolution[57] = 1;
+	  lpSolution[58] = 1;
+	  lpSolution[60] = 1;
+	  lpSolution[61] = 1;
+	  lpSolution[62] = 1;
+	  lpSolution[63] = 1;
+	  lpSolution[64] = 1;
+	  lpSolution[65] = 1;
+	  lpSolution[66] = 1;
+	  lpSolution[67] = 1;
+	  lpSolution[68] = 1;
+	  lpSolution[69] = 19;
+	  lpSolution[70] = 8;
+	  lpSolution[71] = 5;
+	  lpSolution[72] = 8;
+	  lpSolution[73] = 11;
+	  lpSolution[74] = 19;
+	  lpSolution[76] = 16;
+	  lpSolution[77] = 5;
+	  lpSolution[78] = 19;
+	  lpSolution[79] = 5;
+	  lpSolution[80] = 15;
+	  lpSolution[81] = 1;
+	  lpSolution[82] = 15;
+	  lpSolution[83] = 1;
+	  lpSolution[84] = 8;
+	  lpSolution[85] = 1;
+	  lpSolution[86] = 1;
+	  lpSolution[87] = 1;
+	  lpSolution[88] = 19;
+	  lpSolution[89] = 5;
+	  lpSolution[90] = 8;*/
+
+	  
 	  isHeurSolution = checkUpperFeasibility(lpSolution);
       }
       if(isHeurSolution == true){
