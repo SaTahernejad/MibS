@@ -49,6 +49,10 @@ int main(int argc, char* argv[])
 
 	OsiCpxSolverInterface lpSolver;
 	lpSolver.messageHandler()->setLogLevel(0);
+	CPXENVptr cpxEnv = lpSolver.getEnvironmentPtr();
+	assert(cpxEnv);
+	CPXsetintparam(cpxEnv, CPX_PARAM_SCRIND, CPX_OFF);
+	CPXsetintparam(cpxEnv, CPX_PARAM_THREADS, 1);
       
       /** Create MibS model **/
       MibSModel model;

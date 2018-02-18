@@ -1868,7 +1868,7 @@ MibSModel::userFeasibleSolution(const double * solution, bool &userFeasible)
 
   if(0)
     solver()->writeLp("userfeasible");
-
+  
   if(useZeroSumAlg){
       zs_->solveZeroSum(this, NULL);
   }
