@@ -360,6 +360,10 @@ void
 	if(timeLimit > model_->broker_->subTreeTimer().getTime()){
 	    if(objVal < -10000000000){
 		isUnbounded_ = true;
+		if(!optimalSol_){
+		    optimalSol_ = new double[numCols];
+		}
+		memcpy(optimalSol_, firstPhaseSol, sizeof(double) * numCols);
 	    }
 	    else{
 		foundOptimal_ = true;
