@@ -695,11 +695,12 @@ MibSModel::loadProblemData(const CoinPackedMatrix& matrix,
       CoinDisjointCopyN(colUB, numCols, varUB);
       CoinDisjointCopyN(rowLB, numRows, conLB);
       CoinDisjointCopyN(rowUB, numRows, conUB);
-      /*for(i = 0; i < numCols; i++){
+      for(i = 0; i < numCols; i++){
 	  objCoef[i] = 0;
       }
 
-      for(i = 0; i < lowerDim_; i++){
+      //sahar:added  
+      /*for(i = 0; i < lowerDim_; i++){
 	  objCoef[lowerColInd_[i]] = -1 * lowerObjCoeffs_[i];
       }*/
       
@@ -1838,13 +1839,10 @@ MibSModel::userFeasibleSolution(const double * solution, bool &userFeasible)
 
   double infinity(solver()->getInfinity());
   int i(0), index(0);
-  int numArtCols(0), startArtCols(0);
+  int numArtCols(0);
   double upperObj(0.0);
   bool isHeurSolution(true);
   bool feasSolFound(false);
-  bool hasPositiveArtCols(false);
-  int numCols = numOrigVars_;
-  int lRows = getLowerRowNum();
   int * upperColInd = getUpperColInd();
   int * lowerColInd = getLowerColInd();
   double * lpSolution = new double[getNumCols()];
@@ -1870,30 +1868,28 @@ MibSModel::userFeasibleSolution(const double * solution, bool &userFeasible)
 
   if(0)
     solver()->writeLp("userfeasible");
-
-  solType = createBilevel(sol);
-
-  if(solType != MibSNoSol){
-      for(i = 0; i < upperDim_; i++){
-	  index = upperColInd[i];
-	  lpSolution[index] = bS_->optUpperSolutionOrd_[i];
-	  upperObj +=
-	      bS_->optUpperSolutionOrd_[i] * solver()->getObjCoefficients()[index];
-      }
-      for(i = 0; i < lowerDim_; i++){
-	  index = lowerColInd[i];
-	  lpSolution[index] = bS_->optLowerSolutionOrd_[i];
-	  upperObj +=
-	      bS_->optLowerSolutionOrd_[i] * solver()->getObjCoefficients()[index];
-      }
-  }
-
-  //feasible solution is found, so we initiate the zero-sum algorithm.
-  //if it has not been started yet.
-  if((useZeroSumAlg) && (solType != MibSNoSol) && (!zs_->isAlgStarted_)){
-      zs_->solveZeroSum(this, bS_->optLowerSolutionOrd_);
+  
+  if(useZeroSumAlg){
+      zs_->solveZeroSum(this, NULL);
   }
   else{
+      solType = createBilevel(sol);
+
+      if(solType != MibSNoSol){
+	  for(i = 0; i < upperDim_; i++){
+	      index = upperColInd[i];
+	      lpSolution[index] = bS_->optUpperSolutionOrd_[i];
+	      upperObj +=
+		  bS_->optUpperSolutionOrd_[i] * solver()->getObjCoefficients()[index];
+	  }
+          for(i = 0; i < lowerDim_; i++){
+	      index = lowerColInd[i];
+	      lpSolution[index] = bS_->optLowerSolutionOrd_[i];
+	      upperObj +=
+		  bS_->optLowerSolutionOrd_[i] * solver()->getObjCoefficients()[index];
+	  }
+      }
+      
       userFeasible = false;
       if(solType == MibSRelaxationSol){
 	  userFeasible = true;
@@ -1926,11 +1922,11 @@ MibSModel::userFeasibleSolution(const double * solution, bool &userFeasible)
 					     (!bS_->isProvenOptimal_)))){
 	      for(i = 0; i < upperDim_; i++){
 		  index = upperColInd[i];
-		  lpSolution[index] = bS_->optUpperSolutionOrd_[i];
+	          lpSolution[index] = bS_->optUpperSolutionOrd_[i];
 	      }
 	      for(i = 0; i < lowerDim_; i++){
 		  index = lowerColInd[i];
-		  lpSolution[index] = bS_->optLowerSolutionOrd_[i];
+	          lpSolution[index] = bS_->optLowerSolutionOrd_[i];
 	      }
 	      upperObj = -infinity;
 	      mibSol = new MibSSolution(getNumCols(),
@@ -1938,7 +1934,7 @@ MibSModel::userFeasibleSolution(const double * solution, bool &userFeasible)
 					upperObj,
 					this);
 	      userFeasible = true;
-	      //broker_->getBestNode()->setQuality(-solver()->getInfinity());
+	  //broker_->getBestNode()->setQuality(-solver()->getInfinity());
 	  }
       }
   }
@@ -1971,7 +1967,7 @@ MibSModel::userFeasibleSolution(const double * solution, bool &userFeasible)
 	  
   }
 
-  if((zs_->returnedNothing_) || (zs_->returnedLowerBound_)){
+  if(zs_->returnedUpperBound_){
       CoinZeroN(lpSolution, getNumCols());
       upperObj = infinity;
       mibSol = new MibSSolution(getNumCols(),
@@ -1979,12 +1975,7 @@ MibSModel::userFeasibleSolution(const double * solution, bool &userFeasible)
 				upperObj,
 				this);
       broker_->getBestNode()->setQuality(upperObj);
-      if(zs_->returnedNothing_){
-	  std::cout << "zero-sum returned nothing." << std::endl;
-      }
-      else{
-	  std::cout << "zero-sum returned lower bound." << std::endl;
-      }
+      std::cout << "zero-sum returned upper bound." << std::endl;
   }
   
   delete sol;
