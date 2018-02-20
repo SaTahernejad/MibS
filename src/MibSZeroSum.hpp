@@ -57,8 +57,8 @@ public:
     /** Find the value of big M objective **/
     double findBigMObj();
 
-    /** Find the value of big M constraint **/
-    double findBigMConst(double &artColLower, double &artColUpper);
+    /** Find bound on artificial variable **/
+    double findBoundArtCol();
 
     /** Find the bounds on the lower-level variables **/
     void findBoundsOnLLCols(double *newLb, double* newUb, double *LLSol, bool isFirstTime);

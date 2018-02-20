@@ -53,6 +53,10 @@ int main(int argc, char* argv[])
       /** Create MibS model **/
       MibSModel model;
       model.setSolver(&lpSolver);
+      CPXENVptr cpxEnv = lpSolver.getEnvironmentPtr();
+      assert(cpxEnv);
+      CPXsetintparam(cpxEnv, CPX_PARAM_SCRIND, CPX_OFF);
+      CPXsetintparam(cpxEnv, CPX_PARAM_THREADS, 1);
 
 
 #ifdef  COIN_HAS_MPI

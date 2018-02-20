@@ -101,6 +101,7 @@ void
     MibSZeroSum::doFirstPhase(double *LLSol, double *lColLb, double *lColUb,
 			      double &initialBoundSecondPh)
 {
+
     OsiSolverInterface * oSolver = model_->getSolver();
 
     std::string feasCheckSolver(model_->MibSPar_->
@@ -108,58 +109,36 @@ void
 
     double timeLimit(model_->AlpsPar()->entry(AlpsParams::timeLimit));
 
-    bool isFirstPhaseFinished(false), hasPositiveArtCol(false);
+    bool isFirstPhaseFinished(false);
     int i;
-    int tmpIndex(0), colIndex(0);
-    int numAddedArtCols(0), numAddedRows(0), numAddedLrows(0), numAdddedURows(0);
-    double artColLower(0.0), artColUpper(0.0);
+    int colIndex(0);
+    int numAddedArtCols(0);
     double remainingTime(0.0);
-    double etol(model_->etol_);
     double infinity(oSolver->getInfinity());
-    int numCols(model_->getNumOrigVars());
+    double etol(model_->etol_);
     int numRows(model_->getNumOrigCons());
-    int lCols(model_->getLowerDim());
+    int numCols(model_->getNumOrigVars());
     int lRows(model_->getLowerRowNum());
+    int lCols(model_->getLowerDim());
+    int newNumCols(numCols + lRows);
+    int newNumRows(numRows);
     int newUCols(model_->getUpperDim());
-    int newLCols(lCols + 3 * lRows);
-    int newURows(model_->getOrigUpperRowNum()); 
-    int newLRows(5 * lRows);
-    int newNumCols(newUCols + newLCols);
-    int newNumRows(newURows + newLRows);
-    double *rowLB(model_->getOrigRowLb());
-    double *rowUB(model_->getOrigRowUb());
-    const char *rowSense(model_->getOrigRowSense());
+    int newLCols(lCols + lRows);
+    int newURows(model_->getOrigUpperRowNum());
+    int newLRows(lRows);
     int *lColInd(model_->getLowerColInd());
     int *lRowInd(model_->getLowerRowInd());
     double *lObjCoeffs(model_->getLowerObjCoeffs());
+    const char *rowSense(model_->getOrigRowSense());
     CoinPackedMatrix matrix = *model_->getOrigConstCoefMatrix();
-    /** matrix of upper-level vars in lower-level problem **/
-    matrixA2_ = new CoinPackedMatrix(false, 0, 0);;
-    
-    //finding the bounds on the lower-level variables
-    //for the first step
-    /*double *lColLb = new double[lCols];
-    double *lColUb = new double[lCols];
-    CoinZeroN(lColLb, lCols);
-    CoinZeroN(lColUb, lCols);*/
+    matrixA2_ = new CoinPackedMatrix(false, 0, 0);
+
+
     findBoundsOnLLCols(lColLb, lColUb, LLSol, true);
 
-    /*for(i = 0; i < lCols; i++){
-	lColLb[i] = 0;
-	lColUb[i] = 20;
-	}*/
-
-    //find upper bound of the artificial variables
-    //double *artColsUB = findUBOnArtCols();
-
-    //set a reasonable value for big M objective
     double bigMObj = findBigMObj();
 
-    //set a reasonable value for big M constraints
-    double bigMConst = findBigMConst(artColLower, artColUpper);
-
-    //setting the components of first phase model which are
-    //the same for all steps
+    double artColBound = findBoundArtCol();
 
     //Set up lp solver
     /*OsiClpSolverInterface lpSolver;
@@ -168,127 +147,68 @@ void
 
     OsiCpxSolverInterface lpSolver;
     lpSolver.messageHandler()->setLogLevel(0);
+    CPXENVptr cpxEnv = lpSolver.getEnvironmentPtr();
+    assert(cpxEnv);
+    CPXsetintparam(cpxEnv, CPX_PARAM_SCRIND, CPX_OFF);
+    CPXsetintparam(cpxEnv, CPX_PARAM_THREADS, 1);
 
     //set col type
     char * newColType = new char[newNumCols];
     memcpy(newColType, model_->colType_, numCols);
-    CoinFillN(newColType + numCols, 2 * lRows, 'C');
-    CoinFillN(newColType + numCols + 2 * lRows, lRows, 'B');
+    CoinFillN(newColType + numCols, lRows, 'C');
 
-    //set matrix, row bounds, row senses and lower and upper row indices
+    //set matrix
     CoinShallowPackedVector origVec;
     CoinPackedVector modifiedVec;
     CoinPackedVector appendedVec;
     CoinPackedMatrix *newMatrix = new CoinPackedMatrix(false, 0, 0);
-    double *newRowLB = new double[newNumRows];
-    double *newRowUB = new double[newNumRows];
-    char *newRowSense = new char[newNumRows];
-    int *newLRowInd = new int[newLRows];
-    int *newURowInd = NULL;
-    if(newURows > 0){
-	newURowInd = new int[newURows];
-    }
-    
     matrix.reverseOrdering();
     newMatrix->setDimensions(0, newNumCols);
     numAddedArtCols = 0;
-    numAddedRows = 0;
-    numAddedLrows = 0;
-    numAdddedURows = 0;
     for(i = 0; i < numRows; i++){
 	origVec = matrix.getVector(i);
 	if(model_->binarySearch(0, lRows - 1, i, lRowInd) < 0){
 	    newMatrix->appendRow(origVec);
-	    newRowLB[numAddedRows] = rowLB[i];
-	    newRowUB[numAddedRows] = rowUB[i];
-	    newRowSense[numAddedRows] = rowSense[i];
-	    newURowInd[numAdddedURows] = numAddedRows;
-	    numAddedRows++;
-	    numAdddedURows++;
 	}
 	else{
 	    if(rowSense[i] == 'L'){
 		appendedVec.insert(numCols + numAddedArtCols, -1);
 	    }
-	    else if(rowSense[i] == 'G'){
-		appendedVec.insert(numCols + numAddedArtCols, 1);
-	    }
 	    else{
-		assert(0);
+		appendedVec.insert(numCols + numAddedArtCols, 1);
 	    }
 	    modifiedVec = origVec;
 	    modifiedVec.append(appendedVec);
 	    newMatrix->appendRow(modifiedVec);
-	    newRowLB[numAddedRows] = rowLB[i];
-	    newRowUB[numAddedRows] = rowUB[i];
-	    newRowSense[numAddedRows] = rowSense[i];
-	    newLRowInd[numAddedLrows] = numAddedRows;
-	    numAddedRows++;
-	    numAddedLrows++;
-	    newMatrix->appendRow(modifiedVec);
-	    if(rowSense[i] == 'L'){
-		newRowLB[numAddedRows] = rowUB[i];
-		newRowUB[numAddedRows] = infinity;
-		newRowSense[numAddedRows] = 'G';
-	    }
-	    else{
-		newRowUB[numAddedRows] = rowLB[i];
-		newRowLB[numAddedRows] = -infinity;
-		newRowSense[numAddedRows] = 'L';
-	    }
-	    newLRowInd[numAddedLrows] = numAddedRows;
-	    numAddedRows++;
-	    numAddedLrows++;
+	    modifiedVec.clear();
 	    appendedVec.clear();
-	    modifiedVec.clear();
-	    tmpIndex = numCols + numAddedArtCols;
-	    modifiedVec.insert(tmpIndex, -1);
-	    modifiedVec.insert(tmpIndex + lRows, 1);
-	    modifiedVec.insert(tmpIndex + 2 * lRows, -bigMConst);
-	    newMatrix->appendRow(modifiedVec);
-	    newRowUB[numAddedRows] = 0.0;
-	    newRowLB[numAddedRows] = -infinity;
-	    newRowSense[numAddedRows] = 'L';
-	    newLRowInd[numAddedLrows] = numAddedRows;
-	    numAddedRows++;
-	    numAddedLrows++;
-	    modifiedVec.clear();
-	    modifiedVec.insert(tmpIndex, 1);
-	    modifiedVec.insert(tmpIndex + lRows, 1);
-	    modifiedVec.insert(tmpIndex + 2 * lRows, bigMConst);
-	    newMatrix->appendRow(modifiedVec);
-	    newRowUB[numAddedRows] = bigMConst;
-	    newRowLB[numAddedRows] = -infinity;
-	    newRowSense[numAddedRows] = 'L';
-	    newLRowInd[numAddedLrows] = numAddedRows;
-	    numAddedRows++;
-	    numAddedLrows++;
-	    modifiedVec.clear();
-	    modifiedVec.insert(tmpIndex + lRows, 1);
-	    modifiedVec.insert(tmpIndex + 2 * lRows, bigMConst);
-	    newMatrix->appendRow(modifiedVec);
-	    newRowUB[numAddedRows] = bigMConst;
-	    newRowLB[numAddedRows] = -infinity;
-	    newRowSense[numAddedRows] = 'L';
-	    newLRowInd[numAddedLrows] = numAddedRows;
-	    numAddedRows++;
-	    numAddedLrows++;
-	    modifiedVec.clear();
-	    numAddedArtCols++;
+	    numAddedArtCols ++;
 	}
     }
+
+    double *newRowLB = new double[newNumRows];
+    double *newRowUB = new double[newNumRows];
+    memcpy(newRowLB, model_->getOrigRowLb(), sizeof(double) * newNumRows);
+    memcpy(newRowUB, model_->getOrigRowUb(), sizeof(double) * newNumRows);
+    char *newRowSense = new char[newNumRows];
+    memcpy(newRowSense, model_->getOrigRowSense(), newNumRows);
+
+    int *newLRowInd = new int[newLRows];
+    int *newURowInd = NULL;
+    if(newURows > 0){
+	newURowInd = new int[newURows];
+	memcpy(newURowInd, model_->getUpperRowInd(), sizeof(int) * newURows);
+    }
+    memcpy(newLRowInd, model_->getLowerRowInd(), sizeof(int) * newLRows);
+    
 
     //set col bounds
     double *newColLB = new double[newNumCols];
     double *newColUB = new double[newNumCols];
     memcpy(newColLB, model_->getOrigColLb(), sizeof(double) * numCols);
     memcpy(newColUB, model_->getOrigColUb(), sizeof(double) * numCols);
-    //sahar:modify it
-    CoinFillN(newColLB + numCols, lRows, artColLower);
-    CoinFillN(newColUB + numCols, lRows, artColUpper);
-    CoinFillN(newColLB + numCols + lRows, 2 * lRows, 0.0);
-    CoinFillN(newColUB + numCols + lRows, lRows, artColUpper);
-    CoinFillN(newColUB + numCols + 2 * lRows, lRows, 1.0);
+    CoinFillN(newColLB + numCols, lRows, 0.0);
+    CoinFillN(newColUB + numCols, lRows, artColBound);
 
     //set the upper- and lower-level objectives
     double *newUObjCoeffs = new double[newNumCols];
@@ -296,16 +216,16 @@ void
     CoinZeroN(newUObjCoeffs, newNumCols);
     CoinZeroN(newLObjCoeffs, newLCols);
     memcpy(newUObjCoeffs, oSolver->getObjCoefficients(), sizeof(double) * numCols);
-    CoinFillN(newUObjCoeffs + numCols + lRows, lRows, -1 * bigMObj);
+    CoinFillN(newUObjCoeffs + numCols, lRows, -1 * bigMObj);
     memcpy(newLObjCoeffs, lObjCoeffs, sizeof(double) * lCols);
-    CoinFillN(newLObjCoeffs + lCols + lRows, lRows, bigMObj);
+    CoinFillN(newLObjCoeffs + lCols, lRows, 0.0);
 
     //set upper and lower column indices
     int *newUColInd = new int[newUCols];
     int *newLColInd = new int[newLCols];
     memcpy(newUColInd, model_->getUpperColInd(), sizeof(int) * newUCols);
     memcpy(newLColInd, lColInd, sizeof(int) * lCols);
-    CoinIotaN(newLColInd + lCols, 3 * lRows, numCols);
+    CoinIotaN(newLColInd + lCols, lRows, numCols);
 
     //set structure row indices
     int *newStructRowInd = new int[newNumRows];
@@ -318,7 +238,7 @@ void
     int argc = 1;
     char **argv = new char *[1];
     argv[0] = (char *) "mibs";
-    
+
     while(!isFirstPhaseFinished){
 	for(i = 0; i < lCols; i++){
 	    colIndex = lColInd[i];
@@ -336,6 +256,7 @@ void
 	remainingTime = timeLimit - model_->broker_->subTreeTimer().getTime();
 
 	firstPhaseModel->AlpsPar()->setEntry(AlpsParams::timeLimit, remainingTime);
+	//firstPhaseModel->AlpsPar()->setEntry(AlpsParams::msgLevel, 1000);
 	firstPhaseModel->BlisPar()->setEntry(BlisParams::heurStrategy, PARAM_OFF);
 	//firstPhaseModel->BlisPar()->setEntry(BlisParams::heurRound, PARAM_OFF);
 	//firstPhaseModel->MibSPar()->setEntry(MibSParams::checkInstanceStructure, false);
@@ -378,33 +299,25 @@ void
 					 newRowLB, newRowUB, newColType, 1, infinity,
 					 newRowSense, true);
 
-#ifdef  COIN_HAS_MPI
+	#ifdef  COIN_HAS_MPI
 	AlpsKnowledgeBrokerMPI broker(argc, argv, *firstPhaseModel);
-#else
+	#else
 	AlpsKnowledgeBrokerSerial broker(argc, argv, *firstPhaseModel);
-#endif
-	
+	#endif
+
 	broker.search(firstPhaseModel);
-	
+
 	if(firstPhaseModel->getNumSolutions() > 0){
-	    BlisSolution * optSol =dynamic_cast<BlisSolution*>
-		(broker.getBestKnowledge(AlpsKnowledgeTypeSolution).first);
-	    memcpy(firstPhaseSol, optSol->getValues(), sizeof(double) * newNumCols);
-	    objVal = broker.getBestQuality();
+	        BlisSolution * optSol =dynamic_cast<BlisSolution*>
+		    (broker.getBestKnowledge(AlpsKnowledgeTypeSolution).first);
+		memcpy(firstPhaseSol, optSol->getValues(), sizeof(double) * newNumCols);
+		objVal = broker.getBestQuality();
 	}
 	else{
 	    assert(0);
 	}
 
 	broker.printBestSolution();
-
-	/*hasPositiveArtCol = false;
-	for(i = 0; i < lRows; i++){
-	    if(firstPhaseSol[i + numCols] > etol){
-		hasPositiveArtCol = true;
-		break;
-	    }
-	}*/
 
 	if(timeLimit > model_->broker_->subTreeTimer().getTime()){
 
@@ -434,7 +347,7 @@ void
 	    }
 	    else{
 		isFirstPhaseFinished = true;
-	        if(lSolver_->isProvenOptimal()){
+		if(lSolver_->isProvenOptimal()){
 		    realLObj = lSolver_->getObjValue();
 		    lObj = 0.0;
 		    for(i = 0; i < lCols; i++){
@@ -446,17 +359,17 @@ void
 			if(!optimalSol_){
 			    optimalSol_ = new double[numCols];
 			}
-		        memcpy(optimalSol_, firstPhaseSol, sizeof(double) * numCols);
+			memcpy(optimalSol_, firstPhaseSol, sizeof(double) * numCols);
 		    }
 		    else{
 			memcpy(LLSol, lSolver_->getColSolution(), sizeof(double) * lCols);
-		        findBoundsOnLLCols(lColLb, lColUb, LLSol, false);
-		        initialBoundSecondPh = -1 * lObj;
+			findBoundsOnLLCols(lColLb, lColUb, LLSol, false);
+			initialBoundSecondPh = -1 * lObj;
 		    }
 		}
-	        else{
+		else{
 		    assert(0);
-		}   
+		}
 	    }
 	}
 	else{
@@ -466,7 +379,6 @@ void
 	delete firstPhaseModel;
     }
 
-    //delete matrixA2;
     delete [] newColType;
     delete newMatrix;
     delete [] newRowLB;
@@ -484,7 +396,7 @@ void
     delete [] newLColInd;
     delete [] newStructRowInd;
     delete [] firstPhaseSol;
-    
+
 }
 
 //#############################################################################
@@ -573,6 +485,10 @@ MibSZeroSum::doSecondPhase(double *lColLb, double *lColUb, double objBound)
 
     OsiCpxSolverInterface lpSolver;
     lpSolver.messageHandler()->setLogLevel(0);
+    CPXENVptr cpxEnv = lpSolver.getEnvironmentPtr();
+    assert(cpxEnv);
+    CPXsetintparam(cpxEnv, CPX_PARAM_SCRIND, CPX_OFF);
+    CPXsetintparam(cpxEnv, CPX_PARAM_THREADS, 1);
 
     double objVal(0.0), realLObj(0.0), lObj(0.0);
     int argc = 1;
@@ -912,14 +828,13 @@ MibSZeroSum::findBigMObj()
 
 //#############################################################################
 double
-MibSZeroSum::findBigMConst(double &artColLower, double &artColUpper)
+MibSZeroSum::findBoundArtCol()
 {
 
-    int i , j;
+    int i, j;
     int numElements(0), rowIndex(0), colIndex(0);
     double mult(0.0), value(0.0), rhs(0.0);
-    double tmpMin(0.0), tmpMax(0.0), minValue(0.0), maxValue(0.0);
-    double bigM(0.0);
+    double tmpMax(0.0), maxValue(0.0);
     double etol(model_->etol_);
     double infinity(model_->solver()->getInfinity());
     int lRows(model_->getLowerRowNum());
@@ -929,15 +844,13 @@ MibSZeroSum::findBigMConst(double &artColLower, double &artColUpper)
     double *origRowLb(model_->getOrigRowLb());
     double *origRowUb(model_->getOrigRowUb());
     const char *rowSense(model_->getOrigRowSense());
-    
+
     CoinPackedMatrix matrix = *model_->getOrigConstCoefMatrix();
     matrix.reverseOrdering();
 
     CoinShallowPackedVector origVec;
 
-    minValue = infinity;
     maxValue = -infinity;
-
     for(i = 0; i < lRows; i++){
 	rowIndex = lRowInd[i];
 	if(rowSense[rowIndex] == 'L'){
@@ -952,36 +865,29 @@ MibSZeroSum::findBigMConst(double &artColLower, double &artColUpper)
 	numElements = origVec.getNumElements();
 	const int *indices = origVec.getIndices();
 	const double *elements = origVec.getElements();
-	tmpMin = -1 * rhs;
 	tmpMax = -1 * rhs;
 	for(j = 0; j < numElements; j++){
 	    value = elements[j] * mult;
 	    colIndex = indices[j];
 	    if(value > 0){
-		tmpMin += value * origColLb[colIndex];
 		tmpMax += value * origColUb[colIndex];
 	    }
 	    else{
-		tmpMin += value* origColUb[colIndex];
 		tmpMax += value* origColLb[colIndex];
 	    }
-	}
-	if(minValue - tmpMin > etol){
-	    minValue = tmpMin;
 	}
 	if(maxValue - tmpMax < -etol){
 	    maxValue = tmpMax;
 	}
     }
 
-    artColLower = minValue;
-    artColUpper = maxValue;
+    if(maxValue <= 0){
+	maxValue = 5;
+    }
+    
+    return maxValue;
 
-    value = CoinMax(fabs(minValue), fabs(maxValue));
 
-    bigM = 2 * value + 1;
-
-    return bigM;
 }
 
 //#############################################################################   

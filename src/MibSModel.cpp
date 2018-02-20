@@ -695,16 +695,15 @@ MibSModel::loadProblemData(const CoinPackedMatrix& matrix,
       CoinDisjointCopyN(colUB, numCols, varUB);
       CoinDisjointCopyN(rowLB, numRows, conLB);
       CoinDisjointCopyN(rowUB, numRows, conUB);
-      for(i = 0; i < numCols; i++){
+      /*for(i = 0; i < numCols; i++){
 	  objCoef[i] = 0;
       }
 
-      //sahar:added  
       for(i = 0; i < lowerDim_; i++){
 	  objCoef[lowerColInd_[i]] = -1 * lowerObjCoeffs_[i];
-      }
+      }*/
       
-      //CoinDisjointCopyN(obj, numCols, objCoef);
+      CoinDisjointCopyN(obj, numCols, objCoef);
       memcpy(colType, types, numCols);
 
       break;
@@ -1839,10 +1838,13 @@ MibSModel::userFeasibleSolution(const double * solution, bool &userFeasible)
 
   double infinity(solver()->getInfinity());
   int i(0), index(0);
-  int numArtCols(0);
+  int numArtCols(0), startArtCols(0);
   double upperObj(0.0);
   bool isHeurSolution(true);
   bool feasSolFound(false);
+  bool hasPositiveArtCols(false);
+  int numCols = numOrigVars_;
+  int lRows = getLowerRowNum();
   int * upperColInd = getUpperColInd();
   int * lowerColInd = getLowerColInd();
   double * lpSolution = new double[getNumCols()];
@@ -1924,11 +1926,11 @@ MibSModel::userFeasibleSolution(const double * solution, bool &userFeasible)
 					     (!bS_->isProvenOptimal_)))){
 	      for(i = 0; i < upperDim_; i++){
 		  index = upperColInd[i];
-	          lpSolution[index] = bS_->optUpperSolutionOrd_[i];
+		  lpSolution[index] = bS_->optUpperSolutionOrd_[i];
 	      }
 	      for(i = 0; i < lowerDim_; i++){
 		  index = lowerColInd[i];
-	          lpSolution[index] = bS_->optLowerSolutionOrd_[i];
+		  lpSolution[index] = bS_->optLowerSolutionOrd_[i];
 	      }
 	      upperObj = -infinity;
 	      mibSol = new MibSSolution(getNumCols(),
@@ -1936,7 +1938,7 @@ MibSModel::userFeasibleSolution(const double * solution, bool &userFeasible)
 					upperObj,
 					this);
 	      userFeasible = true;
-	  //broker_->getBestNode()->setQuality(-solver()->getInfinity());
+	      //broker_->getBestNode()->setQuality(-solver()->getInfinity());
 	  }
       }
   }
@@ -1984,11 +1986,6 @@ MibSModel::userFeasibleSolution(const double * solution, bool &userFeasible)
 	  std::cout << "zero-sum returned lower bound." << std::endl;
       }
   }
-      
-      
-
-  
- 
   
   delete sol;
   delete [] lpSolution;

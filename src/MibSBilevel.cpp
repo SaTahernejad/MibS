@@ -282,7 +282,6 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot)
 				    (MibSParams::computeBestUBWhenLVarsFixed));
     int useLinkingSolutionPool(model_->MibSPar_->entry
 			    (MibSParams::useLinkingSolutionPool));
-    
     MibSSolType storeSol(MibSNoSol);
     int lN(model_->lowerDim_); // lower-level dimension
     int uN(model_->upperDim_); // lower-level dimension
@@ -479,7 +478,7 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot)
 	
 	/*if(isIntegral_){
 	    assert((objVal - lowerObj) <= etol);
-	}*/
+	    }*/
 	
 	LPSolStatus_ = MibSLPSolStatusInfeasible;
 	
@@ -488,11 +487,11 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot)
 	if(model_->isFirstPhaseZeroSum_){
 	    if((fabs(objVal - lowerObj) < etol) && (isIntegral_)){
 		int lRows(model_->getLowerRowNum());
-		int numArtCols(lRows/5);
+		int numArtCols(lRows);
 		int numCols(model_->getNumOrigVars());
-		int startArtCols(numCols - 3 * numArtCols);
+		int startArtCols(numCols - numArtCols);
 		bool satisfyConstraints(true);
-		for(i = startArtCols; i < startArtCols + numArtCols; i++){
+		for(i = startArtCols; i < numCols; i++){
 		    if(sol[i] > etol){
 			satisfyConstraints = false;
 			break;
@@ -514,6 +513,14 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot)
 		storeSol = MibSRelaxationSol;
 	    }
 	}
+
+	
+	/*if((fabs(objVal - lowerObj) < etol) && (isIntegral_)){
+	    LPSolStatus_ = MibSLPSolStatusFeasible;
+	    useBilevelBranching_ = false;
+	    shouldPrune_ = true;
+	    storeSol = MibSRelaxationSol;
+	    }*/
 	if(!shouldPrune_){	
 	    //step 18
 	    if((tagInSeenLinkingPool_ != MibSLinkingPoolTagUBIsSolved) &&
@@ -768,11 +775,9 @@ MibSBilevel::setUpUBModel(OsiSolverInterface * oSolver, double objValLL,
     }
 
     if(model_->isFirstPhaseZeroSum_){
-	int numArtCols(lRows/5);
-	int startArtCols(model_->getNumOrigVars() - 3 * numArtCols);
+	int numArtCols(lRows);
+	int startArtCols(model_->getNumOrigVars() - numArtCols);
 	CoinFillN(colUb + startArtCols, numArtCols, 0.0);
-	CoinFillN(colUb + startArtCols + numArtCols, numArtCols, 0.0);
-	CoinFillN(colLb + startArtCols + 2 * numArtCols, numArtCols, 1.0);
     }
     
     if (feasCheckSolver == "Cbc"){
@@ -908,7 +913,6 @@ MibSBilevel::setUpModel(OsiSolverInterface * oSolver, bool newOsi,
   if (!lpSol){
      lpSol = oSolver->getColSolution();   
   }
-
   const double * origRowLb = model_->getOrigRowLb();
   const double * origRowUb = model_->getOrigRowUb();
   const double * origColLb = model_->getOrigColLb();
@@ -922,6 +926,18 @@ MibSBilevel::setUpModel(OsiSolverInterface * oSolver, bool newOsi,
   //CoinZeroN(colUb, lCols);
   //CoinZeroN(colLb, lCols);
 
+  /*double *lpSol = new double[31];
+  memcpy(lpSol, lpSol1, sizeof(double) * 31);
+  if(model_->isFirstPhaseZeroSum_){
+  for(i = 0; i < 10; i++){
+      lpSol[i] = 0;
+  }
+  lpSol[1] = 1;
+  lpSol[5] = 1;
+  lpSol[6] = 1;
+  lpSol[9] = 1;
+  }*/
+  
   /** Set the row bounds **/
   
   for(i = 0; i < lRows; i++){
@@ -936,11 +952,9 @@ MibSBilevel::setUpModel(OsiSolverInterface * oSolver, bool newOsi,
   }
 
   if(model_->isFirstPhaseZeroSum_){
-      int numArtCols(lRows/5);
-      int startArtCols(lCols - 3 * numArtCols);
+      int numArtCols(lRows);
+      int startArtCols(lCols - numArtCols);
       CoinFillN(colUb + startArtCols, numArtCols, 0.0);
-      CoinFillN(colUb + startArtCols + numArtCols, numArtCols, 0.0);
-      CoinFillN(colLb + startArtCols + 2 * numArtCols, numArtCols, 1.0);
   }
   
   if (newOsi){
