@@ -695,16 +695,16 @@ MibSModel::loadProblemData(const CoinPackedMatrix& matrix,
       CoinDisjointCopyN(colUB, numCols, varUB);
       CoinDisjointCopyN(rowLB, numRows, conLB);
       CoinDisjointCopyN(rowUB, numRows, conUB);
-      for(i = 0; i < numCols; i++){
+      /*for(i = 0; i < numCols; i++){
 	  objCoef[i] = 0;
       }
 
       //sahar:added  
       for(i = 0; i < lowerDim_; i++){
 	  objCoef[lowerColInd_[i]] = -1 * lowerObjCoeffs_[i];
-      }
+	  }*/
       
-      //CoinDisjointCopyN(obj, numCols, objCoef);
+      CoinDisjointCopyN(obj, numCols, objCoef);
       memcpy(colType, types, numCols);
 
       break;
