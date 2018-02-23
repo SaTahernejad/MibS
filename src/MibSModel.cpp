@@ -1958,7 +1958,16 @@ MibSModel::userFeasibleSolution(const double * solution, bool &userFeasible)
 				upperObj,
 				this);
       userFeasible = true;
-      broker_->getBestNode()->setQuality(upperObj);
+
+      AlpsNodePool *nodePool = broker_->getWorkingSubTree()->nodePool();
+
+      const std::vector<AlpsTreeNode *>& pool=nodePool->getCandidateList().getContainer();
+
+      int sizePool = static_cast<int> (pool.size());
+
+      for(i = 0; i < sizePool; i++){
+	  pool[i]->setQuality(upperObj);
+      }
 
       if(zs_->isUnbounded_){
 	  std::cout << "zero-sum detected unbounded." << std::endl;
