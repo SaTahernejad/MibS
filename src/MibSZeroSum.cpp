@@ -86,7 +86,7 @@ MibSZeroSum::solveZeroSum(MibSModel *mibs, double *sol)
     doFirstPhase(LLSol, lColLb, lColUb, initialBoundSecondPh);
 
     if((!foundOptimal_) && (!isUnbounded_) && (!returnedNothing_)){
-	//start second phase
+	//start second phase	
 	doSecondPhase(lColLb, lColUb, initialBoundSecondPh);
     }
 
@@ -525,7 +525,7 @@ MibSZeroSum::doSecondPhase(double *lColLb, double *lColUb, double objBound)
     char *newColType(model_->colType_);
 
     int *newURowInd = new int[newURows];
-    memcpy(newURowInd, model_->getOrigUpperRowInd(), sizeof(double) * uRows);
+    memcpy(newURowInd, model_->getOrigUpperRowInd(), sizeof(int) * uRows);
     newURowInd[uRows] = numRows;
 
     int *newStructRowInd = new int[newNumRows];
