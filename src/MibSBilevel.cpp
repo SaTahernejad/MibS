@@ -323,7 +323,7 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot)
 	
 	OsiSolverInterface *lSolver = solver_;
 	
-	if(1)
+	if(0)
 	    lSolver->writeLp("lowerlevel");
 	
 	if (feasCheckSolver == "Cbc"){
