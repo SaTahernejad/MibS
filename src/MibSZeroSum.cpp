@@ -433,7 +433,7 @@ MibSZeroSum::doSecondPhase(double *lColLb, double *lColUb, double objBound)
     char *newColType(model_->colType_);
 
     int *newURowInd = new int[newURows];
-    memcpy(newURowInd, model_->getOrigUpperRowInd(), sizeof(double) * uRows);
+    memcpy(newURowInd, model_->getOrigUpperRowInd(), sizeof(int) * uRows);
     newURowInd[uRows] = numRows;
 
     int *newStructRowInd = new int[newNumRows];
