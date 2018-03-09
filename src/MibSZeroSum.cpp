@@ -77,29 +77,33 @@ MibSZeroSum::solveZeroSum(MibSModel *mibs, double *sol)
     CoinZeroN(lColLb, lCols);
     CoinZeroN(lColUb, lCols);
 
+    int *numModifiedBounds = new int[lCols];
+    CoinZeroN(numModifiedBounds, lCols);
+
     double *LLSol = new double[lCols];
     memcpy(LLSol, sol, sizeof(double) * lCols);
     
     // first-phase of the algorithm: finding a bound on lower-level
     //variables so that the lower-level problem will be feasible for
     //all feasible first-level variables
-    doFirstPhase(LLSol, lColLb, lColUb, initialBoundSecondPh);
+    doFirstPhase(LLSol, lColLb, lColUb, initialBoundSecondPh, numModifiedBounds);
 
     if((!foundOptimal_) && (!isUnbounded_) && (!returnedNothing_)){
 	//start second phase
-	doSecondPhase(lColLb, lColUb, initialBoundSecondPh);
+	doSecondPhase(lColLb, lColUb, initialBoundSecondPh, numModifiedBounds);
     }
 
     delete [] lColLb;
     delete [] lColUb;
     delete [] LLSol;
+    delete [] numModifiedBounds;
 
 }
 
 //#############################################################################
 void
     MibSZeroSum::doFirstPhase(double *LLSol, double *lColLb, double *lColUb,
-			      double &initialBoundSecondPh)
+			      double &initialBoundSecondPh, int *numModifiedBounds)
 {
 
     OsiSolverInterface * oSolver = model_->getSolver();
@@ -134,7 +138,7 @@ void
     matrixA2_ = new CoinPackedMatrix(false, 0, 0);
 
 
-    findBoundsOnLLCols(lColLb, lColUb, LLSol, true);
+    findBoundsOnLLCols(lColLb, lColUb, LLSol, true, numModifiedBounds);
 
     double bigMObj = findBigMObj();
 
@@ -342,7 +346,7 @@ void
 		}
 		else{
 		    memcpy(LLSol, lSolver_->getColSolution(), sizeof(double) * lCols);
-		    findBoundsOnLLCols(lColLb, lColUb, LLSol, false);
+		    findBoundsOnLLCols(lColLb, lColUb, LLSol, false, numModifiedBounds);
 		}
 	    }
 	    else{
@@ -363,7 +367,7 @@ void
 		    }
 		    else{
 			memcpy(LLSol, lSolver_->getColSolution(), sizeof(double) * lCols);
-			findBoundsOnLLCols(lColLb, lColUb, LLSol, false);
+			findBoundsOnLLCols(lColLb, lColUb, LLSol, false, numModifiedBounds);
 			initialBoundSecondPh = -1 * lObj;
 		    }
 		}
@@ -401,7 +405,8 @@ void
 
 //#############################################################################
 void
-MibSZeroSum::doSecondPhase(double *lColLb, double *lColUb, double objBound)
+MibSZeroSum::doSecondPhase(double *lColLb, double *lColUb, double objBound,
+			   int *numModifiedBounds)
 {
     OsiSolverInterface * oSolver = model_->getSolver();
 
@@ -597,7 +602,7 @@ MibSZeroSum::doSecondPhase(double *lColLb, double *lColUb, double objBound)
 		}
 	        else{
 		    memcpy(LLSol, lSolver_->getColSolution(), sizeof(double) * newLCols);
-		    findBoundsOnLLCols(lColLb, lColUb, LLSol, false);
+		    findBoundsOnLLCols(lColLb, lColUb, LLSol, false, numModifiedBounds);
 		    objBound = -1 * lObj;
 		}
 	    }
@@ -893,12 +898,12 @@ MibSZeroSum::findBoundArtCol()
 //#############################################################################   
 void
 MibSZeroSum::findBoundsOnLLCols(double *newLb, double *newUb, double *LLSol,
-				bool isFirstTime)
+				bool isFirstTime, int *numModifiedBounds)
 {
 
     bool areBoundsChanged(false);
     int i;
-    double value(0.0);
+    double value(0.0), value1(0.0);
     int colIndex(0);
     double etol(model_->etol_);
     int lCols(model_->getLowerDim());
@@ -908,45 +913,155 @@ MibSZeroSum::findBoundsOnLLCols(double *newLb, double *newUb, double *LLSol,
     double *currentLb = new double[lCols];
     double *currentUb =new double[lCols];
 
+    int changedValFirst(0), changedVal(0);
+
+    int *changeArr = new int[50];
+    CoinFillN(changeArr, 50, 5);
+
     memcpy(currentLb, newLb, sizeof(double) * lCols);
     memcpy(currentUb, newUb, sizeof(double) * lCols);
    
-    for(i = 0; i < lCols; i++){
+    /*for(i = 0; i < lCols; i++){
 	colIndex = lColInd[i];
 	value = LLSol[i];
 	if((isFirstTime) || (value - currentLb[i] < -etol)){
 	    areBoundsChanged = true;
 	    if(fabs(floor(value + 0.5) - value) <= etol){
 		value = floor(value + 0.5);
-		if(1 - value + origColLb[colIndex] <= 0){
-		    newLb[i] = value - 1;
+		if(changedVal - value + origColLb[colIndex] <= 0){
+		    newLb[i] = value - changedVal;
 		}
 		else{
 		    newLb[i] = origColLb[colIndex];
 		}
 	    }
 	    else{
-		newLb[i] = floor(value);
-	    }	
+		value = floor(value);
+		if(changedVal - value + origColLb[colIndex] <= 0){
+		    newLb[i] = value - changedVal;
+		}
+		else{
+		    newLb[i] = origColLb[colIndex];
+		}   
+	    }
 	}
 	if((isFirstTime) || (value - currentUb[i] > etol)){
 	    areBoundsChanged = true;
 	    if(fabs(floor(value + 0.5) - value) <= etol){
 		value = floor(value + 0.5);
-		if(value + 1 - origColUb[colIndex] <= 0){
-		    newUb[i] = value + 1;
+		if(value + changedVal - origColUb[colIndex] <= 0){
+		    newUb[i] = value + changedVal;
 		}
 		else{
 		    newUb[i] = origColUb[colIndex];
 		}
 	    }
 	    else{
-		newUb[i] = ceil(value);
+		value = ceil(value);
+		if(value + changedVal - origColUb[colIndex] <= 0){
+		    newUb[i] = value + changedVal;
+		}
+		else{
+		    newUb[i] = origColUb[colIndex];
+		}
+	    }
+	}
+	}*/
+
+    for(i = 0; i < lCols; i++){
+	colIndex = lColInd[i];
+	value = LLSol[i];
+	if(isFirstTime){
+	    if(fabs(floor(value + 0.5) - value) <= etol){
+		value1 = floor(value + 0.5);
+		if(changedValFirst - value1 + origColLb[colIndex] <= 0){
+		    newLb[i] = value1 - changedValFirst;
+		}
+		else{
+		    newLb[i] = origColLb[colIndex];
+		}
+	    }
+	    else{
+		value1 = floor(value);
+		if(changedValFirst - value1 + origColLb[colIndex] <= 0){
+		    newLb[i] = value1 - changedValFirst;
+		}
+		else{
+		    newLb[i] = origColLb[colIndex];
+		}
+	    }
+	    if(fabs(floor(value + 0.5) - value) <= etol){
+		value1 = floor(value + 0.5);
+		if(value1 + changedValFirst - origColUb[colIndex] <= 0){
+		    newUb[i] = value1 + changedValFirst;
+		}
+		else{
+		    newUb[i] = origColUb[colIndex];
+		}
+	    }
+	    else{
+		value1 = ceil(value);
+		if(value1 + changedValFirst - origColUb[colIndex] <= 0){
+		    newUb[i] = value1 + changedValFirst;
+		}
+		else{
+		    newUb[i] = origColUb[colIndex];
+		}
+	    }
+	}
+	else{
+	    if(value - currentLb[i] < -etol){
+		changedVal = changeArr[numModifiedBounds[i]];
+		numModifiedBounds[i] ++;
+		if(fabs(floor(value + 0.5) - value) <= etol){
+		    value1 = floor(value + 0.5);
+		    if(changedVal - value1 + origColLb[colIndex] <= 0){
+			newLb[i] = value1 - changedVal;
+		    }
+		    else{
+			newLb[i] = origColLb[colIndex];
+		    }
+		}
+		else{
+		    value1 = floor(value);
+		    if(changedVal - value1 + origColLb[colIndex] <= 0){
+			newLb[i] = value1 - changedVal;
+		    }
+		    else{
+			newLb[i] = origColLb[colIndex];
+		    }
+		}
+	    }
+
+	    if(value - currentUb[i] > etol){
+		changedVal = changeArr[numModifiedBounds[i]];
+		numModifiedBounds[i] ++;
+		if(fabs(floor(value + 0.5) - value) <= etol){
+		    value1 = floor(value + 0.5);
+		    if(value1 + changedVal - origColUb[colIndex] <= 0){
+			newUb[i] = value1 + changedVal;
+		    }
+		    else{
+			newUb[i] = origColUb[colIndex];
+		    }
+		}
+		else{
+		    value1 = ceil(value);
+		    if(value1 + changedVal - origColUb[colIndex] <= 0){
+			newUb[i] = value1 + changedVal;
+		    }
+		    else{
+			newUb[i] = origColUb[colIndex];
+		    }
+		}
 	    }
 	}
     }
 
-    assert(areBoundsChanged);
+	//assert(areBoundsChanged);
+
+
+    delete [] changeArr;
 
     delete [] currentLb;
     delete [] currentUb;

@@ -49,10 +49,11 @@ public:
     void solveZeroSum(MibSModel *mibs, double *sol);
 
     /** First phase of the algorithm **/
-    void doFirstPhase(double *LLSol, double *lColLb, double *lColUb, double &initialBoundSecondPh);
+    void doFirstPhase(double *LLSol, double *lColLb, double *lColUb, double &initialBoundSecondPh,
+		      int *numModifiedBounds);
 
     /** Second phase of the algorithm **/
-    void doSecondPhase(double *lColLb, double *lColUb, double objBound);
+    void doSecondPhase(double *lColLb, double *lColUb, double objBound, int *numModifiedBounds);
 
     /** Find the value of big M objective **/
     double findBigMObj();
@@ -61,7 +62,8 @@ public:
     double findBoundArtCol();
 
     /** Find the bounds on the lower-level variables **/
-    void findBoundsOnLLCols(double *newLb, double* newUb, double *LLSol, bool isFirstTime);
+    void findBoundsOnLLCols(double *newLb, double* newUb, double *LLSol, bool isFirstTime,
+			    int *numModifiedBounds);
 
     /** Set the initial part of lower-level solver **/
     void initialSetUpLowerSolver(CoinPackedMatrix *matrixA2);
