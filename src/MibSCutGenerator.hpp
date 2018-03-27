@@ -31,6 +31,7 @@ class MibSCutGenerator : public BlisConGenerator {
    bool isBigMIncObjSet_;
    double bigMIncObj_;
    OsiSolverInterface * watermelonICSolver_;
+  OsiSolverInterface * tenderICSolver_; 
     
  public:
    
@@ -111,6 +112,9 @@ class MibSCutGenerator : public BlisConGenerator {
     /** Helper function for Tender IC*/
     void storeBestSolTenderIC(const double* lpSol,
 			      double optLowerObj);
+
+    OsiSolverInterface * setUpTenderICModel(const double* lpSol, double optLowerObj,
+			    bool newOsi);
 
     /** Helper function for Tender IC*/
     void getAlphaTenderIC(double** extRay, int numNonBasic,
