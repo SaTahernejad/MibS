@@ -78,6 +78,9 @@ MibSCutGenerator::bilevelFeasCut1(BcpsConstraintPool &conPool)
   bool allowRemoveCut(localModel_->MibSPar_->entry
 		      (MibSParams::allowRemoveCut));
 
+  bool useNewPureIntCut(localModel_->MibSPar_->entry
+			(MibSParams::useNewPureIntCut));
+
   OsiSolverInterface * solver = localModel_->solver();
 
   const int numCols = solver->getNumCols();
@@ -152,8 +155,9 @@ MibSCutGenerator::bilevelFeasCut1(BcpsConstraintPool &conPool)
     }
   }
 
-  double tmpCutUb(0.0);
-  boundCuts(conPool, leftHandSide, tmpCutUb);
+  if(useNewPureIntCut == true){
+    double tmpCutUb(0.0);
+    boundCuts(conPool, leftHandSide, tmpCutUb);
 
   /*double percentOrigUb(0.0);
   double percentNewUb(0.0);
@@ -183,15 +187,16 @@ MibSCutGenerator::bilevelFeasCut1(BcpsConstraintPool &conPool)
 
   /*std::cout << "old rhs = " << cutub << std::endl;
     std::cout << "new rhs = " << tmpCutUb << std::endl;*/
-  
-  if(tmpCutUb < cutub){
-    //std::cout << "rhs decreased :)! " << std::endl;
-    localModel_->counterGood_ ++;
-    cutub = tmpCutUb;
-  }
-  else{
-    //std::cout << "rhs increased :(! " << std::endl; 
-    localModel_->counterBad_ ++;
+
+    if(tmpCutUb < cutub){
+      //std::cout << "rhs decreased :)! " << std::endl;
+      localModel_->counterGood_ ++;
+      cutub = tmpCutUb;
+    }
+    else{
+      //std::cout << "rhs increased :(! " << std::endl;
+      localModel_->counterBad_ ++;
+    }
   }
 
   assert(indexList.size() == valsList.size());
@@ -2089,8 +2094,14 @@ MibSCutGenerator::boundCuts(BcpsConstraintPool &conPool, double *passedObjCoeffs
       boundModel->MibSPar()->setEntry(MibSParams::bilevelCutTypes, 0);
       boundModel->MibSPar()->setEntry(MibSParams::printProblemInfo, false);
       if(passedObjCoeffs != NULL){
-	boundModel->MibSPar()->setEntry(MibSParams::branchStrategy, MibSBranchingStrategyLinking);
-	boundModel->MibSPar()->setEntry(MibSParams::bilevelCutTypes, -1); 
+	//boundModel->MibSPar()->setEntry(MibSParams::branchStrategy, MibSBranchingStrategyLinking);
+	boundModel->MibSPar()->setEntry(MibSParams::useBendersCut, PARAM_OFF);
+	boundModel->MibSPar()->setEntry(MibSParams::useGeneralNoGoodCut, PARAM_OFF);
+	boundModel->MibSPar()->setEntry(MibSParams::useIntersectionCut, PARAM_OFF);
+	boundModel->MibSPar()->setEntry(MibSParams::useIncObjCut, PARAM_OFF);
+	boundModel->MibSPar()->setEntry(MibSParams::bilevelCutTypes, 0);
+	boundModel->MibSPar()->setEntry(MibSParams::usePureIntegerCut, PARAM_ON);
+	boundModel->MibSPar()->setEntry(MibSParams::useNewPureIntCut, false);
       }
 
       double *colUpper = new double[tCols];

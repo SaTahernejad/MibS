@@ -63,6 +63,9 @@ MibSParams::createKeywordList() {
    keys_.push_back(make_pair(std::string("MibS_allowRemoveCut"),
 			     AlpsParameter(AlpsBoolPar, allowRemoveCut)));
 
+   keys_.push_back(make_pair(std::string("MibS_useNewPureIntCut"),
+			     AlpsParameter(AlpsBoolPar, useNewPureIntCut)));
+
    //--------------------------------------------------------
    // BoolArrayPar
    //--------------------------------------------------------
@@ -225,6 +228,8 @@ MibSParams::setDefaultEntries() {
    setEntry(printProblemInfo, true);
 
    setEntry(allowRemoveCut, false);
+
+   setEntry(useNewPureIntCut, true);
 
    //-------------------------------------------------------------
    // Int Parameters.
