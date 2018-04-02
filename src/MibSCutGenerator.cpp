@@ -2030,7 +2030,7 @@ MibSCutGenerator::boundCuts(BcpsConstraintPool &conPool, double *passedObjCoeffs
    bool allowRemoveCut(localModel_->MibSPar_->entry
 		       (MibSParams::allowRemoveCut));
    
-   if (localModel_->boundingPass_ > 1){
+   if ((localModel_->boundingPass_ > 1) && (passedObjCoeffs == NULL)){
       return 0;
    }
    
