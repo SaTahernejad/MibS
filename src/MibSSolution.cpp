@@ -158,7 +158,10 @@ MibSSolution::print(std::ostream& os) const
 
    std::cout << "Number of problems (VF) solved = " << localModel_->counterVF_ << std::endl;
    std::cout << "Number of problems (UB) solved = " << localModel_->counterUB_ << std::endl;
-
+   std::cout << "Number of decreased rhs = " << localModel_->counterGood_ << std::endl; 
+   std::cout << "Number of increased rhs = " << localModel_->counterBad_ << std::endl;
+   //std::cout << "Average of percent of decreasing the rhs (orig)" << localModel_->changePercOrigUb_ << std::endl;
+   //std::cout << "Average of percent of decreasing the rhs (new)" << localModel_->changePercNewUb_ << std::endl; 
    
 }
 

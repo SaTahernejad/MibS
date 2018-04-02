@@ -115,6 +115,8 @@ MibSCutGenerator::bilevelFeasCut1(BcpsConstraintPool &conPool)
   CoinFillN(tempVals, numCols, 0.0);
   double value(0.0);  
   int mult(0);
+  double *leftHandSide = new double[numCols];
+  CoinFillN(leftHandSide, numCols, 0.0);
 
   for(i = 0; i < numCols; i++){
     for(j = 0; j < numRows; j++){
@@ -144,9 +146,52 @@ MibSCutGenerator::bilevelFeasCut1(BcpsConstraintPool &conPool)
     tempVals[i] += - binding[numRows + numCols + i]; // variable lower bound
 
     if((tempVals[i] > etol) || (tempVals[i] < - etol)){
+      leftHandSide[i] = -1 * tempVals[i];
       indexList.push_back(i);
       valsList.push_back(tempVals[i]);
     }
+  }
+
+  double tmpCutUb(0.0);
+  boundCuts(conPool, leftHandSide, tmpCutUb);
+
+  /*double percentOrigUb(0.0);
+  double percentNewUb(0.0);
+  double changePercOrigUb(localModel_->changePercOrigUb_);
+  double changePercNewUb(localModel_->changePercNewUb_);
+  int counterGood(localModel_->counterGood_);
+  int counterBad(localModel_->counterBad_);
+  if(fabs(cutub) < etol){
+    percentOrigUb = 100 * ((-1 * tmpCutUb)/0.01);
+  }
+  else{
+    percentOrigUb = 100 * ((cutub - tmpCutUb)/fabs(cutub));
+  }
+
+  if(fabs(tmpCutUb) < etol){
+    percentNewUb = 100 * ((cutub)/0.01);
+  }
+  else{
+    percentNewUb = 100 * ((cutub - tmpCutUb)/fabs(tmpCutUb));
+  }
+
+  localModel_->changePercOrigUb_ = (changePercOrigUb * (counterGood + counterBad) + percentOrigUb)/
+    (counterGood + counterBad + 1);
+  
+  localModel_->changePercNewUb_ = (changePercNewUb * (counterGood + counterBad) + percentNewUb)/
+  (counterGood + counterBad + 1);*/
+
+  /*std::cout << "old rhs = " << cutub << std::endl;
+    std::cout << "new rhs = " << tmpCutUb << std::endl;*/
+  
+  if(tmpCutUb < cutub){
+    //std::cout << "rhs decreased :)! " << std::endl;
+    localModel_->counterGood_ ++;
+    cutub = tmpCutUb;
+  }
+  else{
+    //std::cout << "rhs increased :(! " << std::endl; 
+    localModel_->counterBad_ ++;
   }
 
   assert(indexList.size() == valsList.size());
@@ -1966,7 +2011,7 @@ MibSCutGenerator::getAlphaTenderIC(double** extRay, int numNonBasic,
 
 //############################################################################# 
 int
-MibSCutGenerator::boundCuts(BcpsConstraintPool &conPool)
+MibSCutGenerator::boundCuts(BcpsConstraintPool &conPool, double *passedObjCoeffs, double &passedRhs)
 {
    /* Derive a bound on the lower level objective function value */
 
@@ -2016,10 +2061,15 @@ MibSCutGenerator::boundCuts(BcpsConstraintPool &conPool)
    double * nObjCoeffs = new double[tCols];
    
    CoinZeroN(nObjCoeffs, tCols);
-   
-   for(i = 0; i < lCols; i++){
-      index = lColIndices[i];
-      nObjCoeffs[index] = -lObjSense * lObjCoeffs[i];
+
+   if(passedObjCoeffs != NULL){
+     memcpy(nObjCoeffs, passedObjCoeffs, sizeof(double) * tCols);
+   }
+   else{
+     for(i = 0; i < lCols; i++){
+       index = lColIndices[i];
+       nObjCoeffs[index] = -lObjSense * lObjCoeffs[i];
+     }
    }
 
    int numCuts(0);
@@ -2033,11 +2083,15 @@ MibSCutGenerator::boundCuts(BcpsConstraintPool &conPool)
       MibSModel *boundModel = new MibSModel();
       boundModel->setSolver(&lpSolver);
       boundModel->AlpsPar()->setEntry(AlpsParams::msgLevel, -1);
-      boundModel->AlpsPar()->setEntry(AlpsParams::timeLimit, 10);
+      boundModel->AlpsPar()->setEntry(AlpsParams::timeLimit, 10.00);
       boundModel->BlisPar()->setEntry(BlisParams::heurStrategy, 0);
       boundModel->MibSPar()->setEntry(MibSParams::feasCheckSolver, feasCheckSolver.c_str());
       boundModel->MibSPar()->setEntry(MibSParams::bilevelCutTypes, 0);
       boundModel->MibSPar()->setEntry(MibSParams::printProblemInfo, false);
+      if(passedObjCoeffs != NULL){
+	boundModel->MibSPar()->setEntry(MibSParams::branchStrategy, MibSBranchingStrategyLinking);
+	boundModel->MibSPar()->setEntry(MibSParams::bilevelCutTypes, -1); 
+      }
 
       double *colUpper = new double[tCols];
       double *colLower = new double[tCols];
@@ -2201,22 +2255,27 @@ MibSCutGenerator::boundCuts(BcpsConstraintPool &conPool)
       zeroList.clear();
    }
 
-   if (lower_objval > -oSolver->getInfinity()){
-      double cutub(oSolver->getInfinity());                                                                              
-      std::vector<int> indexList;
-      std::vector<double> valsList;
-      for(i = 0; i < lCols; i++){
+   if(passedObjCoeffs != NULL){
+     passedRhs = -1 * lower_objval;
+   }
+   else{
+     if (lower_objval > -oSolver->getInfinity()){
+       double cutub(oSolver->getInfinity());                                                                              
+       std::vector<int> indexList;
+       std::vector<double> valsList;
+       for(i = 0; i < lCols; i++){
 	 if (lObjCoeffs[i] == 0.0){
-	    continue;
+	   continue;
 	 }
 	 index = lColIndices[i];
 	 indexList.push_back(index);
 	 valsList.push_back(-lObjSense *lObjCoeffs[i]);
-      }
-      numCuts += addCut(conPool, lower_objval, cutub, indexList, valsList,
-			allowRemoveCut);
-      indexList.clear();
-      valsList.clear();
+       }
+       numCuts += addCut(conPool, lower_objval, cutub, indexList, valsList,
+			 allowRemoveCut);
+       indexList.clear();
+       valsList.clear();
+     }
    }
 
    delete [] colType;
@@ -4929,7 +4988,8 @@ MibSCutGenerator::generateConstraints(BcpsConstraintPool &conPool)
 	 numCuts += feasibilityCuts(conPool) ? true : false;
 	 
          if (useBoundCut){
-	     boundCuts(conPool);
+	   double tmpArg = 0;
+	   boundCuts(conPool, NULL, tmpArg);
 	 }
       }
       return (numCuts ? true : false);

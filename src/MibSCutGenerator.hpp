@@ -118,7 +118,7 @@ class MibSCutGenerator : public BlisConGenerator {
 			  std::vector<double> &alphaVec);
 		     
    /** Add bound cuts for general problems **/
-   int boundCuts(BcpsConstraintPool &conPool);
+  int boundCuts(BcpsConstraintPool &conPool, double *passedObjCoeff, double &passedRhs);
 
    /** Add disjunctive cuts for binary upper-level variables **/
    int incObjCut(BcpsConstraintPool &conPool);

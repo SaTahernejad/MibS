@@ -102,6 +102,11 @@ private:
     /** Number of (UB) solved **/
     int counterUB_;
 
+  int counterGood_;
+  int counterBad_;
+  //double changePercOrigUb_;
+  //double changePercNewUb_;
+
     /** Determines type of problem(general or interdiction) **/
     bool isInterdict_;
 

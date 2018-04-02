@@ -118,6 +118,10 @@ MibSModel::initialize()
   sizeFixedInd_ = 0;
   counterVF_ = 0;
   counterUB_ = 0;
+  counterGood_ = 0;
+  counterBad_ = 0;
+  //changePercOrigUb_ = 0.0;
+  //changePercNewUb_ = 0.0;
   countIteration_ = 0;
   isInterdict_ = false;
   isPureInteger_ = true;
