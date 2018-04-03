@@ -159,6 +159,8 @@ MibSCutGenerator::bilevelFeasCut1(BcpsConstraintPool &conPool)
     double tmpCutUb(0.0);
     boundCuts(conPool, leftHandSide, tmpCutUb);
 
+    tmpCutUb = floor(tmpCutUb);
+
   /*double percentOrigUb(0.0);
   double percentNewUb(0.0);
   double changePercOrigUb(localModel_->changePercOrigUb_);
