@@ -3329,7 +3329,8 @@ MibSModel::instanceStructure(const CoinPackedMatrix *newMatrix, const double* ro
     paramValue = MibSPar_->entry(MibSParams::useBendersCut);
 
     if(paramValue == PARAM_NOTSET){
-	if((isInterdict_ == false) || (positiveG2_ == false)){
+      //if((isInterdict_ == false) || (positiveG2_ == false)){
+      if(positiveG2_ == false){
 	    MibSPar()->setEntry(MibSParams::useBendersCut, PARAM_OFF);
 	}else{
 	    MibSPar()->setEntry(MibSParams::useBendersCut, PARAM_ON);
@@ -3337,7 +3338,8 @@ MibSModel::instanceStructure(const CoinPackedMatrix *newMatrix, const double* ro
 	}
     }
     else if(paramValue == PARAM_ON){
-	if((isInterdict_ == false) || (positiveG2_ == false)){
+	//if((isInterdict_ == false) || (positiveG2_ == false)){
+	if(positiveG2_ == false){
 	    std::cout << "The benders cut is not valid for this problem. Automatically disabling this cut." << std::endl;
 	    MibSPar()->setEntry(MibSParams::useBendersCut, PARAM_OFF);
 	}
