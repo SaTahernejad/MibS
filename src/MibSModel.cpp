@@ -3348,6 +3348,26 @@ MibSModel::instanceStructure(const CoinPackedMatrix *newMatrix, const double* ro
 	    defaultCutIsOn = true;
 	}
 
+
+    //Param: "MibS_useInterSectionCut" (MibSIntersectionCutTypeWatermelon)
+    if((turnOffOtherCuts == true) &&
+       (MibSPar_->entry(MibSParams::useIntersectionCut) == PARAM_NOTSET)){
+      MibSPar()->setEntry(MibSParams::useIntersectionCut, PARAM_OFF);
+    }
+
+    paramValue = MibSPar_->entry(MibSParams::useIntersectionCut);
+
+    if(paramValue == PARAM_NOTSET){
+      if(defaultCutIsOn == false){
+	MibSPar()->setEntry(MibSParams::useIntersectionCut, PARAM_ON);
+	MibSPar()->setEntry(MibSParams::intersectionCutType,
+			    MibSIntersectionCutTypeWatermelon);
+      }
+    }
+    if(MibSPar_->entry(MibSParams::useIntersectionCut) == PARAM_ON){
+      defaultCutIsOn = true;
+    }
+
     //Param: "MibS_useGeneralNoGoodCut"
     if((turnOffOtherCuts == true) &&
        (MibSPar_->entry(MibSParams::useNoGoodCut) == PARAM_NOTSET)){
