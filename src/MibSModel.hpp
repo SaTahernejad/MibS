@@ -102,6 +102,9 @@ private:
     /** Number of (UB) solved **/
     int counterUB_;
 
+    /** Number of discarded ICs due to scale factor **/
+    int counterDiscardICs_;
+
     /** Determines type of problem(general or interdiction) **/
     bool isInterdict_;
 

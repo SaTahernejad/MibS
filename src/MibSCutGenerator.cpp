@@ -272,6 +272,9 @@ MibSCutGenerator::intersectionCuts(BcpsConstraintPool &conPool,
 
 	bool allowRemoveCut(localModel_->MibSPar_->entry(MibSParams::allowRemoveCut));
 
+	MibSBranchingStrategy branchPar = static_cast<MibSBranchingStrategy>
+	    (localModel_->MibSPar_->entry(MibSParams::branchStrategy));
+
 	OsiSolverInterface * solver = localModel_->solver();
 
 	const double * sol = solver->getColSolution();
@@ -578,7 +581,8 @@ MibSCutGenerator::intersectionCuts(BcpsConstraintPool &conPool,
 
 	    double tmp(0.0);
 	    double cutUb(-1.0);
-	    double cutLb(-1 * solver->getInfinity());
+	    double infinity(solver->getInfinity());
+	    double cutLb(-1 * infinity);
 	    double rowRhs;
 	    int rowIndex;
 	
@@ -587,7 +591,10 @@ MibSCutGenerator::intersectionCuts(BcpsConstraintPool &conPool,
 	
 	    std::vector<int> indexList;
 	    std::vector<double> valsList;
-		    
+	    double maxCoeff(-1 * infinity);
+	    double minCoeff(infinity);
+	    double scaleConFactor(localModel_->BlisPar()->entry(BlisParams::scaleConFactor));
+	    
 	    for(i = 0; i < numCols; i++){
 		if(isBasic[i] < 1){
 		    if(alpha[cnt] >= 0){
@@ -666,11 +673,26 @@ MibSCutGenerator::intersectionCuts(BcpsConstraintPool &conPool,
 		if(fabs(tmpValsList[i]) >= etol){
 		    indexList.push_back(i);
 		    valsList.push_back(-1*tmpValsList[i]);
+		    if(fabs(tmpValsList[i]) < minCoeff){
+			minCoeff = fabs(tmpValsList[i]);
+		    }
+		    if(fabs(tmpValsList[i]) > maxCoeff){
+			maxCoeff = fabs(tmpValsList[i]);
+		    }
 		}
 	    }
 
-	    numCuts += addCut(conPool, cutLb, cutUb, indexList, valsList,
-			      allowRemoveCut);
+	    if((ICType != MibSIntersectionCutTypeHypercubeIC) && (fabs(minCoeff) > etol) &&
+	       ((maxCoeff/minCoeff) > scaleConFactor) &&
+	       (((branchPar == MibSBranchingStrategyLinking) && (bS->isLinkVarsFixed_)) ||
+		(branchPar == MibSBranchingStrategyFractional)) && (bS->isIntegral_)){
+		localModel_->counterDiscardICs_ ++;
+		return bilevelFeasCut1(conPool) ? true : false;
+	    }
+	    else{
+		numCuts += addCut(conPool, cutLb, cutUb, indexList, valsList, allowRemoveCut);
+	    }
+		
 	    delete [] tmpValsList;
 	    indexList.clear();
 	    valsList.clear();
