@@ -2101,7 +2101,7 @@ MibSCutGenerator::boundCuts(BcpsConstraintPool &conPool, double *passedObjCoeffs
       /** Create new MibS model to solve bilevel **/
       MibSModel *boundModel = new MibSModel();
       boundModel->setSolver(&lpSolver);
-      boundModel->AlpsPar()->setEntry(AlpsParams::msgLevel, 1);
+      boundModel->AlpsPar()->setEntry(AlpsParams::msgLevel, -1);
       boundModel->AlpsPar()->setEntry(AlpsParams::timeLimit, boundCutTimeLim);
       boundModel->BlisPar()->setEntry(BlisParams::heurStrategy, 0);
       boundModel->MibSPar()->setEntry(MibSParams::feasCheckSolver, feasCheckSolver.c_str());
