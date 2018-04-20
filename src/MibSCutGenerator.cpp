@@ -81,6 +81,14 @@ MibSCutGenerator::bilevelFeasCut1(BcpsConstraintPool &conPool)
   bool useNewPureIntCut(localModel_->MibSPar_->entry
 			(MibSParams::useNewPureIntCut));
 
+  MibSTreeNode * node = static_cast<MibSTreeNode *>(localModel_->activeNode_);
+
+  int newPureIntCutDepthLb(localModel_->MibSPar_->entry
+			  (MibSParams::newPureIntCutDepthLb));
+
+  int newPureIntCutDepthUb(localModel_->MibSPar_->entry
+			  (MibSParams::newPureIntCutDepthUb)); 
+
   OsiSolverInterface * solver = localModel_->solver();
 
   const int numCols = solver->getNumCols();
@@ -155,55 +163,55 @@ MibSCutGenerator::bilevelFeasCut1(BcpsConstraintPool &conPool)
     }
   }
 
+  bool shouldUseNewPureIntCut(false);
+  int depth(0);
+  bool shouldPrune(false);
+
   if(useNewPureIntCut == true){
+    depth = node->getDepth();
+    if((newPureIntCutDepthLb >= 0) && (newPureIntCutDepthUb >= 0)){
+      if((depth >= newPureIntCutDepthLb) && (depth <= newPureIntCutDepthUb)){
+	shouldUseNewPureIntCut = true;
+      }
+    }
+    else if(newPureIntCutDepthLb >= 0){
+      if(depth >= newPureIntCutDepthLb){
+	shouldUseNewPureIntCut = true;
+      }
+    }
+    else if(newPureIntCutDepthUb >= 0){
+      if(depth <= newPureIntCutDepthUb){
+	shouldUseNewPureIntCut = true;
+      }
+    }
+  }
+	
+  if(shouldUseNewPureIntCut == true){
     double tmpCutUb(0.0);
-    boundCuts(conPool, leftHandSide, tmpCutUb);
+    boundCuts(conPool, leftHandSide, tmpCutUb, shouldPrune);
 
-    tmpCutUb = floor(tmpCutUb);
-
-  /*double percentOrigUb(0.0);
-  double percentNewUb(0.0);
-  double changePercOrigUb(localModel_->changePercOrigUb_);
-  double changePercNewUb(localModel_->changePercNewUb_);
-  int counterGood(localModel_->counterGood_);
-  int counterBad(localModel_->counterBad_);
-  if(fabs(cutub) < etol){
-    percentOrigUb = 100 * ((-1 * tmpCutUb)/0.01);
-  }
-  else{
-    percentOrigUb = 100 * ((cutub - tmpCutUb)/fabs(cutub));
-  }
-
-  if(fabs(tmpCutUb) < etol){
-    percentNewUb = 100 * ((cutub)/0.01);
-  }
-  else{
-    percentNewUb = 100 * ((cutub - tmpCutUb)/fabs(tmpCutUb));
-  }
-
-  localModel_->changePercOrigUb_ = (changePercOrigUb * (counterGood + counterBad) + percentOrigUb)/
-    (counterGood + counterBad + 1);
-  
-  localModel_->changePercNewUb_ = (changePercNewUb * (counterGood + counterBad) + percentNewUb)/
-  (counterGood + counterBad + 1);*/
-
-  /*std::cout << "old rhs = " << cutub << std::endl;
-    std::cout << "new rhs = " << tmpCutUb << std::endl;*/
-
-    if(tmpCutUb < cutub){
-      //std::cout << "rhs decreased :)! " << std::endl;
+    if(shouldPrune == true){
       localModel_->counterGood_ ++;
-      cutub = tmpCutUb;
+      localModel_->bS_->shouldPrune_ = true;
     }
     else{
-      //std::cout << "rhs increased :(! " << std::endl;
-      localModel_->counterBad_ ++;
+      tmpCutUb = floor(tmpCutUb + etol);
+
+      if(tmpCutUb < cutub){
+	localModel_->counterGood_ ++;
+	cutub = tmpCutUb;
+      }
+      else{
+	localModel_->counterBad_ ++;
+      }
     }
   }
 
   assert(indexList.size() == valsList.size());
 
-  numCuts += addCut(conPool, cutlb, cutub, indexList, valsList, allowRemoveCut);
+  if(shouldPrune == false){
+    numCuts += addCut(conPool, cutlb, cutub, indexList, valsList, allowRemoveCut);
+  }
 
   delete [] binding;
   delete [] tempVals;
@@ -2018,7 +2026,8 @@ MibSCutGenerator::getAlphaTenderIC(double** extRay, int numNonBasic,
 
 //############################################################################# 
 int
-MibSCutGenerator::boundCuts(BcpsConstraintPool &conPool, double *passedObjCoeffs, double &passedRhs)
+MibSCutGenerator::boundCuts(BcpsConstraintPool &conPool, double *passedObjCoeffs, double &passedRhs,
+			    bool &isInfeasible)
 {
    /* Derive a bound on the lower level objective function value */
 
@@ -2036,6 +2045,9 @@ MibSCutGenerator::boundCuts(BcpsConstraintPool &conPool, double *passedObjCoeffs
 
    bool allowRemoveCut(localModel_->MibSPar_->entry
 		       (MibSParams::allowRemoveCut));
+
+   double boundCutTimeLim
+     = localModel_->MibSPar_->entry(MibSParams::boundCutTimeLim);
    
    if ((localModel_->boundingPass_ > 1) && (passedObjCoeffs == NULL)){
       return 0;
@@ -2089,20 +2101,20 @@ MibSCutGenerator::boundCuts(BcpsConstraintPool &conPool, double *passedObjCoeffs
       /** Create new MibS model to solve bilevel **/
       MibSModel *boundModel = new MibSModel();
       boundModel->setSolver(&lpSolver);
-      boundModel->AlpsPar()->setEntry(AlpsParams::msgLevel, -1);
-      boundModel->AlpsPar()->setEntry(AlpsParams::timeLimit, 10.00);
+      boundModel->AlpsPar()->setEntry(AlpsParams::msgLevel, 1);
+      boundModel->AlpsPar()->setEntry(AlpsParams::timeLimit, boundCutTimeLim);
       boundModel->BlisPar()->setEntry(BlisParams::heurStrategy, 0);
       boundModel->MibSPar()->setEntry(MibSParams::feasCheckSolver, feasCheckSolver.c_str());
       boundModel->MibSPar()->setEntry(MibSParams::bilevelCutTypes, 0);
       boundModel->MibSPar()->setEntry(MibSParams::printProblemInfo, false);
       if(passedObjCoeffs != NULL){
-	//boundModel->MibSPar()->setEntry(MibSParams::branchStrategy, MibSBranchingStrategyLinking);
+	boundModel->MibSPar()->setEntry(MibSParams::branchStrategy, MibSBranchingStrategyLinking);
 	boundModel->MibSPar()->setEntry(MibSParams::useBendersCut, PARAM_OFF);
 	boundModel->MibSPar()->setEntry(MibSParams::useGeneralNoGoodCut, PARAM_OFF);
 	boundModel->MibSPar()->setEntry(MibSParams::useIntersectionCut, PARAM_OFF);
 	boundModel->MibSPar()->setEntry(MibSParams::useIncObjCut, PARAM_OFF);
-	boundModel->MibSPar()->setEntry(MibSParams::bilevelCutTypes, 0);
-	boundModel->MibSPar()->setEntry(MibSParams::usePureIntegerCut, PARAM_ON);
+	boundModel->MibSPar()->setEntry(MibSParams::bilevelCutTypes, -1);
+	boundModel->MibSPar()->setEntry(MibSParams::usePureIntegerCut, PARAM_OFF);
 	boundModel->MibSPar()->setEntry(MibSParams::useNewPureIntCut, false);
       }
 
@@ -2163,11 +2175,21 @@ MibSCutGenerator::boundCuts(BcpsConstraintPool &conPool, double *passedObjCoeffs
       }
       
       broker.printBestSolution();
-      objval = boundModel->getKnowledgeBroker()->getBestQuality();
-      if (broker.getBestNode()){
+      if(broker.getSolStatus() == AlpsExitStatusInfeasible){
+	isInfeasible = true;
+      }
+      else{
+	if(broker.getBestNode()){
 	  lower_objval = broker.getBestNode()->getQuality();
-      }else{
-	  lower_objval = objval;
+	}
+	else{
+	  if(boundModel->getNumSolutions() > 0){
+	    lower_objval = boundModel->getKnowledgeBroker()->getBestQuality();
+	  }
+	  else{
+	    lower_objval = -oSolver->getInfinity();
+	  }
+	}
       }
 
       delete [] colLower;
@@ -5002,7 +5024,8 @@ MibSCutGenerator::generateConstraints(BcpsConstraintPool &conPool)
 	 
          if (useBoundCut){
 	   double tmpArg = 0;
-	   boundCuts(conPool, NULL, tmpArg);
+	   bool tmpArg1 = false;
+	   boundCuts(conPool, NULL, tmpArg, tmpArg1);
 	 }
       }
       return (numCuts ? true : false);

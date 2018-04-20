@@ -79,12 +79,14 @@ class MibSParams : public AlpsParameterSet {
      computeBestUBWhenLVarsInt,
      computeBestUBWhenLVarsFixed,
      useLinkingSolutionPool,
+     newPureIntCutDepthLb,
+     newPureIntCutDepthUb,
      endOfIntParams
   };
 
   /** Double parameters. */
   enum dblParams{
-      ///
+    boundCutTimeLim,
       endOfDblParams
   };
 
