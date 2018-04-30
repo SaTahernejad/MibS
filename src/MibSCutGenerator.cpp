@@ -927,6 +927,9 @@ MibSCutGenerator::findLowerLevelSol(double *uselessIneqs, double *lowerLevelSol,
 	sym_set_dbl_param(env, "time_limit", remainingTime);
 	sym_set_int_param(env, "do_primal_heuristic", FALSE);
         sym_set_int_param(env, "verbosity", -2);
+	if(localModel_->countIteration_ == 362022){
+	  sym_set_int_param(env, "verbosity", 1);
+	}
         sym_set_int_param(env, "prep_level", -1);
         sym_set_int_param(env, "max_active_nodes", maxThreadsLL);
         sym_set_int_param(env, "tighten_root_bounds", FALSE);
@@ -961,7 +964,9 @@ MibSCutGenerator::findLowerLevelSol(double *uselessIneqs, double *lowerLevelSol,
 	CPXsetintparam(cpxEnv, CPX_PARAM_THREADS, maxThreadsLL);
 #endif
     }
-
+    if(localModel_->countIteration_ == 362022){
+      nSolver->writeMps("nSolverMps", "mps", nSolver->getObjSense());
+    }
     nSolver->branchAndBound();
 
     if((feasCheckSolver == "SYMPHONY") && (sym_is_time_limit_reached
@@ -978,6 +983,10 @@ MibSCutGenerator::findLowerLevelSol(double *uselessIneqs, double *lowerLevelSol,
     else{//this case should not happen when we use intersection cut for removing
 	//the optimal solution of relaxation which satisfies integrality requirements
 	assert(0);
+	if(!nSolver->isProvenOptimal()){
+	  std::cout << "this MIP should not be infeasible!" << std::endl;
+	  abort();
+	}
     }
 
     delete [] multA2XOpt;
