@@ -12,6 +12,7 @@
 /* This software is licensed under the Eclipse Public License. Please see    */
 /* accompanying file for terms.                                              */
 /*===========================================================================*/
+#define COIN_HAS_CPLEX 1
 
 #include <iostream>
 
@@ -28,6 +29,11 @@
 #include "AlpsKnowledgeBrokerSerial.h"
 #endif
 
+#ifdef COIN_HAS_CPLEX
+#include "cplex.h"
+#include "OsiCpxSolverInterface.hpp"
+#endif
+
 //#############################################################################
 //#############################################################################
 
@@ -37,8 +43,11 @@ int main(int argc, char* argv[])
     try{
        
       /** Set up lp solver **/
-      OsiClpSolverInterface lpSolver;
-      lpSolver.getModelPtr()->setDualBound(1.0e10);
+      //OsiClpSolverInterface lpSolver;
+      //lpSolver.getModelPtr()->setDualBound(1.0e10);
+      //lpSolver.messageHandler()->setLogLevel(0);
+
+      OsiCpxSolverInterface lpSolver;
       lpSolver.messageHandler()->setLogLevel(0);
       
       /** Create MibS model **/

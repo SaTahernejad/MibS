@@ -415,7 +415,12 @@ MibSCutGenerator::intersectionCuts(BcpsConstraintPool &conPool,
 		for(j = 0; j < numStruct; j++){
 		    extRay[cnt][j] = 0;
 		}
-		solver->getBInvACol(i,coef);
+		if(i < numStruct){
+		  solver->getBInvACol(i,coef);
+		}
+		else{
+		  solver->getBInvACol(-1 - (i - numStruct),coef);
+		}
 		if((i >= numStruct) && (i-numStruct < numArtf)){
 		    if(rowsense[i-numStruct] == 'G'){
 			mult = -1;
@@ -937,16 +942,32 @@ MibSCutGenerator::findLowerLevelSol(double *uselessIneqs, double *lowerLevelSol,
 	assert(cpxEnv);
 	CPXsetintparam(cpxEnv, CPX_PARAM_SCRIND, CPX_OFF);
 	CPXsetintparam(cpxEnv, CPX_PARAM_THREADS, maxThreadsLL);
+	CPXsetintparam(cpxEnv, CPX_PARAM_CLOCKTYPE, 1);
+	CPXsetdblparam(cpxEnv, CPX_PARAM_TILIM, remainingTime);
 #endif
     }
 
     nSolver->branchAndBound();
+
+    int lpStat;
+
+    if(feasCheckSolver == "CPLEX"){
+      lpStat = CPXgetstat(dynamic_cast<OsiCpxSolverInterface*>
+			  (nSolver)->getEnvironmentPtr(),
+			  dynamic_cast<OsiCpxSolverInterface*>
+			  (nSolver)->getLpPtr());
+    }
 
     if((feasCheckSolver == "SYMPHONY") && (sym_is_time_limit_reached
 					   (dynamic_cast<OsiSymSolverInterface *>
 					    (nSolver)->getSymphonyEnvironment()))){
 	isTimeLimReached = true;
 	localModel_->bS_->shouldPrune_ = true;
+    }
+    else if((feasCheckSolver == "CPLEX") && ((lpStat == CPXMIP_TIME_LIM_FEAS) ||
+					     (lpStat == CPXMIP_TIME_LIM_INFEAS))){
+      isTimeLimReached = true;
+      localModel_->bS_->shouldPrune_ = true;
     }
     else if(nSolver->isProvenOptimal()){
 	const double *optSol = nSolver->getColSolution();
@@ -1383,16 +1404,32 @@ MibSCutGenerator::findLowerLevelSolWatermelonIC(double *uselessIneqs, double *lo
 		assert(cpxEnv);
 		CPXsetintparam(cpxEnv, CPX_PARAM_SCRIND, CPX_OFF);
 		CPXsetintparam(cpxEnv, CPX_PARAM_THREADS, maxThreadsLL);
+		CPXsetintparam(cpxEnv, CPX_PARAM_CLOCKTYPE, 1);
+		CPXsetdblparam(cpxEnv, CPX_PARAM_TILIM, remainingTime);
 #endif
     }
 
     nSolver->branchAndBound();
+
+    int lpStat;
+    
+    if(feasCheckSolver == "CPLEX"){
+      lpStat = CPXgetstat(dynamic_cast<OsiCpxSolverInterface*>
+			  (nSolver)->getEnvironmentPtr(),
+			  dynamic_cast<OsiCpxSolverInterface*>
+			  (nSolver)->getLpPtr());
+    }
 
     if((feasCheckSolver == "SYMPHONY") && (sym_is_time_limit_reached
 					   (dynamic_cast<OsiSymSolverInterface *>
 					    (nSolver)->getSymphonyEnvironment()))){
 	isTimeLimReached = true;
 	localModel_->bS_->shouldPrune_ = true;
+    }
+    else if((feasCheckSolver == "CPLEX") && ((lpStat == CPXMIP_TIME_LIM_FEAS) ||
+					     (lpStat == CPXMIP_TIME_LIM_INFEAS))){
+      isTimeLimReached = true;
+      localModel_->bS_->shouldPrune_ = true;
     }
     else if(nSolver->isProvenOptimal()){
 	const double *optSol = nSolver->getColSolution();
@@ -1624,11 +1661,22 @@ MibSCutGenerator::storeBestSolHypercubeIC(const double* lpSol, double optLowerOb
 	assert(cpxEnv);
 	CPXsetintparam(cpxEnv, CPX_PARAM_SCRIND, CPX_OFF);
 	CPXsetintparam(cpxEnv, CPX_PARAM_THREADS, maxThreadsLL);
+	CPXsetintparam(cpxEnv, CPX_PARAM_CLOCKTYPE, 1);
+	CPXsetdblparam(cpxEnv, CPX_PARAM_TILIM, remainingTime);
 #endif
     }
 
     UBSolver->branchAndBound();
     localModel_->counterUB_ ++;
+
+    int lpStat;
+
+    if(feasCheckSolver == "CPLEX"){
+      lpStat = CPXgetstat(dynamic_cast<OsiCpxSolverInterface*>
+			  (UBSolver)->getEnvironmentPtr(),
+			  dynamic_cast<OsiCpxSolverInterface*>
+			  (UBSolver)->getLpPtr());
+    }  
 
     if((feasCheckSolver == "SYMPHONY") && (sym_is_time_limit_reached
 					   (dynamic_cast<OsiSymSolverInterface *>
@@ -1636,6 +1684,11 @@ MibSCutGenerator::storeBestSolHypercubeIC(const double* lpSol, double optLowerOb
 	isTimeLimReached = true;
 	bS->shouldPrune_ = true;
     }
+    else if((feasCheckSolver == "CPLEX") && ((lpStat == CPXMIP_TIME_LIM_FEAS) ||
+					     (lpStat == CPXMIP_TIME_LIM_INFEAS))){
+      isTimeLimReached = true;
+      bS->shouldPrune_ = true;
+    } 
     else if(UBSolver->isProvenOptimal()){
 	MibSSolution *mibsSol = new MibSSolution(numCols,
 						 UBSolver->getColSolution(),
