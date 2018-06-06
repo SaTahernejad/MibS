@@ -1833,6 +1833,8 @@ MibSModel::userFeasibleSolution(const double * solution, bool &userFeasible)
 
   if(0)
     printCurSol();
+
+  std::cout << "enterd user feasible function0." << std::endl;
   
   CoinPackedVector *sol = getSolution();
 
@@ -1870,6 +1872,7 @@ MibSModel::userFeasibleSolution(const double * solution, bool &userFeasible)
   if(0)
     solver()->writeLp("userfeasible");
 
+  std::cout << "enterd user feasible function." << std::endl;
   solType = createBilevel(sol);
 
   if(solType != MibSNoSol){

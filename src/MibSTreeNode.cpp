@@ -339,8 +339,10 @@ MibSTreeNode::process(bool isRoot, bool rampUp)
             }
             getKnowledgeBroker()->tempTimer().start();
         }
-	
+
+	std::cout << "solving lp is started." << std::endl;
         lpStatus = static_cast<BlisLpStatus> (bound(model));
+	std::cout << "solving lp is finished." << std::endl;
 
 	if (model->boundingPass_ == 1) {
 	    int iter = model->solver()->getIterationCount();

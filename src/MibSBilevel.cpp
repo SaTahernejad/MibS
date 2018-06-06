@@ -41,6 +41,7 @@ MibSBilevel::createBilevel(CoinPackedVector* sol,
   
   /** Splits sol into two parts, upper- and lower-level components **/
 
+  std::cout << "entered create bilevel" << std::endl;
   if(!mibs) return MibSNoSol;
   
   model_ = mibs;
@@ -225,6 +226,7 @@ MibSBilevel::createBilevel(CoinPackedVector* sol,
       shouldPrune_ = true;
   }
 
+  std::cout << "entered checking for check bilevel feasibility" << std::endl; 
   //step 7
   if(!shouldPrune_){
       if(((tagInSeenLinkingPool_ == MibSLinkingPoolTagLowerIsFeasible)
@@ -241,6 +243,7 @@ MibSBilevel::createBilevel(CoinPackedVector* sol,
 	  storeSol = checkBilevelFeasiblity(mibs->isRoot_);
       }
   }
+  
   if(cutStrategy == 1){
       useBilevelBranching_ = false;
   }
@@ -248,6 +251,8 @@ MibSBilevel::createBilevel(CoinPackedVector* sol,
   heuristic_->findHeuristicSolutions();
 
   delete heuristic_;
+
+  std::cout << "create bilevel finished" << std::endl;
 
   return storeSol;
 }
@@ -257,6 +262,7 @@ MibSBilevel::createBilevel(CoinPackedVector* sol,
 MibSSolType
 MibSBilevel::checkBilevelFeasiblity(bool isRoot)
 {
+  std::cout << "entered check bilevel feasibility" << std::endl;
     bool warmStartLL(model_->MibSPar_->entry
 		     (MibSParams::warmStartLL));
     int maxThreadsLL(model_->MibSPar_->entry
@@ -320,12 +326,16 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot)
 	    solver_ = setUpModel(model_->getSolver(), true);
 	}*/
 
+      std::cout << "entered setup model" << std::endl;
+
 	if(lSolver_){
 	    lSolver_ = setUpModel(model_->getSolver(), false);
 	}
 	else{
 	    lSolver_ = setUpModel(model_->getSolver(), true);
 	}
+
+	std::cout << "finished setup model" << std::endl;
 	    
 	OsiSolverInterface *lSolver = lSolver_;
 
@@ -402,7 +412,9 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot)
 	    setWarmStart(lSolver->getWarmStart());
 	}else{
 	  startTimeVF = model_->broker_->subTreeTimer().getTime();
+	  std::cout << "solving lSolver started. time limit = " << remainingTime <<  std::endl;
 	  lSolver->branchAndBound();
+	  std::cout << "solving lSolver finished. " <<  std::endl;   
 	  model_->timerVF_ += model_->broker_->subTreeTimer().getTime() - startTimeVF;
 	}
   
@@ -596,8 +608,10 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot)
 		}
 
 		//step 19
-		startTimeUB = model_->broker_->subTreeTimer().getTime(); 
+		startTimeUB = model_->broker_->subTreeTimer().getTime();
+		std::cout << "solving ubSolver started. time limit = " << remainingTime <<  std::endl; 
 		UBSolver->branchAndBound();
+		std::cout << "solving lSolver finished." <<  std::endl; 
 		model_->timerUB_ += model_->broker_->subTreeTimer().getTime() - startTimeUB;
 		model_->counterUB_ ++;
 		isUBSolved_ = true;
