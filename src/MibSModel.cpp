@@ -118,8 +118,11 @@ MibSModel::initialize()
   sizeFixedInd_ = 0;
   counterVF_ = 0;
   counterUB_ = 0;
+  counterCut_ = 0;
   counterGood_ = 0;
   counterBad_ = 0;
+  counterCalledHypercubeIC_ = 0;
+  counterPrune_ = 0;
   //changePercOrigUb_ = 0.0;
   //changePercNewUb_ = 0.0;
   countIteration_ = 0;

@@ -102,8 +102,12 @@ private:
     /** Number of (UB) solved **/
     int counterUB_;
 
-  int counterGood_;
-  int counterBad_;
+    int counterCut_;
+    int counterGood_;
+    int counterBad_;
+    int counterCalledHypercubeIC_;
+    int counterPrune_;
+    
   //double changePercOrigUb_;
   //double changePercNewUb_;
 

@@ -78,17 +78,6 @@ MibSCutGenerator::bilevelFeasCut1(BcpsConstraintPool &conPool)
   bool allowRemoveCut(localModel_->MibSPar_->entry
 		      (MibSParams::allowRemoveCut));
 
-  bool useNewPureIntCut(localModel_->MibSPar_->entry
-			(MibSParams::useNewPureIntCut));
-
-  MibSTreeNode * node = static_cast<MibSTreeNode *>(localModel_->activeNode_);
-
-  int newPureIntCutDepthLb(localModel_->MibSPar_->entry
-			  (MibSParams::newPureIntCutDepthLb));
-
-  int newPureIntCutDepthUb(localModel_->MibSPar_->entry
-			  (MibSParams::newPureIntCutDepthUb)); 
-
   OsiSolverInterface * solver = localModel_->solver();
 
   const int numCols = solver->getNumCols();
@@ -115,7 +104,7 @@ MibSCutGenerator::bilevelFeasCut1(BcpsConstraintPool &conPool)
   double upper(getCutUpperBound());
   //double upper(- getCutUpperBound());
   double cutlb(- solver->getInfinity());
-  double cutub(upper - 1.0);
+  double cutub(upper);
   
   //double EPS(0.01);
   //double cutub(upper - EPS);
@@ -163,55 +152,28 @@ MibSCutGenerator::bilevelFeasCut1(BcpsConstraintPool &conPool)
     }
   }
 
-  bool shouldUseNewPureIntCut(false);
-  int depth(0);
   bool shouldPrune(false);
 
-  if(useNewPureIntCut == true){
-    depth = node->getDepth();
-    if((newPureIntCutDepthLb >= 0) && (newPureIntCutDepthUb >= 0)){
-      if((depth >= newPureIntCutDepthLb) && (depth <= newPureIntCutDepthUb)){
-	shouldUseNewPureIntCut = true;
-      }
-    }
-    else if(newPureIntCutDepthLb >= 0){
-      if(depth >= newPureIntCutDepthLb){
-	shouldUseNewPureIntCut = true;
-      }
-    }
-    else if(newPureIntCutDepthUb >= 0){
-      if(depth <= newPureIntCutDepthUb){
-	shouldUseNewPureIntCut = true;
-      }
-    }
-  }
-	
-  if(shouldUseNewPureIntCut == true){
     double tmpCutUb(0.0);
     boundCuts(conPool, leftHandSide, tmpCutUb, shouldPrune);
 
     if(shouldPrune == true){
-      localModel_->counterGood_ ++;
+      localModel_->counterPrune_ ++;
       localModel_->bS_->shouldPrune_ = true;
     }
     else{
-      tmpCutUb = floor(tmpCutUb + etol);
-
-      if(tmpCutUb < cutub){
-	localModel_->counterGood_ ++;
-	cutub = tmpCutUb;
+	if(cutub - tmpCutUb > etol){
+	    localModel_->counterGood_ ++;
+	    cutub = tmpCutUb;
+	    numCuts += addCut(conPool, cutlb, cutub, indexList, valsList, allowRemoveCut);
       }
       else{
 	localModel_->counterBad_ ++;
+	numCuts = -1;
       }
     }
-  }
 
   assert(indexList.size() == valsList.size());
-
-  if(shouldPrune == false){
-    numCuts += addCut(conPool, cutlb, cutub, indexList, valsList, allowRemoveCut);
-  }
 
   delete [] binding;
   delete [] tempVals;
@@ -298,7 +260,7 @@ MibSCutGenerator::feasibilityCuts(BcpsConstraintPool &conPool)
     = localModel_->MibSPar_->entry(MibSParams::useValFuncCut);
 
   if(usePureIntegerCut && !useValFuncCut){
-    return bilevelFeasCut1(conPool) ? true : false;
+      return bilevelFeasCut1(conPool) ? true : false;
   }
   else if(!usePureIntegerCut && useValFuncCut){
     return bilevelFeasCut2(conPool) ? true : false;
@@ -322,6 +284,8 @@ MibSCutGenerator::intersectionCuts(BcpsConstraintPool &conPool,
     
         MibSIntersectionCutType ICType = static_cast<MibSIntersectionCutType>
 	    (localModel_->MibSPar_->entry(MibSParams::intersectionCutType));
+
+	ICType = MibSIntersectionCutTypeHypercubeIC;
 
 	MibSBilevelFreeSetTypeIC bilevelFreeSetType =
 	    static_cast<MibSBilevelFreeSetTypeIC>
@@ -2101,12 +2065,12 @@ MibSCutGenerator::boundCuts(BcpsConstraintPool &conPool, double *passedObjCoeffs
       /** Create new MibS model to solve bilevel **/
       MibSModel *boundModel = new MibSModel();
       boundModel->setSolver(&lpSolver);
-      boundModel->AlpsPar()->setEntry(AlpsParams::msgLevel, -1);
+      //boundModel->AlpsPar()->setEntry(AlpsParams::msgLevel, -1);
       boundModel->AlpsPar()->setEntry(AlpsParams::timeLimit, boundCutTimeLim);
       boundModel->BlisPar()->setEntry(BlisParams::heurStrategy, 0);
       boundModel->MibSPar()->setEntry(MibSParams::feasCheckSolver, feasCheckSolver.c_str());
       boundModel->MibSPar()->setEntry(MibSParams::bilevelCutTypes, 0);
-      boundModel->MibSPar()->setEntry(MibSParams::printProblemInfo, false);
+      boundModel->MibSPar()->setEntry(MibSParams::printProblemInfo, true);
       if(passedObjCoeffs != NULL){
 	boundModel->MibSPar()->setEntry(MibSParams::branchStrategy, MibSBranchingStrategyLinking);
 	boundModel->MibSPar()->setEntry(MibSParams::useBendersCut, PARAM_OFF);
@@ -4990,12 +4954,66 @@ MibSCutGenerator::generateConstraints(BcpsConstraintPool &conPool)
     bool useIncObjCut
 	= localModel_->MibSPar_->entry(MibSParams::useIncObjCut);
 
+    int usePureIntegerCut
+	   = localModel_->MibSPar_->entry(MibSParams::usePureIntegerCut);
+
+    bool useNewPureIntCut(localModel_->MibSPar_->entry
+			  (MibSParams::useNewPureIntCut));
+
     CoinPackedVector *sol = localModel_->getSolution();
 
     if(cutTypes == 0){
       //general type of problem, no specialized cuts
       delete sol;
       if (bS->isIntegral_){
+	  localModel_->counterCut_ ++;
+	  if(useNewPureIntCut == PARAM_ON){
+
+	      MibSTreeNode * node = static_cast<MibSTreeNode *>(localModel_->activeNode_);
+
+	      int newPureIntCutDepthLb(localModel_->MibSPar_->entry
+				       (MibSParams::newPureIntCutDepthLb));
+
+	      int newPureIntCutDepthUb(localModel_->MibSPar_->entry
+				       (MibSParams::newPureIntCutDepthUb));
+	      int depth = node->getDepth();
+	      bool shouldUseNewPureIntCut(false);
+
+	      //if(useNewPureIntCut == true){
+		  depth = node->getDepth();
+		  if((newPureIntCutDepthLb >= 0) && (newPureIntCutDepthUb >= 0)){
+		      if((depth >= newPureIntCutDepthLb) && (depth <= newPureIntCutDepthUb)){
+			  shouldUseNewPureIntCut = true;
+		      }
+		  }
+		  else if(newPureIntCutDepthLb >= 0){
+		      if(depth >= newPureIntCutDepthLb){
+			  shouldUseNewPureIntCut = true;
+		      }
+		  }
+		  else if(newPureIntCutDepthUb >= 0){
+		      if(depth <= newPureIntCutDepthUb){
+			  shouldUseNewPureIntCut = true;
+		      }
+		  }
+		  //}
+
+	      if(shouldUseNewPureIntCut == true){
+		  int status(0);
+		  status = bilevelFeasCut1(conPool);
+		  if(status == -1){
+		      intersectionCuts(conPool, bS->optLowerSolutionOrd_);
+		  }
+		  else{
+		      numCuts ++;
+		  }
+	      }
+	      else{
+		  intersectionCuts(conPool, bS->optLowerSolutionOrd_);
+		  localModel_->counterCalledHypercubeIC_ ++;
+	      } 
+	  }
+	  
 	  if (useIntersectionCut == PARAM_ON){
 	      intersectionCuts(conPool, bS->optLowerSolutionOrd_);
 	  }
@@ -5020,7 +5038,7 @@ MibSCutGenerator::generateConstraints(BcpsConstraintPool &conPool)
 	      numCuts += generalWeakIncObjCutCurrent(conPool);
 	  }
 	  
-	 numCuts += feasibilityCuts(conPool) ? true : false;
+	  //numCuts += feasibilityCuts(conPool) ? true : false;
 	 
          if (useBoundCut){
 	   double tmpArg = 0;
