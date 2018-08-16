@@ -927,8 +927,8 @@ MibSCutGenerator::findLowerLevelSol(double *uselessIneqs, double *lowerLevelSol,
 	sym_set_dbl_param(env, "time_limit", remainingTime);
 	sym_set_int_param(env, "do_primal_heuristic", FALSE);
         sym_set_int_param(env, "verbosity", -2);
-	if(localModel_->countIteration_ == 362022){
-	  sym_set_int_param(env, "verbosity", 1);
+	if(localModel_->countIteration_ == 3417){
+	  sym_set_int_param(env, "verbosity", 22);
 	}
         sym_set_int_param(env, "prep_level", -1);
         sym_set_int_param(env, "max_active_nodes", maxThreadsLL);
@@ -964,7 +964,8 @@ MibSCutGenerator::findLowerLevelSol(double *uselessIneqs, double *lowerLevelSol,
 	CPXsetintparam(cpxEnv, CPX_PARAM_THREADS, maxThreadsLL);
 #endif
     }
-    if(localModel_->countIteration_ == 362022){
+    if(localModel_->countIteration_ == 3417){
+      std::cout << "The status of this MIP is wrongly returned as infeasible" << std::endl;
       nSolver->writeMps("nSolverMps", "mps", nSolver->getObjSense());
     }
     nSolver->branchAndBound();
