@@ -4,9 +4,9 @@ CoinUtils         https://projects.coin-or.org/svn/CoinUtils/stable/2.10/CoinUti
 Osi               https://projects.coin-or.org/svn/Osi/stable/0.107/Osi
 Clp               https://projects.coin-or.org/svn/Clp/stable/1.16/Clp
 Cgl               https://projects.coin-or.org/svn/Cgl/stable/0.59/Cgl
-Alps              https://projects.coin-or.org/svn/CHiPPS/Alps/stable/1.5/Alps
+Alps              https://github.com/SaTahernejad/CHiPPS-ALPS stable/1.5
 Bcps              https://projects.coin-or.org/svn/CHiPPS/Bcps/stable/0.94/Bcps
 Blis              https://github.com/SaTahernejad/CHiPPS-BLIS master
-SYMPHONY          https://projects.coin-or.org/svn/SYMPHONY/branches/WS/SYMPHONY
+SYMPHONY          https://github.com/SaTahernejad/SYMPHONY-1 WS
 Cbc               https://projects.coin-or.org/svn/Cbc/stable/2.9/Cbc
 
