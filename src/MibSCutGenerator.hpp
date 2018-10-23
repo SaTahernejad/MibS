@@ -121,6 +121,9 @@ class MibSCutGenerator : public BlisConGenerator {
    int boundCuts(BcpsConstraintPool &conPool, double *passedObjCoeff, double &passedRhs,
 		 bool &isInfeasible);
 
+  /** Getting the rhs for parametric bound cut **/
+  double getRhsBoundCut(CoinPackedMatrix &matrix, double *objCoeffs);
+
    /** Add disjunctive cuts for binary upper-level variables **/
    int incObjCut(BcpsConstraintPool &conPool);
 

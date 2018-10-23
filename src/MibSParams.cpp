@@ -57,6 +57,9 @@ MibSParams::createKeywordList() {
    keys_.push_back(make_pair(std::string("MibS_turnOffOtherCuts"),
 			     AlpsParameter(AlpsBoolPar, turnOffOtherCuts)));
 
+   keys_.push_back(make_pair(std::string("MibS_storeWarmStartInfo"),
+			     AlpsParameter(AlpsBoolPar, storeWarmStartInfo)));
+
    keys_.push_back(make_pair(std::string("MibS_printProblemInfo"),
 			     AlpsParameter(AlpsBoolPar, printProblemInfo)));
 
@@ -172,6 +175,9 @@ MibSParams::createKeywordList() {
    keys_.push_back(make_pair(std::string("MibS_bilevelFreeSetTypeIC"),
 			     AlpsParameter(AlpsIntPar, bilevelFreeSetTypeIC)));
 
+   keys_.push_back(make_pair(std::string("MibS_boundCutType"),
+			     AlpsParameter(AlpsIntPar, boundCutType)));
+
    //solve lower-level Parameters
    keys_.push_back(make_pair(std::string("MibS_solveSecondLevelWhenXYVarsInt"),
 			     AlpsParameter(AlpsIntPar, solveSecondLevelWhenXYVarsInt)));
@@ -253,6 +259,8 @@ MibSParams::setDefaultEntries() {
 
    setEntry(turnOffOtherCuts, false);
 
+   setEntry(storeWarmStartInfo, false);
+
    setEntry(printProblemInfo, true);
 
    setEntry(allowRemoveCut, false);
@@ -326,6 +334,8 @@ MibSParams::setDefaultEntries() {
    setEntry(useTypeHybridIC, PARAM_NOTSET);
 
    setEntry(bilevelFreeSetTypeIC, MibSBilevelFreeSetTypeICNotSet);
+
+   setEntry(boundCutType, PARAM_NOTSET);
 
    setEntry(solveSecondLevelWhenXYVarsInt, PARAM_NOTSET);
 

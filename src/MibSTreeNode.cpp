@@ -26,6 +26,14 @@ MibSTreeNode::MibSTreeNode()
    lowerUpperBound_ = - ALPS_DBL_MAX;
    boundSet_ = false;
 
+   useUBObj_ = false;
+   lpStatus_ = BlisLpStatusUnknown;
+   dual_ = NULL;
+   dj_ = NULL;
+   lb_ = NULL;
+   ub_ = NULL;
+   boundCutRhs_ = ALPS_DBL_MAX;
+
 }
 
 //#############################################################################
@@ -35,6 +43,14 @@ MibSTreeNode::MibSTreeNode(AlpsNodeDesc *&desc)
 
    lowerUpperBound_ = - ALPS_DBL_MAX;
    boundSet_ = false;
+
+   useUBObj_ = false;
+   lpStatus_ = BlisLpStatusUnknown;
+   dual_ = NULL;
+   dj_ = NULL;
+   lb_ = NULL;
+   ub_ = NULL;
+   boundCutRhs_ = ALPS_DBL_MAX;
 
 }
 
@@ -46,12 +62,23 @@ MibSTreeNode::MibSTreeNode(BlisModel *m)
    lowerUpperBound_ = - ALPS_DBL_MAX;
    boundSet_ = false;
 
+   useUBObj_ = false;
+   lpStatus_ = BlisLpStatusUnknown;
+   dual_ = NULL;
+   dj_ = NULL;
+   lb_ = NULL;
+   ub_ = NULL;
+   boundCutRhs_ = ALPS_DBL_MAX;
+
 }
 
 //#############################################################################
 MibSTreeNode::~MibSTreeNode()
 {
-
+  if (dual_) delete [] dual_;
+  if (dj_) delete [] dj_;
+  if (lb_) delete [] lb_;
+  if (ub_) delete [] ub_;
 }
 
 //#############################################################################
@@ -102,6 +129,7 @@ MibSTreeNode::process(bool isRoot, bool rampUp)
 {
     BlisReturnStatus returnStatus = BlisReturnStatusUnknown;
     BlisLpStatus lpStatus = BlisLpStatusUnknown;
+    BlisLpStatus tempLpStatus = lpStatus;
     int j, k = -1;
     int numCols, numRows, numCoreCols, numCoreRows;
     int numStartRows, origNumStartRows;
@@ -171,6 +199,9 @@ MibSTreeNode::process(bool isRoot, bool rampUp)
 
     MibSBranchingStrategy branchPar = static_cast<MibSBranchingStrategy>
 	(mibsModel->MibSPar_->entry(MibSParams::branchStrategy));
+
+    bool storeWarmStartInfo = static_cast<MibSBranchingStrategy>
+      (mibsModel->MibSPar_->entry(MibSParams::storeWarmStartInfo));
 
     //tailOffTol = 1e-7;
 
@@ -357,6 +388,8 @@ MibSTreeNode::process(bool isRoot, bool rampUp)
                 }
             }
 	}
+
+	tempLpStatus = lpStatus;
         
         switch(lpStatus) {
         case BlisLpStatusOptimal:
@@ -1536,8 +1569,85 @@ MibSTreeNode::process(bool isRoot, bool rampUp)
 		  << ", node=" << index_ << std::endl;
     }
 #endif
+
+    lpStatus_ = tempLpStatus;
+    if(storeWarmStartInfo == true){
+      if (tempLpStatus != BlisLpStatusAbandoned &&
+	  tempLpStatus != BlisLpStatusDualInfeasible &&
+          tempLpStatus != BlisLpStatusUnknown &&
+          tempLpStatus != BlisLpStatusPrimalInfeasible) {
+	//TODO: are all cases of tempLpStatus covered properly here?
+	//TODO: is the tolerance usage correct? 
+	setDualDj(model, mibsModel->getTolerance());
+      }
+      /*else{
+	if((tempLpStatus == BlisLpStatusPrimalInfeasible) ||
+	   (tempLpStatus == BlisLpStatusDualInfeasible)){
+	  OsiSolverInterface *modelSolver = model->solver();
+	  OsiSolverInterface * resolveLpSolver = new OsiClpSolverInterface();
+	  resolveLpSolver->loadProblem(*modelSolver->getMatrixByCol(),
+				       modelSolver->getColLower(),
+				       modelSolver->getColUpper(),
+				       modelSolver->getObjCoefficients(),
+				       modelSolver->getRowLower(),
+				       modelSolver->getRowUpper());
+	  resolveLpSolver->setHintParam(OsiDoReducePrint, true, OsiHintDo);
+	  resolveLpSolver->initialSolve();
+	  setDualDj(model, mibsModel->getTolerance(), resolveLpSolver);
+	}
+      }*/
+    }
     
     return returnStatus;
 }
 
 //#############################################################################
+void MibSTreeNode::setDualDj(BlisModel *model, double tol)
+{
+    MibSModel *mibsModel = dynamic_cast<MibSModel *>(model);
+    MibSBilevel *bS = mibsModel->bS_;
+    int numRows = model->solver()->getNumRows();
+    int numCols = model->solver()->getNumCols();
+    int i, j, rowNum;
+    double value;
+
+    const CoinPackedMatrix *matrix = model->solver()->getMatrixByCol();
+    const int *matInd = matrix->getIndices();
+    const CoinBigIndex *matBeg = matrix->getVectorStarts();
+    const double *matVal = matrix->getElements();
+
+    const double *objCoeff = model->solver()->getObjCoefficients();
+    const double *lb = model->solver()->getColLower();
+    const double *ub = model->solver()->getColUpper();
+
+    dual_ = new double [numRows];
+    dj_ = new double [numCols];
+    lb_ = new double[numCols];
+    ub_ = new double[numCols];
+
+    if((bS->isLinkVarsFixed_ == true) && (bS->LPSolStatus_ == MibSLPSolStatusInfeasible)){
+      useUBObj_ = true;
+    }
+
+    memcpy(dual_, model->solver()->getRowPrice(), numRows * sizeof(double));
+    memcpy(dj_, model->solver()->getReducedCost(), numCols * sizeof(double));
+    
+    //FIXME: delete following two lines after fixing leafBranchPath
+    memcpy(lb_, lb, numCols * sizeof(double));
+    memcpy(ub_, ub, numCols * sizeof(double));
+
+    /* djs may not be correct on fixed variables */
+    /* FIXME: following fix assumes minimization */
+    for (i = 0; i < numCols; i++) {
+      if (fabs(lb[i] - ub[i]) <= tol) {
+        value = objCoeff[i];
+        for (j = matBeg[i]; j < matBeg[i+1]; j++) {
+	  rowNum = matInd[j];
+	  value -= matVal[j]*dual_[rowNum];
+        }
+        dj_[i] = value;
+      }
+    }
+ }
+
+//############################################################################# 
