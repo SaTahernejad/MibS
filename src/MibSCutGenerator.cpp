@@ -56,6 +56,7 @@ MibSCutGenerator::MibSCutGenerator(MibSModel *mibs)
   auxCount_ = 0;
   upper_ = 0.0;
   maximalCutCount_ = 0;
+  numCalledBoundCut_ = 0;
   isBigMIncObjSet_ = false;
   bigMIncObj_ = 0.0;
   watermelonICSolver_ = 0;
@@ -2202,7 +2203,6 @@ MibSCutGenerator::boundCuts(BcpsConstraintPool &conPool, double *passedObjCoeffs
 	MibSModel *boundModel = new MibSModel();
 	boundModel->setSolver(&lpSolver);
 	boundModel->AlpsPar()->setEntry(AlpsParams::msgLevel, -1);
-	//boundModel->AlpsPar()->setEntry(AlpsParams::msgLevel, 1000);
 	boundModel->AlpsPar()->setEntry(AlpsParams::timeLimit, boundCutTimeLim);
 	//boundModel->AlpsPar()->setEntry(AlpsParams::nodeLimit, 13946);
 	boundModel->BlisPar()->setEntry(BlisParams::heurStrategy, 0);
@@ -2609,7 +2609,7 @@ MibSCutGenerator::getRhsBoundCut(CoinPackedMatrix &matrix, double *objCoeffs)
         //if((parametricType == 0) || (isFixedVarBoundChanged == false)){
         for(j = 0; j < numCols; j++){
 	  if(fixedInd[j] == 1){
-	    linkSol.push_back(leafLb[j]);
+	    linkSol.push_back(floor(leafLb[j] + 0.5));
 	  }
         }
         if(linkingPool.find(linkSol) != linkingPool.end()){
@@ -2618,10 +2618,6 @@ MibSCutGenerator::getRhsBoundCut(CoinPackedMatrix &matrix, double *objCoeffs)
 	  isValueSet = true;
 	  linkSol.clear();
         }else{
-	  /*int i5;
-	  for(i5 = 0; i5 < linkSol.size(); i5++){ 
-	    std::cout << "linkSol[" << i5 << "]= " << linkSol[i5] << std::endl;
-	  }*/
 	  throw CoinError("Unknown linking solution.",
 	  		  "getRhsBoundCut",
 			  "MibSCutGenerator");
@@ -5391,10 +5387,13 @@ MibSCutGenerator::generateConstraints(BcpsConstraintPool &conPool)
     if(cutTypes == 0){
       //general type of problem, no specialized cuts
       delete sol;
-      if(useBoundCut == true){
+      if ((useBoundCut) && (localModel_->boundingPass_ <= 1)){
+	if((numCalledBoundCut_%1) == 0){
 	double tmpArg1 = 0;
 	bool tmpArg2 = false;
 	boundCuts(conPool, NULL, tmpArg1, tmpArg2);
+	}
+	numCalledBoundCut_ ++;
       }
       if (bS->isIntegral_){
 	  //if (useIntersectionCut == PARAM_ON){

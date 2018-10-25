@@ -3694,9 +3694,10 @@ MibSModel::findLeafNodeNum(AlpsTreeNode *node, int *leafNum)
     int numChildren = node->getNumChildren();
     if(numChildren == 0){
       MibSTreeNode *mibsNode = dynamic_cast<MibSTreeNode*>(node);
-      if((mibsNode->getLpStatus() == BlisLpStatusUnknown) ||
+      /*if((mibsNode->getLpStatus() == BlisLpStatusUnknown) ||
 	 (mibsNode->getLpStatus() == BlisLpStatusPrimalInfeasible) ||
-	 (mibsNode->getLpStatus() == BlisLpStatusDualInfeasible)){
+	 (mibsNode->getLpStatus() == BlisLpStatusDualInfeasible)){*/
+      if(mibsNode->getLpStatus() == BlisLpStatusOptimal){
 	setExtraDualDj(node);
       }
       if(mibsNode->getDuals()){

@@ -1572,10 +1572,11 @@ MibSTreeNode::process(bool isRoot, bool rampUp)
 
     lpStatus_ = tempLpStatus;
     if(storeWarmStartInfo == true){
-      if (tempLpStatus != BlisLpStatusAbandoned &&
+      /*if (tempLpStatus != BlisLpStatusAbandoned &&
 	  tempLpStatus != BlisLpStatusDualInfeasible &&
           tempLpStatus != BlisLpStatusUnknown &&
-          tempLpStatus != BlisLpStatusPrimalInfeasible) {
+          tempLpStatus != BlisLpStatusPrimalInfeasible) {*/
+      if(tempLpStatus == BlisLpStatusOptimal){
 	//TODO: are all cases of tempLpStatus covered properly here?
 	//TODO: is the tolerance usage correct? 
 	setDualDj(model, mibsModel->getTolerance());
@@ -1625,8 +1626,26 @@ void MibSTreeNode::setDualDj(BlisModel *model, double tol)
     lb_ = new double[numCols];
     ub_ = new double[numCols];
 
-    if((bS->isLinkVarsFixed_ == true) && (bS->LPSolStatus_ == MibSLPSolStatusInfeasible)){
-      useUBObj_ = true;
+    //if((bS->isLinkVarsFixed_ == true) && (bS->LPSolStatus_ == MibSLPSolStatusInfeasible)){
+    if((bS->isLinkVarsFixed_ == true) && (bS->tagInSeenLinkingPool_ ==
+					  MibSLinkingPoolTagUBIsSolved)){
+      int *fixedInd = mibsModel->fixedInd_;
+      std::vector<double> linkSol; 
+      for(j = 0; j < numCols; j++){
+	if(fixedInd[j] == 1){
+	  linkSol.push_back(floor(lb[j] + 0.5));
+	}
+      }
+      if(mibsModel->seenLinkingSolutions.find(linkSol) !=
+	 mibsModel->seenLinkingSolutions.end()){
+	//sahar:Fix me
+	if((mibsModel->seenLinkingSolutions[linkSol].UBSolution.size() > 1) ||
+	   (mibsModel->seenLinkingSolutions[linkSol].UBSolution[0] >
+	    mibsModel->etol_)){
+	  useUBObj_ = true;
+	}
+      }
+      linkSol.clear();
     }
 
     memcpy(dual_, model->solver()->getRowPrice(), numRows * sizeof(double));

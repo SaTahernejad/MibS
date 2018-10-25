@@ -1343,7 +1343,7 @@ void
 	    linkSol.push_back(upperSolutionOrd_[i]);
 	}
     }
-
+        
     tagInSeenLinkingPool_ = solTag;
     linkingSolution.lowerSolution.push_back(0);
     linkingSolution.UBSolution.push_back(0);
