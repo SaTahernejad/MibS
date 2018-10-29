@@ -154,6 +154,7 @@ MibSModel::initialize()
   lowerConstCoefMatrix_ = NULL;
   A2Matrix_ = NULL;
   G2Matrix_ = NULL;
+  boundProbRoot_ = NULL;
   bS_ = new MibSBilevel();
   //simpleCutOnly_ = true; //FIXME: should make this a parameter
   //bindingMethod_ = "BLAND"; //FIXME: should make this a parameter

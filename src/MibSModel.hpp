@@ -235,6 +235,12 @@ private:
     /** MibS Parameters **/
     MibSParams *MibSPar_;
 
+    /** root of the bounding problem tree (for parametric bound cut) **/
+    AlpsTreeNode *boundProbRoot_;
+
+  /** Linking Pool resulting from the bounding problem **/
+  std::map<std::vector<double>, LINKING_SOLUTION> boundProbLinkingPool_;
+
     /** Max number of aux columns **/
     //int maxAuxCols_;
     
@@ -361,6 +367,13 @@ public:
 
     /** Set pointer to the matrix of LL vars in LL problem(all constraints are 'L') **/
     void setG2Matrix(CoinPackedMatrix *ptr) {G2Matrix_ = ptr;}
+
+    /** Set pointer to the root node of the bounding problem tree **/
+    void setBoundProbRoot(AlpsTreeNode *ptr) {boundProbRoot_ = ptr;}
+
+    /** Set the linking pool resulting from bounding problem **/
+    void setBoundProbLinkingPool(std::map<std::vector<double>, LINKING_SOLUTION> linkingPool)
+    {boundProbLinkingPool_ = linkingPool;}
   
     /** Get the upper-level file **/
     std::string getUpperFile() {return ulDataFile_;}
@@ -472,6 +485,13 @@ public:
 
     /** Get the pointer to MibsBilevel **/
     inline MibSBilevel *getMibSBilevel() {return bS_;}
+
+    /** Get pointer to the root node of the bounding problem tree **/
+    AlpsTreeNode * getBoundProbRoot() {return boundProbRoot_;}
+
+    /** Get the linking pool resulting from bounding problem **/
+    std::map<std::vector<double>, LINKING_SOLUTION> getBoundProbLinkingPool()
+    {return boundProbLinkingPool_ ;}
 
     /** Get the parameters **/
     MibSParams *MibSPar() {return MibSPar_;} 

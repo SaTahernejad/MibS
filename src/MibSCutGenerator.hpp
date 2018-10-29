@@ -122,6 +122,18 @@ class MibSCutGenerator : public BlisConGenerator {
    int boundCuts(BcpsConstraintPool &conPool, double *passedObjCoeff, double &passedRhs,
 		 bool &isInfeasible);
 
+   /** Find the rhs of bound cut by using the leaf nodes of bunding problem **/
+   double getRhsParamBoundCut(AlpsTreeNode *root, bool *isTimeLimReached);
+
+   /** Find the leaf nodes of bounding problem **/
+   void findLeafNodes(AlpsTreeNode *node, double *cutLb, bool *isTimeLimReached);
+
+   /** Solve the leaf nodes of bounding problem **/
+   double solveLeafNode(MibSModel *leafModel, bool *isTimeLimReached);
+
+   /** Setting up MIP solver and solving it **/
+   void solveMips(OsiSolverInterface * mipSolver);
+  
    /** Add disjunctive cuts for binary upper-level variables **/
    int incObjCut(BcpsConstraintPool &conPool);
 
