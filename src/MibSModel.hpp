@@ -238,8 +238,30 @@ private:
     /** root of the bounding problem tree (for parametric bound cut) **/
     AlpsTreeNode *boundProbRoot_;
 
-  /** Linking Pool resulting from the bounding problem **/
-  std::map<std::vector<double>, LINKING_SOLUTION> boundProbLinkingPool_;
+    /** Linking Pool resulting from the bounding problem **/
+    std::map<std::vector<double>, LINKING_SOLUTION> boundProbLinkingPool_;
+
+    /** Gathering cut inf of bounding problem for parametric bound cut **/
+    std::vector<int> cutPoolStarts_;
+    std::vector<int> cutPoolIndices_;
+    std::vector<double> cutPoolValues_;
+    std::vector<double> cutPoolBounds_;
+    std::vector<int> sourceNodeInCutPool_;
+    std::vector<int> boundProbCutPoolStarts_;
+    int *boundProbCutPoolIndices_;
+    double *boundProbCutPoolValues_;
+    double *boundProbCutPoolBounds_;
+    std::vector<int> boundProbLeafNodeCutInf_;
+    std::vector<int> boundProbLeafNodeCutStarts_;
+
+    /** Lower bounds of leaf nodes of boundingProblem **/
+    std::vector<double> boundProbLeafLb_;
+
+    /** Upper bounds of leaf nodes of bounding problem **/
+    std::vector<double> boundProbLeafUb_;
+
+    /** Number of leaf nodes of bounding problem **/
+    int boundProbLeafNum_;
 
     /** Max number of aux columns **/
     //int maxAuxCols_;

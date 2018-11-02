@@ -155,6 +155,11 @@ MibSModel::initialize()
   A2Matrix_ = NULL;
   G2Matrix_ = NULL;
   boundProbRoot_ = NULL;
+  boundProbCutPoolStarts_ = NULL;
+  boundProbCutPoolIndices_ = NULL;
+  boundProbCutPoolValues_ = NULL;
+  boundProbCutPoolBounds_ = NULL;
+  boundProbLeafNum_ = 0;
   bS_ = new MibSBilevel();
   //simpleCutOnly_ = true; //FIXME: should make this a parameter
   //bindingMethod_ = "BLAND"; //FIXME: should make this a parameter
