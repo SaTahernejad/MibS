@@ -155,10 +155,6 @@ MibSModel::initialize()
   A2Matrix_ = NULL;
   G2Matrix_ = NULL;
   boundProbRoot_ = NULL;
-  boundProbCutPoolStarts_ = NULL;
-  boundProbCutPoolIndices_ = NULL;
-  boundProbCutPoolValues_ = NULL;
-  boundProbCutPoolBounds_ = NULL;
   boundProbLeafNum_ = 0;
   bS_ = new MibSBilevel();
   //simpleCutOnly_ = true; //FIXME: should make this a parameter
@@ -786,9 +782,9 @@ MibSModel::loadProblemData(const CoinPackedMatrix& matrix,
 
       CoinFillN(varLB, numCols, 0.0); 
       CoinFillN(varUB, numCols, 1.0); 
-      
+   
       CoinFillN(varLB + 2 * numCols, numAuxCols, 0.0); 
-      CoinFillN(varUB + 2 * numCols, numAuxCols, 1.0); 
+      CoinFillN(varUB + 2 * numCols, numAuxCols, 1.0);
       
       CoinDisjointCopyN(rowLB, numRows, conLB + auxULRows);
       CoinDisjointCopyN(rowUB, numRows, conUB + auxULRows);

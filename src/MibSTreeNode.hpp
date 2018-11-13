@@ -29,11 +29,10 @@ class MibSTreeNode : public BlisTreeNode {
    
   double lowerUpperBound_;
   bool boundSet_;
-  bool isSubproblemInstalled_;
-  double *lb_;
-  double *ub_;
-  int numCutGenerated_;
-  int numSeenChildren_;
+  //for parametric bound cut
+  bool isCutStored_;
+  //for parametric boundcut
+  bool shouldSolve_;
   
  public:
   
@@ -45,21 +44,11 @@ class MibSTreeNode : public BlisTreeNode {
   
   void setIsBoundSet(bool val) {boundSet_ = val;}
   void setLowerUB(double bound) {lowerUpperBound_ = bound;}
-  void setIsSubproblemInstalled(bool isSubproblemInstalled)
-  {isSubproblemInstalled_ = isSubproblemInstalled;}
-  void setLb(double *lb) {lb_ = lb;}
-  void setUb(double *ub) {ub_ = ub;}
-  void setNumCutGenerated(int numCutGenerated)
-  {numCutGenerated_ = numCutGenerated;}
-  void setNumSeenChildren(int numSeenChildren)
-  {numSeenChildren_ = numSeenChildren;}
+  void setIsCutStored(bool isCutStored)
+  {isCutStored_ = isCutStored;}
   inline bool isBoundSet() {return boundSet_;}
   inline double getLowerUB() {return lowerUpperBound_;}
-  bool getIsSubproblemInstalled() {return isSubproblemInstalled_;}
-  double *getLb() {return lb_;}
-  double *getUb() {return ub_;}
-  int getNumCutGenerated() {return numCutGenerated_;} 
-  int getNumSeenChildren() {return numSeenChildren_;}
+  bool getIsCutStored() {return isCutStored_;}
   AlpsTreeNode* createNewTreeNode(AlpsNodeDesc *&desc) const;
   int process(bool isRoot, bool rampUp);
 };

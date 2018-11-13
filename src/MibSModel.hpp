@@ -242,17 +242,14 @@ private:
     std::map<std::vector<double>, LINKING_SOLUTION> boundProbLinkingPool_;
 
     /** Gathering cut inf of bounding problem for parametric bound cut **/
-    std::vector<int> cutPoolStarts_;
-    std::vector<int> cutPoolIndices_;
-    std::vector<double> cutPoolValues_;
-    std::vector<double> cutPoolBounds_;
-    std::vector<int> sourceNodeInCutPool_;
+    std::vector<int> boundProbCutPoolSource_; 
     std::vector<int> boundProbCutPoolStarts_;
-    int *boundProbCutPoolIndices_;
-    double *boundProbCutPoolValues_;
-    double *boundProbCutPoolBounds_;
+    std::vector<int> boundProbCutPoolIndices_;
+    std::vector<double> boundProbCutPoolValues_;
+    std::vector<double> boundProbCutPoolBounds_;
     std::vector<int> boundProbLeafNodeCutInf_;
     std::vector<int> boundProbLeafNodeCutStarts_;
+  
 
     /** Lower bounds of leaf nodes of boundingProblem **/
     std::vector<double> boundProbLeafLb_;

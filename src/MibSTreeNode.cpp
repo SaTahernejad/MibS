@@ -25,11 +25,8 @@ MibSTreeNode::MibSTreeNode()
 
    lowerUpperBound_ = - ALPS_DBL_MAX;
    boundSet_ = false;
-   isSubproblemInstalled_ = false;
-   lb_ = NULL;
-   ub_ = NULL;
-   numCutGenerated_ = 0;
-   numSeenChildren_ = 0;
+   isCutStored_ = false;
+   shouldSolve_ = false;
 
 }
 
@@ -40,11 +37,8 @@ MibSTreeNode::MibSTreeNode(AlpsNodeDesc *&desc)
 
    lowerUpperBound_ = - ALPS_DBL_MAX;
    boundSet_ = false;
-   isSubproblemInstalled_ = false;
-   lb_ = NULL;
-   ub_ = NULL;
-   numCutGenerated_ = 0;
-   numSeenChildren_ = 0;
+   isCutStored_ = false;
+   shouldSolve_ = false;
 
 }
 
@@ -55,23 +49,14 @@ MibSTreeNode::MibSTreeNode(BlisModel *m)
 
    lowerUpperBound_ = - ALPS_DBL_MAX;
    boundSet_ = false;
-   isSubproblemInstalled_ = false;
-   lb_ = NULL;
-   ub_ = NULL;
-   numCutGenerated_ = 0;
-   numSeenChildren_ = 0;
+   isCutStored_ = false;
+   shouldSolve_ = false;
 
 }
 
 //#############################################################################
 MibSTreeNode::~MibSTreeNode()
 {
-  if(lb_ != NULL){
-    delete lb_;
-  }
-  if(ub_ != NULL){
-    delete ub_;
-  }
 
 }
 
@@ -124,7 +109,6 @@ MibSTreeNode::process(bool isRoot, bool rampUp)
     BlisReturnStatus returnStatus = BlisReturnStatusUnknown;
     BlisLpStatus lpStatus = BlisLpStatusUnknown;
     int j, k = -1;
-    int constSize(0), tmp(0);
     int numCols, numRows, numCoreCols, numCoreRows;
     int numStartRows, origNumStartRows;
     int maxNumCons, tempNumCons = 0;
@@ -180,20 +164,11 @@ MibSTreeNode::process(bool isRoot, bool rampUp)
     MibSModel *mibsModel = dynamic_cast<MibSModel *>(model);
     MibSBilevel *bS = mibsModel->bS_;
 
-    double etol(mibsModel->etol_);
-
     AlpsPhase phase = knowledgeBroker_->getPhase();
 
     int msgLevel = model->AlpsPar()->entry(AlpsParams::msgLevel);
     int hubMsgLevel = model->AlpsPar()->entry(AlpsParams::hubMsgLevel);
     int workerMsgLevel = model->AlpsPar()->entry(AlpsParams::workerMsgLevel);
-    bool useWarmStart = model->AlpsPar()->entry(AlpsParams::warmStart);
-
-    if(useWarmStart == true){
-      if((index_ == 0) && (mibsModel->cutPoolStarts_.size() == 0)){
-	mibsModel->cutPoolStarts_.push_back(0);
-      }
-    }
 
     BlisParams * BlisPar = model->BlisPar();
 
@@ -309,7 +284,6 @@ MibSTreeNode::process(bool isRoot, bool rampUp)
     //------------------------------------------------------
     
     installSubProblem(model);
-    setIsSubproblemInstalled(true);
 
     //------------------------------------------------------
     // Bounding, heuristic searching, constraint generating.
@@ -806,10 +780,6 @@ MibSTreeNode::process(bool isRoot, bool rampUp)
 		// Some weak/parallel/dense constraints might be discarded.
 		tempNumCons = newConPool.getNumConstraints();
 		if (tempNumCons > 0) {
-		  std::cout << "index of node = " << index_ << std::endl;
-		  if(useWarmStart == true){
-		    numCutGenerated_ += tempNumCons;
-		  }
 		    keepOn = true;
 		}
 		else {
@@ -820,21 +790,6 @@ MibSTreeNode::process(bool isRoot, bool rampUp)
                 for (k = 0; k < tempNumCons; ++k) {
                     aCon = dynamic_cast<BlisConstraint *>
 			(newConPool.getConstraint(k));
-		    if(useWarmStart == true){
-		      mibsModel->cutPoolBounds_.push_back(aCon->getLbSoft());
-		      mibsModel->cutPoolBounds_.push_back(aCon->getUbSoft());
-		      constSize = aCon->getSize();
-		      mibsModel->cutPoolIndices_.insert(mibsModel->cutPoolIndices_.end(),
-		      				aCon->getIndices(),
-		      				aCon->getIndices() + constSize);
-		      mibsModel->cutPoolValues_.insert(mibsModel->cutPoolValues_.end(),
-		      				aCon->getValues(),
-		      				aCon->getValues() + constSize);
-		      tmp = mibsModel->cutPoolStarts_.at
-			(mibsModel->cutPoolStarts_.size() - 1);
-		      mibsModel->cutPoolStarts_.push_back(tmp + constSize);
-		      mibsModel->sourceNodeInCutPool_.push_back(index_);
-		    }
                     newConstraints[newNumCons++] = aCon;
                     if (newNumCons >= maxNewNumCons) {
                         // No space, need resize
@@ -1587,54 +1542,6 @@ MibSTreeNode::process(bool isRoot, bool rampUp)
 		  << ", node=" << index_ << std::endl;
     }
 #endif
-
-    if(useWarmStart == true){
-      MibSTreeNode *mibsParentNode = dynamic_cast<MibSTreeNode*>(parent_);
-      lb_ = new double[numCols];
-      ub_ = new double[numCols];
-      if(isSubproblemInstalled_ == false){
-	double *parentLb = mibsParentNode->getLb();
-	double *parentUb = mibsParentNode->getUb();
-	memcpy(lb_, parentLb, numCols * sizeof(double));
-	memcpy(ub_, parentUb, numCols * sizeof(double)); 
-	int branchDir = dynamic_cast<BlisNodeDesc *>(getDesc())->getBranchedDir();
-	int branchInd = dynamic_cast<BlisNodeDesc *>(getDesc())->getBranchedInd();
-	double lpX = dynamic_cast<BlisNodeDesc *>(getDesc())->getBranchedVal();
-	double branchObjLb(0.0);
-	double branchObjUb(0.0);
-	if(branchDir == -1){
-	  branchObjLb = lb_[branchInd];
-	  branchObjUb = floor(lpX + etol);
-	  if((floor(lpX + etol) == ceil(lpX - etol)) && (ceil(lpX - etol) == floor(ub_[branchInd]))){
-	    branchObjUb -=1;
-	  }
-	}
-	else{
-	  branchObjLb = ceil(lpX - etol);
-	  branchObjUb = ub_[branchInd];
-	  if((floor(lpX + etol) == ceil(lpX - etol)) && (ceil(lpX - etol) != floor(ub_[branchInd]))){
-	    branchObjLb += 1;
-	  }
-	}
-	lb_[branchInd] = branchObjLb;
-	ub_[branchInd] = branchObjUb;
-      }
-      else{
-	memcpy(lb_, model->solver()->getColLower(), numCols * sizeof(double));
-	memcpy(ub_, model->solver()->getColUpper(), numCols * sizeof(double));
-      }
-
-      if(mibsParentNode != NULL){
-	mibsParentNode->numSeenChildren_ ++;
-	if(mibsParentNode->numSeenChildren_ == mibsParentNode->getNumChildren()){
-	  delete [] mibsParentNode->getLb();
-	  delete [] mibsParentNode->getUb();
-	}
-      }
-    }
-     
-    
-    
     
     return returnStatus;
 }
