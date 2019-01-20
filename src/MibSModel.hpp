@@ -87,11 +87,20 @@ private:
     /** Number of LL variables **/
     int lowerDim_;
 
+    /** Number of stochastic LL variables **/
+    int stocLowerDim_;
+
     /** Number of LL constraints **/
     int lowerRowNum_;
 
+    /** Number of stochastic LL constraints **/
+    int stocLowerRowNum_;
+
     /** Number of structural constraints **/
     int structRowNum_;
+
+    /** Number of stochastic structural constraints **/
+    int stocStructRowNum_;
 
     /** Size of first-stage variables in second-stage constraints **/
     int sizeFixedInd_;
@@ -166,6 +175,9 @@ private:
 
     /** Indices of structural (non-vub) rows **/
     int * structRowInd_;
+
+    /** Indices of stochastic structural rows **/
+    int * stocStructRowInd_;
 
     /** Indices of first-stage variables in second-stage constraints **/
     int * fixedInd_;
@@ -273,6 +285,15 @@ private:
 
     std::map<std::vector<double>, LINKING_SOLUTION> seenLinkingSolutions;
     //std::map<std::vector<double>, LINKING_SOLUTION>::iterator it;
+
+    /** Number of scenarios **/
+    int numScenarios_;
+
+    /** Probability of each scenario **/
+    std::vector<double> scenarioProb_;
+
+    /** Matrix A2 for all scenarios **/
+    CoinPackedMatrix *stocA2Matrix_;
     
 public:
 
@@ -312,6 +333,9 @@ public:
     /** Set the lower-level dimension **/
     inline void setLowerDim(int val) {lowerDim_ = val;}
 
+    /** Set the stochastic lower-level dimension **/
+    inline void setStocLowerDim(int val) {stocLowerDim_ = val;}
+
     /** Set the upper-level dimension **/
     inline void setUpperDim(int val) {upperDim_ = val;}
 
@@ -324,8 +348,14 @@ public:
     /** Set the lower-level row number **/
     inline void setLowerRowNum(int val) {lowerRowNum_ = val;}
 
+    /** Set the stochastic lower-level row number **/
+    inline void setStocLowerRowNum(int val) {stocLowerRowNum_ = val;}
+
     /** Set the number of structural rows **/
     inline void setStructRowNum(int val) {structRowNum_ = val;}
+
+    /** Set the number of stochastic structural rows **/
+    inline void setStocStructRowNum(int val) {stocStructRowNum_ = val;}
 
     /** Set the interdiction cost **/
     inline void setInterdictCost(double *ptr) {interdictCost_ = ptr;}
@@ -355,7 +385,10 @@ public:
     void setLowerRowInd(int *ptr) {lowerRowInd_ = ptr;} 
 
     /** Set pointer to array of structural row indices **/
-    void setStructRowInd(int *ptr) {structRowInd_ = ptr;} 
+    void setStructRowInd(int *ptr) {structRowInd_ = ptr;}
+
+    /** Set pointer to array of stochastic structural row indices **/
+    void setStocStructRowInd(int *ptr) {stocStructRowInd_ = ptr;}
 
     /** Set pointer to array of LL objective coefficients **/
     void setLowerObjCoeffs(double *ptr) {lowerObjCoeffs_ = ptr;}
@@ -393,6 +426,9 @@ public:
     /** Set the linking pool resulting from bounding problem **/
     void setBoundProbLinkingPool(std::map<std::vector<double>, LINKING_SOLUTION> linkingPool)
     {boundProbLinkingPool_ = linkingPool;}
+
+    /** Set pointer to the matrix of UL vars in LL problem for all scenarios **/
+    void setStocA2Matrix(CoinPackedMatrix *ptr) {stocA2Matrix_ = ptr;}
   
     /** Get the upper-level file **/
     std::string getUpperFile() {return ulDataFile_;}
@@ -404,13 +440,28 @@ public:
     std::string getUpperAmplDataFile() {return ulAmplDataFile_;}
   
     /** Get the lower-level file **/
-    std::string getLowerFile()
+    /*std::string getLowerFile()
     {
 	return MibSPar_->entry(MibSParams::auxiliaryInfoFile);
+	}*/
+
+    /** Get the time file **/
+    std::string getTimFile()
+    {
+	return MibSPar_->entry(MibSParams::auxiliaryTimFile);
+    }
+
+    /** Get the stochastic file **/
+    std::string getStoFile()
+    {
+	return MibSPar_->entry(MibSParams::auxiliaryStoFile);
     }
 
     /** Get the lower-level dimension **/
     int getLowerDim() {return lowerDim_;}
+
+    /** Get the stochastic lower-level dimension **/
+    int getStocLowerDim() {return stocLowerDim_;}
 
     /** Get the upper-level dimension **/
     int getUpperDim() {return upperDim_;}
@@ -429,6 +480,9 @@ public:
 
     /** Get the lower-level row number **/
     int getLowerRowNum() {return lowerRowNum_;}
+
+    /** Get the stochastic lower-level row number **/
+    int getStocLowerRowNum() {return stocLowerRowNum_;}
 
     /** Get bjective sense of lower-level problem **/
     double getLowerObjSense() {return lowerObjSense_;}
@@ -512,6 +566,15 @@ public:
     std::map<std::vector<double>, LINKING_SOLUTION> getBoundProbLinkingPool()
     {return boundProbLinkingPool_ ;}
 
+    /** Get the number of scenarios **/
+    int getNumScenarios() const {return numScenarios_;}
+
+    /** Get the vector of scenario probabilities **/
+    std::vector<double> getScenarioProb() {return scenarioProb_;}
+    
+    /** Get pointer to the matrix of UL vars in LL problem for all scenarios **/
+    CoinPackedMatrix *getStocA2Matrix() const {return stocA2Matrix_;}
+
     /** Get the parameters **/
     MibSParams *MibSPar() {return MibSPar_;} 
 
@@ -519,7 +582,8 @@ public:
     void setBlisParameters();
   
     /** Read auxiliary data file **/
-    void readAuxiliaryData(int numCols, int numRows);
+    void readAuxiliaryData(int numCols, int numRows, double infinity,
+			   const char *rowSense);
 
     /** Set auxiliary data directly when using MibS as a library **/
     void loadAuxiliaryData(int lowerColNum, int lowerRowNum,
@@ -542,6 +606,7 @@ public:
 
     /** Set problem data directly when using MibS as a library **/
     void loadProblemData(const CoinPackedMatrix& matrix,
+			 const CoinPackedMatrix& rowMatrix,
 			 const double* colLB, const double* colUB,
 			 const double* obj, const double* rowLB,
 			 const double* rowUB, const char *types,

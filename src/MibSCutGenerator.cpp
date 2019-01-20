@@ -164,7 +164,7 @@ MibSCutGenerator::bilevelFeasCut1(BcpsConstraintPool &conPool)
 	}
     }
 
-    bool shouldUseNewPureIntCut(false);
+    /*bool shouldUseNewPureIntCut(false);
     int depth(0);
     bool shouldPrune(false);
 
@@ -209,13 +209,13 @@ MibSCutGenerator::bilevelFeasCut1(BcpsConstraintPool &conPool)
 		//localModel_->counterBad_ ++;
 	    }
 	}
-    }
+	}*/
 
     assert(indexList.size() == valsList.size());
 
-    if(shouldPrune == false){
+    //if(shouldPrune == false){
 	numCuts += addCut(conPool, cutlb, cutub, indexList, valsList, allowRemoveCut);
-    }
+	//}
 
     delete [] binding;
     delete [] tempVals;
@@ -2103,11 +2103,11 @@ MibSCutGenerator::getAlphaTenderIC(double** extRay, int numNonBasic,
 }
 
 //############################################################################# 
-int
+/*int
 MibSCutGenerator::boundCuts(BcpsConstraintPool &conPool, double *passedObjCoeffs, double &passedRhs,
 			    bool &isInfeasible)
 {
-    /* Derive a bound on the lower level objective function value */
+    // Derive a bound on the lower level objective function value
     bool boundCutOptimal
       = localModel_->MibSPar_->entry(MibSParams::boundCutOptimal);
 
@@ -2145,7 +2145,7 @@ MibSCutGenerator::boundCuts(BcpsConstraintPool &conPool, double *passedObjCoeffs
 	return 0;
     }
 
-    /** Set up lp solver **/
+    //Set up lp solver 
     OsiClpSolverInterface lpSolver;
     lpSolver.getModelPtr()->setDualBound(1.0e10);
     lpSolver.messageHandler()->setLogLevel(0);
@@ -2196,7 +2196,7 @@ MibSCutGenerator::boundCuts(BcpsConstraintPool &conPool, double *passedObjCoeffs
 	  (node->getIndex() == 0)) ||
 	 (boundCutOptimalType == MibSBoundCutOptimalTypeNonParametric) ||
 	 (passedObjCoeffs != NULL)){
-	/** Create new MibS model to solve bilevel **/
+	// Create new MibS model to solve bilevel 
 	MibSModel *boundModel = new MibSModel();
 	boundModel->setSolver(&lpSolver);
 	boundModel->AlpsPar()->setEntry(AlpsParams::msgLevel, -1);
@@ -2371,7 +2371,7 @@ MibSCutGenerator::boundCuts(BcpsConstraintPool &conPool, double *passedObjCoeffs
 	       index = zeroList[i];
 	       NewColUpper[index] = 0;
 	   }
-	   /** Create new MibS model to solve bilevel(with new upperbound) **/
+	   // Create new MibS model to solve bilevel(with new upperbound) 
 	   MibSModel NewboundModel;
 	   NewboundModel.setSolver(&lpSolver);
 	   NewboundModel.AlpsPar()->setEntry(AlpsParams::msgLevel, -1);
@@ -2474,10 +2474,10 @@ MibSCutGenerator::boundCuts(BcpsConstraintPool &conPool, double *passedObjCoeffs
     delete [] nObjCoeffs;
 
     return numCuts;
-}
+    }*/
 
 //############################################################################# 
-void
+/*void
 MibSCutGenerator::findLeafNodes(AlpsTreeNode *node, int *numStoredCuts,
 				int *numLeafNodes,
 				std::vector<int> &cutStarts,
@@ -2624,10 +2624,10 @@ MibSCutGenerator::findLeafNodes(AlpsTreeNode *node, int *numStoredCuts,
 		    leafNodeCutInf, leafNodeCutStatrs, leafNodeLBs, leafNodeUBs);
     }
   }
-}
+}*/
 
 //#############################################################################
-double
+/*double
 MibSCutGenerator::getRhsParamBoundCut(bool *isTimeLimReached)
 {
   int i(0);
@@ -2644,9 +2644,9 @@ MibSCutGenerator::getRhsParamBoundCut(bool *isTimeLimReached)
   }
 
   return cutLb;
-} 
+  }*/ 
 //#############################################################################
-double
+/*double
 MibSCutGenerator::solveLeafNode(int leafNodeIndex, bool *isTimeLimReached)
 {
 
@@ -2705,8 +2705,8 @@ MibSCutGenerator::solveLeafNode(int leafNodeIndex, bool *isTimeLimReached)
   double *upperSol = new double[numCols];
   //CoinZeroN(upperSol, uCols);
 
-  /*std::map<std::vector<double>, LINKING_SOLUTION> linkingPool
-    = localModel_->getBoundProbLinkingPool();*/
+  //std::map<std::vector<double>, LINKING_SOLUTION> linkingPool
+   // = localModel_->getBoundProbLinkingPool();
 
   for(i = 0; i < numCols; i++){
     if(colLb[i] - leafColLb[i] > etol){
@@ -2747,50 +2747,6 @@ MibSCutGenerator::solveLeafNode(int leafNodeIndex, bool *isTimeLimReached)
     //If not, we check to see if there is linkSol in the linking pool
     //of either bounding problem or main problem. If so, we can get
     //the optimal objective of second-level problem from the pool.
-    /*if(linkingPool.find(linkSol) != linkingPool.end()){
-      if(linkingPool[linkSol].tag == MibSLinkingPoolTagUBIsSolved){
-	if(linkingPool[linkSol].UBSolution.size() <= 1){
-	  bound = infinity;
-	  goto TERM_SOLVELEAFNODE; 
-	}
-	else{
-	  if(isBoundChanged == false){
-	    bound = linkingPool[linkSol].UBObjValue;
-	    goto TERM_SOLVELEAFNODE; 
-	  }
-	  //lowerObjValue = linkingPool[linkSol].lowerObjValue;
-	}
-      }  
-      else if(linkingPool[linkSol].tag == MibSLinkingPoolTagLowerIsFeasible){
-	lowerObjValue = linkingPool[linkSol].lowerObjValue;
-      }
-      else{
-	bound = infinity;
-	goto TERM_SOLVELEAFNODE;
-      }
-    }
-    else if(localModel_->seenLinkingSolutions.find(linkSol) !=
-	    localModel_->seenLinkingSolutions.end()){
-      if(localModel_->seenLinkingSolutions[linkSol].tag ==
-	 MibSLinkingPoolTagUBIsSolved){
-	if(linkingPool[linkSol].UBSolution.size() <= 1){
-	  bound = infinity;
-	  goto TERM_SOLVELEAFNODE;
-	}
-	else{
-	  lowerObjValue = localModel_->seenLinkingSolutions[linkSol].lowerObjValue;
-	}
-      }
-      else if(localModel_->seenLinkingSolutions[linkSol].tag ==
-	      MibSLinkingPoolTagLowerIsFeasible){
-	lowerObjValue = localModel_->seenLinkingSolutions[linkSol].lowerObjValue;
-      }
-      else{
-	bound = infinity;
-	goto TERM_SOLVELEAFNODE;
-      }
-    }
-    else{*/
       //we should solve second-level problem
       //sahar: we can add the result of solving second-level problem to
       //the linking pool of main problem to use it later, but the current
@@ -3042,10 +2998,10 @@ MibSCutGenerator::solveLeafNode(int leafNodeIndex, bool *isTimeLimReached)
   linkSol.clear();
 
   return bound;
-}
+}*/
 
 //#############################################################################
-CoinPackedMatrix*
+/*CoinPackedMatrix*
 MibSCutGenerator::getLeafConst(int nodeIndex,int &numRows, std::vector<double> &rowLb,
 			       std::vector<double> &rowUb)
 {
@@ -3086,10 +3042,10 @@ MibSCutGenerator::getLeafConst(int nodeIndex,int &numRows, std::vector<double> &
 
   return leafConst;
 
-}
+  }*/
 
 //#############################################################################
-void
+/*void
 MibSCutGenerator::solveMips(OsiSolverInterface * mipSolver)
 {
 
@@ -3155,7 +3111,7 @@ MibSCutGenerator::solveMips(OsiSolverInterface * mipSolver)
   }
 
   mipSolver->branchAndBound();
-}
+}*/
   
 //#############################################################################
 int
@@ -5854,7 +5810,7 @@ MibSCutGenerator::generateConstraints(BcpsConstraintPool &conPool)
       //general type of problem, no specialized cuts
       delete sol;
 
-      if ((useBoundCut) && (localModel_->boundingPass_ <= 1)){
+      /*if ((useBoundCut) && (localModel_->boundingPass_ <= 1)){
 
 	  int boundCutFreq(localModel_->MibSPar_->entry(MibSParams::boundCutFreq));
 	  
@@ -5909,7 +5865,7 @@ MibSCutGenerator::generateConstraints(BcpsConstraintPool &conPool)
 	      bool tmpArg2 = false;
 	      boundCuts(conPool, NULL, tmpArg1, tmpArg2);
 	  }
-      }
+      }*/
       
       if (bS->isIntegral_){
 	  //if (useIntersectionCut == PARAM_ON){

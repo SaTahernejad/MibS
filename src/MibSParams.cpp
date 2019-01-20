@@ -235,6 +235,12 @@ MibSParams::createKeywordList() {
    keys_.push_back(make_pair(std::string("MibS_inputFormat"),
 			     AlpsParameter(AlpsStringPar, inputFormat)));
 
+   keys_.push_back(make_pair(std::string("MibS_auxiliaryTimFile"),
+			     AlpsParameter(AlpsStringPar, auxiliaryTimFile)));
+
+   keys_.push_back(make_pair(std::string("MibS_auxiliaryStoFile"),
+			     AlpsParameter(AlpsStringPar, auxiliaryStoFile)));
+
    //--------------------------------------------------------
    // Double Parameters.
    //--------------------------------------------------------

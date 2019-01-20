@@ -54,7 +54,18 @@
 //IN PARENT CLASS.  DIDNT WANT TO ALTER BLIS CODE
 //#include "MibSBranchStrategyRel.h"
 #include "MibSBranchStrategyStrong.hpp"
-
+//saharSto:Checked functions
+//1.readInstance
+//2.readAuxiliaryData()
+//3.loadProblemData
+//4.setUpperColData
+//5.setUpperRowData
+//6.setBounds
+//7.setProblemType
+//8.setRequiredFixedList
+//9.instanceStructure
+//10.setupSelf
+//11.createRoot
 //#############################################################################
 MibSModel::MibSModel()
 {
@@ -88,7 +99,8 @@ MibSModel::~MibSModel()
   if(A2Matrix_) delete A2Matrix_;
   if(G2Matrix_) delete G2Matrix_;
   if(bS_) delete bS_;
-    
+  if(stocStructRowInd_) delete stocStructRowInd_;
+  if(stocA2Matrix_) delete stocA2Matrix_;
 }
 
 //#############################################################################
@@ -107,14 +119,17 @@ MibSModel::initialize()
   numOrigCons_ = 0;
   objSense_ = 0.0;
   lowerDim_ = 0;
+  stocLowerDim_ = 0;
   lowerObjSense_ = 0.0;
   upperDim_ = 0;
   leftSlope_ = 0;
   rightSlope_ = 0;
   lowerRowNum_ = 0;
+  stocLowerRowNum_ = 0;
   upperRowNum_ = 0;
   origUpperRowNum_ =0;
   structRowNum_ = 0;
+  stocStructRowNum_ = 0;
   sizeFixedInd_ = 0;
   counterVF_ = 0;
   counterUB_ = 0;
@@ -156,6 +171,9 @@ MibSModel::initialize()
   G2Matrix_ = NULL;
   boundProbRoot_ = NULL;
   boundProbLeafNum_ = 0;
+  numScenarios_ = 0;
+  stocStructRowInd_ = NULL;
+  stocA2Matrix_ = NULL;
   bS_ = new MibSBilevel();
   //simpleCutOnly_ = true; //FIXME: should make this a parameter
   //bindingMethod_ = "BLAND"; //FIXME: should make this a parameter
@@ -253,165 +271,201 @@ MibSModel::setBlisParameters()
 
 //#############################################################################
 void 
-MibSModel::readAuxiliaryData(int numCols, int numRows)
+MibSModel::readAuxiliaryData(int numCols, int numRows, double infinity,
+			     const char *rowSense)
 {
 
-  std::string fileName = getLowerFile();
-  fileCoinReadable(fileName);
-  std::ifstream data_stream(fileName.c_str());
-
-  std::string inputFormat(MibSPar_->entry
-			  (MibSParams::inputFormat));
+  //std::string fileName = getLowerFile();
+  //fileCoinReadable(fileName);
+  std::string timFileName = getTimFile();
+  fileCoinReadable(timFileName);
   
-  if (!data_stream){
-      std::cout << "Error opening input data file. Aborting.\n";
+  std::string stoFileName = getStoFile();
+  fileCoinReadable(stoFileName);
+  
+  std::ifstream timData_stream(timFileName.c_str());
+  std::ifstream stoData_stream(stoFileName.c_str());
+  //std::string inputFormat(MibSPar_->entry
+  //			  (MibSParams::inputFormat));
+  
+  //if (!data_stream){
+  //  std::cout << "Error opening input data file. Aborting.\n";
+  //  abort();
+  //}
+
+  if(!timData_stream){
+      std::cout << "Error opening input time data file. Aborting.\n";
       abort();
   }
-  
-  std::string key;
-  int iValue(0);
-  std::string cValue;
-  double dValue(0.0);
-  int i(0), j(0), k(0), m(0), p(0), pos(0);
-  int lowerColNum(0), lowerRowNum(0);
 
-  while (data_stream >> key){
-     if(key == "N"){ 
-	   data_stream >> iValue;
-	   setLowerDim(iValue);
-     }
-     else if(key == "M"){
-	   data_stream >> iValue;
-	   setLowerRowNum(iValue);
-     }
-     else if(key == "LC"){
-       if(!getLowerColInd())
-	 lowerColInd_ = new int[getLowerDim()];
-
-       if(inputFormat == "indexBased"){
-	data_stream >> iValue;
-	lowerColInd_[i] = iValue;
-       }
-       else{
-	   data_stream >> cValue;
-	   for(p = 0; p < numCols; ++p){
-	       if(columnName_[p] == cValue){
-		   pos = p;
-		   break;
-	       }
-	   }
-	   lowerColInd_[i] = pos;
-       }
-       
-	i++;
-     }
-     else if(key == "LR"){
-       if(!getLowerRowInd())
-	 lowerRowInd_ = new int[getLowerRowNum()];
-       
-       if(inputFormat == "indexBased"){
-	   data_stream >> iValue;
-	   lowerRowInd_[j] = iValue;
-       }
-       else{
-	   data_stream >> cValue;
-	   for(p = 0; p < numRows; ++p){
-	       if(rowName_[p] == cValue){
-		   pos = p;
-		   break;
-	       }
-	   }
-	   lowerRowInd_[j] = pos;
-       }
-	
-	j++;
-     }
-     else if(key == "LO"){
-       if(!getLowerObjCoeffs())
-	 lowerObjCoeffs_ = new double[getLowerDim()];
-	
-	data_stream >> dValue;
-	lowerObjCoeffs_[k] = dValue;
-	k++;
-     }
-     else if(key == "OS"){
-	data_stream >> dValue;
-	lowerObjSense_ = dValue; //1 min; -1 max
-     }
-     else if(key == "IC"){
-       if(!getInterdictCost()){
-	 //FIXME: ALLOW MORE THAN ONE ROW
-	 interdictCost_ = new double[getLowerDim()];
-       }
-       
-       data_stream >> dValue;
-       interdictCost_[m] = dValue;
-       m++;
-     }
-     else if(key == "IB"){
-	 isInterdict_ = true;
-       //FIXME: ALLOW MORE THAN ONE ROW
-	data_stream >> dValue;
-	interdictBudget_ = dValue;
-     }
-     else if(key == "@VARSBEGIN"){
-	 pos = -1;
-	 lowerColNum = getLowerDim();
-	 if(!getLowerColInd())
-	     lowerColInd_ = new int[lowerColNum];
-	 if(!getLowerObjCoeffs())
-	     lowerObjCoeffs_ = new double[lowerColNum];
-	 for(i = 0; i < lowerColNum; i++){
-	     data_stream >> cValue;
-	     data_stream >> dValue;
-	     for(p = 0; p < numCols; ++p){
-		 if(columnName_[p] == cValue){
-		     pos = p;
-		     break;
-		 }
-	     }
-	     if(pos < 0){
-		 std::cout << cValue << " does not belong to the list of variables." << std::endl;
-	     }
-	     else{
-		 lowerObjCoeffs_[pos] = dValue;
-		 lowerColInd_[i] = pos;
-	     }
-	     pos = -1;
-	 }
-     }
-     else if(key == "@CONSTSBEGIN"){
-	 pos = -1;
-	 lowerRowNum = getLowerRowNum();
-	 if(!getLowerRowInd())
-	     lowerRowInd_ = new int[lowerRowNum];
-	 for(i = 0; i < lowerRowNum; i++){
-	     data_stream >> cValue;
-	     for(p = 0; p < numRows; ++p){
-		 if(rowName_[p] == cValue){
-		     pos = p;
-		     break;
-		 }
-	     }
-	     if(pos < 0){
-		 std::cout << cValue << " does not belong to the list of constraints." << std::endl;
-	     }
-	     else{
-		 lowerRowInd_[i] = pos;
-	     }
-	     pos = -1;
-	 }
-     }
+  if(!stoData_stream){
+      std::cout << "Error opening input stochastic data file. Aborting.\n";
+      abort();
   }
 
-  data_stream.close();
+  int i(0), j(0), p(0);
+  double etol(etol_);
+  std::string key, fLColName, fLRowName;
+  int iValue(0), pos(0), index(0);
+  double dValue(0.0);
+  int uColNum(0), lColNum(0), uRowNum(0), lRowNum(0);
+  int stocRowNum(0), stocLColNum(0), stocLRowNum(0);
+  CoinPackedVector col;
+  std::vector<double> stocLowerRhs;
   
-  std::cout << "LL Data File: " << getLowerFile() << "\n";
-  std::cout << "Number of LL Variables:   " 
+  //read time file
+  //ignoring first three lines
+  for(i = 0; i < 7; i++){
+      timData_stream >> key;
+  }
+
+  //name of first ll variable 
+  timData_stream >> key;
+  fLColName = key;
+
+  //name of first ll row
+  timData_stream >> key;
+  fLRowName = key;
+
+  for(p = 0; p < numCols; p++){
+      if(columnName_[p] == fLColName){
+	  pos = p;
+	  break;
+      }
+  }
+  if(pos < 0){
+      std::cout << fLColName << " does not belong to the list of variables." << std::endl;
+      abort();
+  }
+  else{
+      uColNum = p;
+      lColNum = numCols - uColNum;
+      setLowerDim(lColNum);
+  }
+
+  for(p = 0; p < numRows; p++){
+      if(rowName_[p] == fLRowName){
+	  pos = p;
+	  break;
+      }
+  }
+  if(pos < 0){
+      std::cout << fLRowName << " does not belong to the list of constraints." << std::endl;
+      abort();
+  }
+  else{
+     uRowNum = p;
+     lRowNum = numRows - uRowNum;
+     setLowerRowNum(lRowNum);
+  }
+  timData_stream >> key;
+
+  //set lower objective function coeffs and sense
+  lowerObjCoeffs_ = new double[lColNum];
+  for(i = 0; i < lColNum; i++){
+      timData_stream >> key;
+      timData_stream >> dValue;
+      lowerObjCoeffs_[i] = dValue;
+  }
+  timData_stream >> key;
+  timData_stream >> iValue;
+  lowerObjSense_ = iValue;//1 min; -1 max
+
+  //set lower col and row indices 
+  lowerColInd_ = new int[lColNum];
+  lowerRowInd_ = new int[lRowNum];
+  CoinIotaN(lowerColInd_, lColNum, uColNum);
+  CoinIotaN(lowerRowInd_, lRowNum, uRowNum);
+
+  timData_stream.close();
+
+  //read stochastic data
+  CoinPackedMatrix *stocMatrixA2 = 0;
+  stocMatrixA2 = new CoinPackedMatrix(false, 0, 0);
+  stocMatrixA2->setDimensions(0, uColNum);
+  //ignore first two lines
+  for(i = 0; i < 4; i++){
+      stoData_stream >> key;
+  }
+
+  while (stoData_stream >> key){
+      if(key == "SC"){
+	  numScenarios_ ++;
+	  stoData_stream >> key;
+	  stoData_stream >> key;
+	  stoData_stream >> dValue;
+	  scenarioProb_.push_back(dValue);
+	  stoData_stream >> key;
+	  CoinPackedMatrix *matrixA2 = 0;
+	  matrixA2 = new CoinPackedMatrix(true, 0, 0);
+	  matrixA2->setDimensions(lRowNum, 0);
+	  for(i = 0; i < uColNum; i++){
+	      for(j = 0; j < lRowNum; j++){
+		  stoData_stream >> key;
+		  stoData_stream >> key;
+		  stoData_stream >> dValue;
+		  if(fabs(dValue) > etol){
+		      col.insert(j, dValue);
+		  }
+	      }
+	      matrixA2->appendCol(col);
+	      col.clear();
+	  }
+	  matrixA2->reverseOrdering();
+	  for(i = 0; i < lRowNum; i++){
+	      stocMatrixA2->appendRow(matrixA2->getVector(i));
+	  }
+	  delete matrixA2;
+	  //get rhs
+	  for(i = 0; i < lRowNum; i++){
+	      stoData_stream >> key;
+	      stoData_stream >> key;
+	      stoData_stream >> dValue;
+	      stocLowerRhs.push_back(dValue); 
+	  }
+      }
+      else if(key == "ENDATA"){
+	  break;
+      }
+      else{
+	  std::cout << "incorrect structure for the stochastic data file" << std::endl;
+	  abort();
+      }
+  }
+
+  setStocA2Matrix(stocMatrixA2);
+  stocLColNum = lColNum * numScenarios_;
+  stocLRowNum = lRowNum * numScenarios_;
+  stocRowNum = uRowNum + stocLRowNum;
+  setStocLowerDim(stocLColNum);
+  setStocLowerRowNum(stocLRowNum);
+  
+  origRowLb_ = new double[stocRowNum];
+  origRowUb_ = new double[stocRowNum];
+  CoinFillN(origRowLb_, stocRowNum, -1 * infinity);
+  CoinFillN(origRowUb_, stocRowNum, infinity);
+  for(i = 0; i < numScenarios_; i++){
+      pos = i * lRowNum;
+      for(j = uRowNum; j < numRows; j++){
+	  index = pos + j;
+	  if(rowSense[j] == 'L'){
+	      origRowUb_[index] = stocLowerRhs[index - uRowNum];
+	  }
+	  else{
+	      origRowLb_[index] = stocLowerRhs[index - uRowNum];
+	  }	      
+      }
+  }
+  
+  stoData_stream.close();
+  
+  std::cout << "Time Data File: " << getTimFile() << "\n";
+  std::cout << "Stochastic Data File: " << getStoFile() << "\n";
+  std::cout << "Number of LL Variables:   "
 	    << getLowerDim() << "\n\n";
+
+  
 }
-
-
 
 //#############################################################################
 void 
@@ -563,6 +617,7 @@ MibSModel::readProblemData()
    mps->messageHandler()->setLogLevel(msgLevel);
    
    CoinPackedMatrix matrix = *(mps->getMatrixByCol());
+   CoinPackedMatrix rowMatrix = *(mps->getMatrixByRow());
 
    double objSense(1.0);
    
@@ -636,9 +691,10 @@ MibSModel::readProblemData()
 
    const char* rowSense = mps->getRowSense();
 
-   readAuxiliaryData(numCols, numRows); // reads in lower-level vars, rows, obj coeffs 
+   readAuxiliaryData(numCols, numRows, mps->getInfinity(),
+		     rowSense); // reads in lower-level vars, rows, obj coeffs 
    
-   loadProblemData(matrix, varLB, varUB, objCoef, conLB, conUB, colType, 
+   loadProblemData(matrix, rowMatrix, varLB, varUB, objCoef, conLB, conUB, colType, 
 		   objSense, mps->getInfinity(), rowSense);
 
    delete [] colType;
@@ -654,6 +710,7 @@ MibSModel::readProblemData()
 //#############################################################################
 void
 MibSModel::loadProblemData(const CoinPackedMatrix& matrix,
+			   const CoinPackedMatrix& rowMatrix,
 			   const double* colLB, const double* colUB,   
 			   const double* obj, const double* rowLB,
 			   const double* rowUB, const char *types,
@@ -663,11 +720,9 @@ MibSModel::loadProblemData(const CoinPackedMatrix& matrix,
    //AS A "GENERAL" PROBLEM.  FOR NOW, IT'S OK SINCE WE ONLY
    //DO THIS FROM KNAP SOLVER, WHICH SHOULD SET THIS ITSELF.
 
-   int problemType(MibSPar_->entry(MibSParams::bilevelProblemType));
-
-   int i(0);
+   //int problemType(MibSPar_->entry(MibSParams::bilevelProblemType));
    
-   if(isInterdict_ == true){
+   /*if(isInterdict_ == true){
        if(problemType == PARAM_NOTSET){
 	   MibSPar()->setEntry(MibSParams::bilevelProblemType, INTERDICT);
        }
@@ -684,15 +739,28 @@ MibSModel::loadProblemData(const CoinPackedMatrix& matrix,
    	   std::cout << "Wrong value for MibSProblemType. Automatically modifying its value." << std::endl;
    	   MibSPar()->setEntry(MibSParams::bilevelProblemType, GENERAL);
      }
-   }
+   }*/
 
-   problemType = MibSPar_->entry(MibSParams::bilevelProblemType);
+   //problemType = MibSPar_->entry(MibSParams::bilevelProblemType);
   
-   int j(0);
-   int beg(0);
-
+    int i(0), j(0), k(0);
+   int beg(0), colBeg(0), rowBeg(0), index(0);
+   double prob(0.0);
+   int numScenarios(getNumScenarios());
+   int numLCols(getLowerDim());
+   int numStocLCols(getStocLowerDim());
+   int numLRows(getLowerRowNum());
+   int numStocLRows(getStocLowerRowNum());
+   std::vector<double> scenarioProb(getScenarioProb());
+   CoinPackedMatrix *stocA2Matrix(getStocA2Matrix());
+   
    int numRows = matrix.getNumRows();
    int numCols = matrix.getNumCols();
+
+   int numUCols = numCols - numLCols;
+   int numURows = numRows - numLRows;
+   int numStocCols = numUCols + numStocLCols;
+   int numStocRows = numURows + numStocLRows; 
 
    double *varLB(NULL);  
    double *varUB(NULL);  
@@ -701,43 +769,127 @@ MibSModel::loadProblemData(const CoinPackedMatrix& matrix,
    double *objCoef(NULL);
    char   *colType(NULL);
 
+   CoinPackedVector row1;
+   CoinPackedVector row2;
+   int *rowInd = NULL;
+   double *rowElem = NULL;
+   int rowNumElem(0);
    CoinPackedMatrix *newMatrix = NULL;
 
    //switch (problemType){
       
        //case 0:
 
-   if((problemType == 0) || (interdictCost_ == NULL)){
+   //if((problemType == 0) || (interdictCost_ == NULL)){
 
+   //saharSto:For now, I store both structRowInd_ and stoStructRowInd_.
+   //check later to see if we need structRowInd_.
       if (!structRowInd_){
 	 structRowInd_ = new int[numRows];
 	 CoinIotaN(structRowInd_, numRows, 0);
 	 structRowNum_ = numRows;
       }
+
+      if(!stocStructRowInd_){
+	  stocStructRowInd_ = new int[numStocRows];
+	  CoinIotaN(stocStructRowInd_, numStocRows, 0);
+	  stocStructRowNum_ = numStocRows;
+      }
+
+      //set matrix
+      //extract G2
+      CoinPackedMatrix *matrixG2 = NULL;
+      matrixG2 = new CoinPackedMatrix(true, 0, 0);
+      matrixG2->setDimensions(numLRows, 0);
+      for(i = numUCols; i < numCols; i++){
+	  matrixG2->appendCol(matrix.getVector(i));
+      }
+      matrixG2->reverseOrdering();
       
+      //matrix.reverseOrdering();
+
+      newMatrix = new CoinPackedMatrix(false, 0, 0);
+      newMatrix->setDimensions(0, numStocCols);
+      for(i = 0; i < numURows; i++){
+	  newMatrix->appendRow(rowMatrix.getVector(i));
+      }
+
+      for(i = 0; i < numScenarios; i++){
+	  for(j = 0; j < numLRows; j++){
+	      rowBeg = i * numLRows;
+	      row1 = matrixG2->getVector(j);
+	      rowInd = row1.getIndices();
+	      rowElem = row1.getElements();
+	      rowNumElem = row1.getNumElements();
+	      row2 = stocA2Matrix->getVector(rowBeg + j);
+	      for(k = 0; k < rowNumElem; k++){
+		  row2.insert(numUCols + i * numLCols +
+			      rowInd[k], rowElem[k]);
+	      }
+	      newMatrix->appendRow(row2);
+	  }
+	  row1.clear();
+	  row2.clear();
+      }
+
+      newMatrix->reverseOrdering();
+
+      delete matrixG2;
+	      
       //Make copies of the data
-      newMatrix = new CoinPackedMatrix();
-      *newMatrix = matrix;
+      //newMatrix = new CoinPackedMatrix();
+      //*newMatrix = matrix;
       
-      varLB = new double [numCols];
-      varUB = new double [numCols];
-      conLB = new double [numRows];
-      conUB = new double [numRows];
-      objCoef = new double [numCols];
-      colType = new char [numCols];
- 
+      varLB = new double [numStocCols];
+      varUB = new double [numStocCols];
+      conLB = new double [numStocRows];
+      conUB = new double [numStocRows];
+      objCoef = new double [numStocCols];
+      colType = new char [numStocCols];
+
+      //set row and col bounds and col type
+      colBeg = numCols;
       CoinDisjointCopyN(colLB, numCols, varLB);
       CoinDisjointCopyN(colUB, numCols, varUB);
-      CoinDisjointCopyN(rowLB, numRows, conLB);
-      CoinDisjointCopyN(rowUB, numRows, conUB);
-      CoinDisjointCopyN(obj, numCols, objCoef);
-      memcpy(colType, types, numCols);
+      CoinDisjointCopyN(types, numCols, colType);
+      for(i = 0; i < numScenarios - 1; i++){
+	  CoinDisjointCopyN(colLB + numUCols, numLCols,
+			    varLB + colBeg);
+	  CoinDisjointCopyN(colUB + numUCols, numLCols,
+			    varUB + colBeg);
+	  CoinDisjointCopyN(types + numUCols, numLCols,
+			    colType + colBeg);
+	  
+	  colBeg += numLCols;
+      }
 
+      //saharSto: can we avoid defining conLB and conUB?
+      CoinDisjointCopyN(rowLB, numURows, origRowLb_);
+      CoinDisjointCopyN(rowUB, numURows, origRowUb_);
+      memcpy(conLB, origRowLb_, sizeof(double) * numStocRows);
+      memcpy(conUB, origRowUb_, sizeof(double) * numStocRows);
+
+      //set objective
+      index = numUCols;
+      CoinDisjointCopyN(obj, numUCols, objCoef);
+      double *subObjCoef = new double[numLCols];
+      CoinDisjointCopyN(obj + numUCols, numLCols, subObjCoef);
+      for(i = 0; i < numScenarios; i++){
+	  prob = scenarioProb[i];
+	  for(j = 0; j < numLCols; j++){
+	      objCoef[index] = prob * subObjCoef[j];
+	      index ++;
+	  }
+      }
+
+      delete [] subObjCoef;
+
+      //saharSto: check it
       origRowSense_ = new char[numRows];
       memcpy(origRowSense_, rowSense, numRows);
 
-   }
-   else{    
+      //}
+   /*else{    
       //------------------------------------------------------
       // Add interdict vars and aux UL rows
       //------------------------------------------------------
@@ -789,11 +941,11 @@ MibSModel::loadProblemData(const CoinPackedMatrix& matrix,
       CoinDisjointCopyN(rowLB, numRows, conLB + auxULRows);
       CoinDisjointCopyN(rowUB, numRows, conUB + auxULRows);
       
-      /* Add interdiction budget row */
+      // Add interdiction budget row 
       CoinFillN(conLB, auxULRows, - 1 * infinity);
       CoinFillN(conUB, auxULRows, getInterdictBudget());
       
-      /* Add VUB rows */
+      // Add VUB rows 
       CoinFillN(conLB + (numTotalRows - interdictRows), 
 		interdictRows, - 1 * infinity);
       CoinDisjointCopyN(colUB, interdictRows, conUB + (numTotalRows - interdictRows));
@@ -818,7 +970,7 @@ MibSModel::loadProblemData(const CoinPackedMatrix& matrix,
       
       CoinDisjointCopyN(types, numCols, colType + numCols);
       
-      /* Auxilliary indicator columns, used later*/
+      // Auxilliary indicator columns, used later
       
       for(j = 0; j < numAuxCols; ++j) {
 	 colType[j + 2 * numCols] = 'B';
@@ -835,7 +987,7 @@ MibSModel::loadProblemData(const CoinPackedMatrix& matrix,
       newMatrix->setDimensions(0, numTotalCols);
       int start(0), end(0), tmp(0), index(0);
       
-      /* Add interdiction budget row */
+      // Add interdiction budget row 
       
       for(i = 0; i < auxULRows; i++){
 	 CoinPackedVector row;
@@ -845,7 +997,7 @@ MibSModel::loadProblemData(const CoinPackedMatrix& matrix,
 	 newMatrix->appendRow(row);
       }
       
-      /* lower-level rows */
+      // lower-level rows 
       
       for (i = 0; i < numRows; i++){
 	 CoinPackedVector row;
@@ -858,7 +1010,7 @@ MibSModel::loadProblemData(const CoinPackedMatrix& matrix,
 	 newMatrix->appendRow(row);
       }
       
-      /* Add VUB rows */
+      // Add VUB rows 
       
       for (i = 0; i < numCols; i++){
 	 CoinPackedVector row;
@@ -892,7 +1044,7 @@ MibSModel::loadProblemData(const CoinPackedMatrix& matrix,
       
       //break;
       
-   }
+   }*/
 
    setColMatrix(newMatrix);   
    
@@ -970,7 +1122,7 @@ MibSModel::loadProblemData(const CoinPackedMatrix& matrix,
    setProblemType(); //determine the type of MIBLP
    //determine the list of first-stage variables participate in second-stage constraints
    setRequiredFixedList(newMatrix);
-   instanceStructure(newMatrix, conLB, conUB, rowSense);
+   //instanceStructure(newMatrix, conLB, conUB, rowSense);
 }
 
 //#############################################################################
@@ -978,15 +1130,15 @@ void
 MibSModel::setUpperColData()
 {
 
-   int lowerColNum(lowerDim_);
+   int stocLowerColNum(stocLowerDim_);
    if (!upperDim_){
-      upperDim_ = numVars_ - lowerDim_;
-      int * lowerColInd = getLowerColInd();
+      upperDim_ = numVars_ - stocLowerDim_;
+      //int * lowerColInd = getLowerColInd();
       
       if(!getUpperColInd())
 	 upperColInd_ = new int[upperDim_];
       
-      int i(0), cnt(0);
+      /*int i(0), cnt(0);
 
       for (i = 0; i < lowerDim_ + upperDim_; i++){
 	 if((!findIndex(i, lowerColNum, lowerColInd)) 
@@ -1006,7 +1158,9 @@ MibSModel::setUpperColData()
 	 }
       }
    
-      assert(cnt == upperDim_);
+      assert(cnt == upperDim_);*/
+      CoinIotaN(upperColInd_, upperDim_, 0);
+
    }
    //numOrigVars_ = lowerDim_ + upperDim_;
 }
@@ -1018,10 +1172,11 @@ MibSModel::setUpperRowData()
 
    //FIXME: MAKE THIS MORE SIMPLE
 
-   int lowerRowNum(lowerRowNum_);
-   upperRowNum_ = numCons_ - lowerRowNum_;
+   int stocLowerRowNum(stocLowerRowNum_);
+   upperRowNum_ = numCons_ - stocLowerRowNum_;
    int * lowerRowInd = getLowerRowInd();
 
+   int i(0), cnt(0), beg(0), end(0);
    if(upperRowInd_ != NULL){
        delete [] upperRowInd_;
        upperRowInd_ = NULL;
@@ -1029,27 +1184,35 @@ MibSModel::setUpperRowData()
 
    if(upperRowNum_ > 0){
        upperRowInd_ = new int[upperRowNum_];
-   }
 
-   int i(0), cnt(0);
-
-   for(i = 0; i < lowerRowNum_ + upperRowNum_; i++){
+   /*for(i = 0; i < lowerRowNum_ + upperRowNum_; i++){
        if(!findIndex(i, lowerRowNum, lowerRowInd)){
 	   upperRowInd_[cnt] = i;
 	   cnt++;
        }
    }
-   assert(cnt == upperRowNum_);
+   assert(cnt == upperRowNum_);*/
+       beg = lowerRowInd[0];
+       end = beg + stocLowerRowNum - 1;
+
+       for(i = 0; i < numCons_; i++){
+	   if((i < beg) || (i > end)){
+	       upperRowInd_[cnt] = i;
+	       cnt++;
+	   }
+       }
+   }
 
    if(countIteration_ == 0){
        origUpperRowNum_ = upperRowNum_;
 
        if(origUpperRowNum_ > 0){
 	   origUpperRowInd_ = new int[origUpperRowNum_];
-       }
-       
-       for(i = 0; i < origUpperRowNum_; i++){
+	   CoinDisjointCopyN(upperRowInd_, origUpperRowNum_, origUpperRowInd_);
+       /*for(i = 0; i < origUpperRowNum_; i++){
 	   origUpperRowInd_[i] = upperRowInd_[i];
+	   }*/
+       //CoinIotaN(upperColInd, numCols, 0);
        }
    }
    
@@ -1265,12 +1428,12 @@ MibSModel::setupSelf()
    // Preprocess model
    //------------------------------------------------------
 
-   int usePreprocessor =
+   /*int usePreprocessor =
      MibSPar_->entry(MibSParams::usePreprocessor);
 
    if(usePreprocessor == PARAM_ON){
      runPreprocessor();
-   }
+   }*/
    //------------------------------------------------------
    // Create integer objects and analyze objective coef.
    //------------------------------------------------------
@@ -2510,27 +2673,28 @@ void
 MibSModel::setBounds()
 {
 
+  //saharSto: origColLb_ and origColUb_ are defined for
+  //original variables (not stochastic).
+  int numCols = getUpperDim() + getLowerDim();
   double * varlower = varLB();
   double * varupper = varUB();
-  double * rowlower = conLB();
-  double * rowupper = conUB();
+  //double * rowlower = conLB();
+  //double * rowupper = conUB();
 
   int i(0);
 
-  origColLb_ = new double[numOrigVars_];
-  origColUb_ = new double[numOrigVars_];
-  origRowLb_ = new double[numOrigCons_];
-  origRowUb_ = new double[numOrigCons_];
+  origColLb_ = new double[numCols];
+  origColUb_ = new double[numCols];
+  //origRowLb_ = new double[numOrigCons_];
+  //origRowUb_ = new double[numOrigCons_];
 
-  for(i = 0; i < numOrigVars_; i++){
-    origColLb_[i] = varlower[i];
-    origColUb_[i] = varupper[i];
-  }
+  CoinDisjointCopyN(varlower, numCols, origColLb_);
+  CoinDisjointCopyN(varupper, numCols, origColUb_);
 
-  for(i = 0; i < numOrigCons_; i++){
+  /*for(i = 0; i < numOrigCons_; i++){
     origRowLb_[i] = rowlower[i];
     origRowUb_[i] = rowupper[i];
-  }
+    }*/
 
 }
 
@@ -2991,8 +3155,9 @@ MibSModel::decodeToSelf(AlpsEncoded& encoded)
 void
 MibSModel::setRequiredFixedList(const CoinPackedMatrix *newMatrix)
 {
+    //saharSto: we should change the structure of fixedInd
     int uCols(upperDim_);
-    int lRows(lowerRowNum_);
+    int stocLRows(stocLowerRowNum_);
     int * upperColInd = getUpperColInd();
     int * lowerRowInd = getLowerRowInd();
 
@@ -3000,9 +3165,12 @@ MibSModel::setRequiredFixedList(const CoinPackedMatrix *newMatrix)
     const int * matIndices = newMatrix->getIndices();
     const int * matStarts = newMatrix->getVectorStarts();
 
-    int index1, rowIndex, posRow, start, end;
+    int index1, rowIndex, start, end, begPos, endPos;
     int i, j;
     int num(0);
+
+    begPos = lowerRowInd[0];
+    endPos = begPos + stocLRows - 1;
 
     if(!fixedInd_){
 	fixedInd_ = new int[numVars_]();
@@ -3010,13 +3178,15 @@ MibSModel::setRequiredFixedList(const CoinPackedMatrix *newMatrix)
 
     for(i = 0; i < numVars_; i++){
 	fixedInd_[i] = 0;
-	if(binarySearch(0, uCols - 1, i, upperColInd) >= 0){
+	//if(binarySearch(0, uCols - 1, i, upperColInd) >= 0){
+	if(i < uCols){
 	    start = matStarts[i];
 	    end = start + newMatrix->getVectorSize(i);
 	    for(j = start; j < end; j++){
 		rowIndex = matIndices[j];
-		posRow = binarySearch(0, lRows - 1, rowIndex, lowerRowInd);
-		if(posRow >= 0){
+		//posRow = binarySearch(0, lRows - 1, rowIndex, lowerRowInd);
+		//if(posRow >= 0){
+		if((begPos <= rowIndex) || (rowIndex <= endPos)){
 		    fixedInd_[i] = 1;
 		    sizeFixedInd_ ++;
 		    break;

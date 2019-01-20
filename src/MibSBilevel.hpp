@@ -104,22 +104,26 @@ public:
    
     MibSSolType createBilevel(CoinPackedVector *sol,
 		       MibSModel *mibs=0);
-    MibSSolType checkBilevelFeasiblity(bool isRoot);
+    MibSSolType checkBilevelFeasiblity(bool isRoot, int solvedScenarios,
+				       std::vector<double> linkSol);
     void gutsOfDestructor();
 
 private:
    
     int findIndex(int index, int size, int * indices);
-    OsiSolverInterface * setUpUBModel(OsiSolverInterface * solver, double objValLL,
-					  bool newOsi, const double *sol = NULL);
+    OsiSolverInterface * setUpUBModel(OsiSolverInterface * solver,
+				      std::vector<double> stocObjValLL,
+				      bool newOsi, const double *sol = NULL);
     OsiSolverInterface * setUpModel(OsiSolverInterface * solver,
-				    bool newOsi, const double *sol = NULL);
+				    bool newOsi, int numScenario, const double *sol = NULL);
     double getLowerObj(const double * sol, double objSense);
     int binarySearch(int index,int start, int stop, int * indexArray);
     CoinWarmStart * getWarmStart() {return ws_;}
     void setWarmStart(CoinWarmStart * ws) {ws_ = ws;}
-    void addSolutionToSeenLinkingSolutionPool(MibSLinkingPoolTag solTag, std::vector<double>
-		      &shouldStoreValues, double objValue);
+    void addSolutionToSeenLinkingSolutionPool(MibSLinkingPoolTag solTag,
+					      int solvedScenarios, std::vector<double>
+					      &shouldStoreLowerObjs, double ubObjValue,
+					      std::vector<double> linkSol);
     //void findHeuristicSolutions();
     //void objCutHeuristic();
     //void lowerObjHeuristic();
