@@ -71,6 +71,7 @@ MibSBilevel::createBilevel(CoinPackedVector* sol,
   int useLinkingSolutionPool(model_->MibSPar_->entry
 			   (MibSParams::useLinkingSolutionPool));
 
+  //saharSto: Delete this
   useLinkingSolutionPool = 0;
   solveSecondLevelWhenXVarsInt = 1;
 
@@ -85,8 +86,13 @@ MibSBilevel::createBilevel(CoinPackedVector* sol,
   int *indices = sol->getIndices();
   double *values = sol->getElements();
   int numElements(sol->getNumElements()); // number of nonzero elements
-  int * fixedInd = model_->fixedInd_; 
- 
+  int * fixedInd = model_->fixedInd_;
+
+  
+  //saharStoc: In the stochastic version, we do not have
+  //upper(lower)SolutionOrd_ and optUpper(Lower)SolutionOrd_
+  //will not be NULL only if we return a solution (heuristic or
+  //verify that the optimal solution of relaxation is bilevel feasible).
   //if(!upperSolutionOrd_)
   //  upperSolutionOrd_ = new double[uN];
   //if(!lowerSolutionOrd_)
@@ -120,14 +126,14 @@ MibSBilevel::createBilevel(CoinPackedVector* sol,
       std::cout << "Stop here!" << std::endl;
       }*/
   
-  int * lowerColInd = mibs->getLowerColInd();
-  int * upperColInd = mibs->getUpperColInd();
-  int index(0), uCount(0), lCount(0);
+  //int * lowerColInd = mibs->getLowerColInd();
+  //int * upperColInd = mibs->getUpperColInd();
+  int index(0); //uCount(0), lCount(0);
 
   const double *lower = model_->solver()->getColLower();
   const double *upper = model_->solver()->getColUpper();
   double value;
-  for(i = 0; i < numElements; i ++){
+  for(i = 0; i < numElements; i++){
     index = indices[i];
     value = CoinMax(values[i], lower[index]);
     value = CoinMin(value, upper[index]);
@@ -160,13 +166,12 @@ MibSBilevel::createBilevel(CoinPackedVector* sol,
     }
   }
 
-  for(i = 0; i < N; i ++){
+  //for(i = 0; i < N; i ++){
+  for(i = 0; i < uN; i++){
       //if(binarySearch(0, uN - 1, i, upperColInd) >= 0){
-      if(i <= uN){
-	  if((fixedInd[i] == 1) && (fabs(upper[i] - lower[i]) > etol)){
-	      isLinkVarsFixed_ = false;
-	      break;
-	  }
+      if((fixedInd[i] == 1) && (fabs(upper[i] - lower[i]) > etol)){
+	  isLinkVarsFixed_ = false;
+	  break;
       }
   }
   
@@ -206,14 +211,14 @@ MibSBilevel::createBilevel(CoinPackedVector* sol,
       }
   }
 
-  int solType(0), solvedScenarios(0);
+  int solType(0), numSolvedScenarios(0);
   std::vector<double> linkSol;
   //saharSto: check the below part for linking pool
   if(isLinkVarsIntegral_){
       //std::vector<double> linkSol;
       for(i = 0; i < uN; i++){
-	  index = upperColInd[i];
-	  if(fixedInd[index] == 1){
+	  //index = upperColInd[i];
+	  if(fixedInd[i] == 1){
 	      linkSol.push_back(optUpperSolutionOrd_[i]);
 	  }
       }
@@ -221,8 +226,8 @@ MibSBilevel::createBilevel(CoinPackedVector* sol,
 	 model_->seenLinkingSolutions.end()){
 	  isContainedInLinkingPool_ = true;
 	  solType = model_->seenLinkingSolutions.find(linkSol)->second.tag;
-	  solvedScenarios =
-	      model_->seenLinkingSolutions.find(linkSol)->second.solvedScenarios;
+	  numSolvedScenarios =
+	      model_->seenLinkingSolutions.find(linkSol)->second.numSolvedScenarios;
       }
   }
 	 
@@ -255,7 +260,7 @@ MibSBilevel::createBilevel(CoinPackedVector* sol,
 	   ((solveSecondLevelWhenXVarsInt == PARAM_ON) && (isUpperIntegral_)) ||
 	   ((solveSecondLevelWhenLVarsInt == PARAM_ON) && (isLinkVarsIntegral_)) ||
 	   ((solveSecondLevelWhenLVarsFixed == PARAM_ON) && (isLinkVarsFixed_ ))))){
-	  storeSol = checkBilevelFeasiblity(mibs->isRoot_, solvedScenarios, linkSol);
+	  storeSol = checkBilevelFeasiblity(mibs->isRoot_, numSolvedScenarios, linkSol);
       }
   }
   if(cutStrategy == 1){
@@ -277,7 +282,7 @@ MibSBilevel::createBilevel(CoinPackedVector* sol,
 
 //#############################################################################
 MibSSolType
-MibSBilevel::checkBilevelFeasiblity(bool isRoot, int solvedScenarios,
+MibSBilevel::checkBilevelFeasiblity(bool isRoot, int numSolvedScenarios,
 				    std::vector<double> linkSol)
 {
     //bool warmStartLL(model_->MibSPar_->entry
@@ -301,6 +306,7 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot, int solvedScenarios,
     int useLinkingSolutionPool(model_->MibSPar_->entry
 			    (MibSParams::useLinkingSolutionPool));
 
+    //saharSto: Delete this
     computeBestUBWhenLVarsInt = 1;
     useLinkingSolutionPool = 0;
     
@@ -313,9 +319,9 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot, int solvedScenarios,
     double *tmpOptLowerSol;
     double infinity(model_->solver()->getInfinity());
     MibSSolType storeSol(MibSNoSol);
-    int lN(model_->lowerDim_); // lower-level dimension
+    int lN(model_->lowerDim_); 
     int stocLN(model_->stocLowerDim_);
-    int uN(model_->upperDim_); // lower-level dimension
+    int uN(model_->upperDim_); 
     int i(0), index(0), length(0), pos(0);
     int sizeFixedInd(model_->sizeFixedInd_);
     double etol(model_->etol_), objVal(0.0), lowerObj(0.0);
@@ -340,8 +346,14 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot, int solvedScenarios,
     }*/
 
     //saharSto: checkThis
-    if((branchPar == MibSBranchingStrategyLinking) &&
-       (isIntegral_ == true) && (isLinkVarsFixed_ == true)){
+    if(((branchPar == MibSBranchingStrategyLinking) &&
+       (isIntegral_ == true) && (isLinkVarsFixed_ == true)) ||
+       ((branchPar == MibSBranchingStrategyFractional) &&
+	(isIntegral_ == true))){
+	shouldSolveAllScenarios = true;
+    }
+
+    if((shouldSolveAllScenarios == false) && (isIntegral_ == false)){
 	shouldSolveAllScenarios = true;
     }
 
@@ -362,9 +374,9 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot, int solvedScenarios,
 	shouldStoreLowerObjs = model_->seenLinkingSolutions.find(linkSol)->second.lowerObjValues;
     }
 	    
-    assert(solvedScenarios <= numScenarios);
+    assert(numSolvedScenarios <= numScenarios);
 
-    if(solvedScenarios <= 0){	
+    if(numSolvedScenarios <= 0){
 	tmpOptLowerSol = new double[stocLN];
 	CoinZeroN(tmpOptLowerSol, stocLN); 
     }
@@ -374,7 +386,7 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot, int solvedScenarios,
     }
     
     for(i = 0; i < numScenarios; i++){
-	if(i > solvedScenarios - 1){
+	if(i >= numSolvedScenarios){
 	    if(lSolver_){
 		lSolver_ = setUpModel(model_->getSolver(), false, i);
 	    }
@@ -561,13 +573,13 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot, int solvedScenarios,
 	    std::copy(model_->seenLinkingSolutions[linkSol].lowerSolution.begin(),
 		      model_->seenLinkingSolutions[linkSol].lowerSolution.end(), lowerSol);
 		      }*/
-
+  
 	if(foundInfeasibility == false){
 	    //lowerObj = getLowerObj(sol, model_->getLowerObjSense());
 	    lowerObj = 0.0;
 	    beg = i * lN;
 	    for(j = beg; j < beg + lN; j++){
-		lowerObj += sol[j] * lObjCoeffs[j - beg];
+		lowerObj += sol[j + uN] * lObjCoeffs[j - beg];
 	    }
 	    assert((objVal - lowerObj) <= etol);
 	}
@@ -575,16 +587,13 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot, int solvedScenarios,
 	LPSolStatus_ = MibSLPSolStatusInfeasible;
 
 	
-	if(foundInfeasibility == false){
-	    if((fabs(objVal - lowerObj) > etol) && (isIntegral_ == true) &&
-	       (shouldSolveAllScenarios == false)){
-		foundInfeasibility = true;
-		if(i < numScenarios){
-		    delete [] tmpOptLowerSol;
-		    addSolutionToSeenLinkingSolutionPool
-			(MibSLinkingPoolTagLowerIsIncomplete, i + 1,
-			 shouldStoreLowerObjs, 0.0, linkSol);
-		}
+	if((foundInfeasibility == false) && (fabs(objVal - lowerObj) > etol)){
+	    foundInfeasibility = true;
+	    if((shouldSolveAllScenarios == false) && (i < numScenarios)){
+		delete [] tmpOptLowerSol;
+		addSolutionToSeenLinkingSolutionPool
+		    (MibSLinkingPoolTagLowerIsIncomplete, i + 1,
+		     shouldStoreLowerObjs, 0.0, linkSol);
 		break;
 	    }
 	}
@@ -597,7 +606,7 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot, int solvedScenarios,
 	    shouldPrune_ = true;
 	    storeSol = MibSRelaxationSol;
 	    }
-	if(solvedScenarios < numScenarios){
+	if(numSolvedScenarios < numScenarios){
 	    addSolutionToSeenLinkingSolutionPool
 		(MibSLinkingPoolTagLowerIsFeasible,
 		 numScenarios, shouldStoreLowerObjs, 0.0, linkSol);
@@ -1486,7 +1495,7 @@ MibSBilevel::getLowerObj(const double * sol, double objSense)
 //#############################################################################
 void
     MibSBilevel::addSolutionToSeenLinkingSolutionPool(MibSLinkingPoolTag solTag,
-						      int solvedScenarios, std::vector<double>
+						      int numSolvedScenarios, std::vector<double>
 						      &shouldStoreLowerObjs, double ubObjValue,
 						      std::vector<double> linkSol)
 {
@@ -1520,14 +1529,14 @@ void
 	{
 	    if(isContainedInLinkingPool_ == false){
 		linkingSolution.tag = solType;
-		linkingSolution.solvedScenarios = 0;
+		linkingSolution.numSolvedScenarios = 0;
 		linkingSolution.UBObjValue = 0.0;
 		linkingSolution.lowerObjValues.push_back(0);
 	        model_->seenLinkingSolutions[linkSol] = linkingSolution;
 	    }
 	    else{
 		model_->seenLinkingSolutions[linkSol].tag = MibSLinkingPoolTagLowerIsInfeasible;
-		model_->seenLinkingSolutions[linkSol].solvedScenarios = 0;
+		model_->seenLinkingSolutions[linkSol].numSolvedScenarios = 0;
 		model_->seenLinkingSolutions[linkSol].lowerObjValues.clear();
 		model_->seenLinkingSolutions[linkSol].lowerObjValues.push_back(0);
 		model_->seenLinkingSolutions[linkSol].UBObjValue = 0.0;
@@ -1538,13 +1547,13 @@ void
 	{
 	    if(isContainedInLinkingPool_ == false){
 		linkingSolution.tag = solType;
-		linkingSolution.solvedScenarios = solvedScenarios;
+		linkingSolution.numSolvedScenarios = numSolvedScenarios;
 		linkingSolution.UBObjValue = 0.0;
 		linkingSolution.lowerObjValues = shouldStoreLowerObjs;
 		model_->seenLinkingSolutions[linkSol] = linkingSolution;
 	    }
 	    else{
-		model_->seenLinkingSolutions[linkSol].solvedScenarios = solvedScenarios;
+		model_->seenLinkingSolutions[linkSol].numSolvedScenarios = numSolvedScenarios;
 		model_->seenLinkingSolutions[linkSol].UBObjValue = 0.0;
 		model_->seenLinkingSolutions[linkSol].lowerObjValues.clear();
 		model_->seenLinkingSolutions[linkSol].lowerObjValues.push_back(0);
@@ -1556,14 +1565,14 @@ void
 	{
 	    if(isContainedInLinkingPool_ == false){
 		linkingSolution.tag = solType;
-		linkingSolution.solvedScenarios = solvedScenarios;
+		linkingSolution.numSolvedScenarios = numSolvedScenarios;
 		linkingSolution.UBObjValue = 0.0;
 		linkingSolution.lowerObjValues = shouldStoreLowerObjs;
 		model_->seenLinkingSolutions[linkSol] = linkingSolution;
 	    }
 	    else{
 		model_->seenLinkingSolutions[linkSol].tag = MibSLinkingPoolTagLowerIsFeasible;
-		model_->seenLinkingSolutions[linkSol].solvedScenarios = solvedScenarios;
+		model_->seenLinkingSolutions[linkSol].numSolvedScenarios = numSolvedScenarios;
 		model_->seenLinkingSolutions[linkSol].UBObjValue = 0.0;
 		model_->seenLinkingSolutions[linkSol].lowerObjValues.clear();
 		model_->seenLinkingSolutions[linkSol].lowerObjValues = shouldStoreLowerObjs;
@@ -1573,7 +1582,7 @@ void
     case MibSLinkingPoolTagUBIsSolved:
 	{
 	    model_->seenLinkingSolutions[linkSol].tag = MibSLinkingPoolTagUBIsSolved;
-	    model_->seenLinkingSolutions[linkSol].solvedScenarios = solvedScenarios;
+	    model_->seenLinkingSolutions[linkSol].numSolvedScenarios = numSolvedScenarios;
 	    //if UB is infeasible, ubObjValue is infinity.
 	    model_->seenLinkingSolutions[linkSol].UBObjValue = ubObjValue;
 	    break;

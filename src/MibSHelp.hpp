@@ -20,7 +20,7 @@
 
 struct LINKING_SOLUTION{
     int tag;
-    int numScenarios;
+    int numSolvedScenarios;
     //double lowerObjValue;
     double UBObjValue;
     std::vector<double> lowerObjValues;

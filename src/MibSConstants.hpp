@@ -57,6 +57,7 @@ enum MibSLPSolStatus{
 enum MibSLinkingPoolTag{
     MibSLinkingPoolTagIsNotSet = -4,
     MibSLinkingPoolTagLowerIsInfeasible,
+    MibSLinkingPoolTagLowerIsIncomplete,
     MibSLinkingPoolTagLowerIsFeasible,
     MibSLinkingPoolTagUBIsSolved
 };
