@@ -2830,6 +2830,7 @@ CoinPackedVector *
 MibSModel::getSolution()
 {
 
+  int numScenarios(getNumScenarios());
   int varnum = solver()->getNumCols();
   const double *sol = solver()->getColSolution();
   double etol = etol_;
@@ -2856,7 +2857,12 @@ MibSModel::getSolution()
   }
 
   for(i = 0; i < ldim; i++){
-     index = lIndices[i];
+      if(numScenarios == 1){
+	  index = lIndices[i];
+      }
+      else{
+	  index = udim + i;
+      }
     if (sol[index] > etol || sol[index] < -etol){
       indices[cnt] = index;
       values[cnt++] = sol[index];
@@ -2917,6 +2923,8 @@ MibSModel::setBounds()
   }
   else{
       int truncNumCols = getUpperDim() + getTruncLowerDim();
+      origColLb_ = new double[truncNumCols];
+      origColUb_ = new double[truncNumCols];
       CoinDisjointCopyN(varlower, truncNumCols, origColLb_);
       CoinDisjointCopyN(varupper, truncNumCols, origColUb_);
   }
@@ -3429,7 +3437,7 @@ MibSModel::setRequiredFixedList(const CoinPackedMatrix *newMatrix)
 		end = start + newMatrix->getVectorSize(i);
 		for(j = start; j < end; j++){
 		    rowIndex = matIndices[j];
-		    if((begPos <= rowIndex) || (rowIndex <= endPos)){
+		    if((begPos <= rowIndex) && (rowIndex <= endPos)){
 			fixedInd_[i] = 1;
 			sizeFixedInd_ ++;
 			break;
