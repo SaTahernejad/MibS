@@ -39,11 +39,11 @@
 #include "CglTwomir.hpp"
 
 #include "OsiCbcSolverInterface.hpp"
-#ifdef COIN_HAS_SYMPHONY
+//#ifdef COIN_HAS_SYMPHONY
 #include "symphony.h"
 #include "SymConfig.h"
 #include "OsiSymSolverInterface.hpp"
-#endif
+//#endif
 #ifdef COIN_HAS_CPLEX
 #include "cplex.h"
 #include "OsiCpxSolverInterface.hpp"
@@ -682,7 +682,7 @@ MibSModel::readAuxiliaryData(int numCols, int numRows, double infinity,
      //saharSto: we do not need LC and LR, but I considered them in case we
      //want to use the input files for deterministic problems
      if(!getLowerColInd())
-	 lowerColInd_ = new int[getTruncLowerDim()];
+	 lowerColInd_ = new int[truncLColNum];
      CoinIotaN(lowerColInd_, truncLColNum, uColNum);
 
      if(!getLowerRowInd())
@@ -690,14 +690,6 @@ MibSModel::readAuxiliaryData(int numCols, int numRows, double infinity,
      CoinIotaN(lowerRowInd_, truncLRowNum, uRowNum);
      
      data_stream.close();
-       
-     uColNum = numCols - truncLColNum;
-     uRowNum = numRows - truncLRowNum;
-     //set lower col and row indices
-     lowerColInd_ = new int[getTruncLowerDim()];
-     lowerRowInd_ = new int[truncLRowNum];
-     CoinIotaN(lowerColInd_, truncLColNum, uColNum);
-     CoinIotaN(lowerRowInd_, truncLRowNum, uRowNum);
 
      std::cout << "LL Data File: " << getLowerFile() << "\n";
      std::cout << "Number of LL Variables:   "
@@ -968,8 +960,17 @@ MibSModel::setupSAA(const CoinPackedMatrix& matrix,
 {
 
     //saharSto2: we have one assumption: All SAA problems are feasible
+    //saharStoSAA: ask about generating samples
+    //saharStoSAA: lcm
+    //saharStoSAA: ask about defining symphony then check all COIN_HAS_SYMPHONY
     std::string feasCheckSolver =
 	MibSPar_->entry(MibSParams::feasCheckSolver);
+
+    int whichCutsLL =
+	MibSPar_->entry(MibSParams::whichCutsLL);
+
+    int maxThreadsLL =
+	MibSPar_->entry(MibSParams::maxThreadsLL);
     
     double timeLimit(AlpsPar()->entry(AlpsParams::timeLimit));
     
@@ -1005,9 +1006,10 @@ MibSModel::setupSAA(const CoinPackedMatrix& matrix,
     std::map<std::vector<double>, double> seenULSolutions;
     OsiSolverInterface * evalLSolver = 0;
     //store G2 matrix to avoid extracting it for evaluatuion
+    int lcmDenum = 10;
     CoinPackedMatrix *matrixG2 = new CoinPackedMatrix(false, 0, 0);
     matrixG2->setDimensions(0, truncLColNum);
-    for(i = 0; i < truncLRowNum; i++){
+    for(i = uRows; i < truncNumRows; i++){
 	row = rowMatrix.getVector(i);
 	rowInd = row.getIndices();
 	rowElem = row.getElements();
@@ -1015,7 +1017,7 @@ MibSModel::setupSAA(const CoinPackedMatrix& matrix,
 	for(j = 0; j < rowNumElem; j++){
 	    index = rowInd[j];
 	    if(index >= uCols){
-		appendedRow.insert(index - uCols, rowElem[j]);
+		appendedRow.insert(index - uCols, rowElem[j] * lcmDenum);
 	    }
 	}
 	matrixG2->appendRow(appendedRow);
@@ -1023,18 +1025,19 @@ MibSModel::setupSAA(const CoinPackedMatrix& matrix,
     }
 
     double *optSolRepl  = NULL;
-    std::vector<double> optSolReplVec;
+    std::vector<double> optSolReplVec(uCols);
     double *bestEvalSol = new double[uCols];//\hat{x*}
     CoinZeroN(bestEvalSol, uCols);
     //stores z_N^i for i = 1, ..., m 
     double *objValSAARepls = new double[replNum];
     CoinZeroN(objValSAARepls, replNum);
     double *tmpArr = new double[evalSampleSize + 1];
-    CoinZeroN(objValSAARepls, evalSampleSize + 1);
+    CoinZeroN(tmpArr, evalSampleSize + 1);
     //stores Q(\hat{x}, \xi(\omega^n)) for n = 1, ..., N' and c\hat{x*}
     double *objPartsBestEvalSol = new double[evalSampleSize + 1];//stores c\hat{x*} 
     CoinZeroN(objPartsBestEvalSol, evalSampleSize + 1);
     for(m = 0; m < replNum; m++){
+	std::cout << "Replication: " << m + 1 << std::endl;
 	optSolRepl = solveSAA(matrix, rowMatrix, varLB, varUB, objCoef, conLB,
 			   conUB, colType, objSense, truncNumCols, truncNumRows,
 			      infinity, rowSense, isTimeLimReached, objSAA);
@@ -1048,7 +1051,7 @@ MibSModel::setupSAA(const CoinPackedMatrix& matrix,
 	if(optSolRepl != NULL){
 	    objValSAARepls[m] = objSAA;
 	    std::copy(optSolRepl, optSolRepl + uCols, optSolReplVec.begin());
-	    if(seenULSolutions.find(optSolReplVec) !=
+	    if(seenULSolutions.find(optSolReplVec) ==
 	       seenULSolutions.end()){
 		objU = 0.0;
 		objEval = 0.0;
@@ -1058,6 +1061,9 @@ MibSModel::setupSAA(const CoinPackedMatrix& matrix,
 		    evalLSolver = setUpEvalLModel(matrixG2, optSolRepl, evalRHS,
 						  evalA2Matrix, varLB, varUB, rowSense,
 						  colType, infinity, i, uCols, uRows);
+
+		    evalLSolver->writeLp("evalLSolver");
+		    evalLSolver->writeMps("evalLSolverMPS", "mps", evalLSolver->getObjSense());
 
 		    remainingTime = timeLimit - broker_->subTreeTimer().getTime();
 		    remainingTime = CoinMax(remainingTime, 0.00);
@@ -1071,7 +1077,7 @@ MibSModel::setupSAA(const CoinPackedMatrix& matrix,
 			dynamic_cast<OsiCbcSolverInterface *>
 			    (evalLSolver)->getModelPtr()->messageHandler()->setLogLevel(0);
 		    }else if (feasCheckSolver == "SYMPHONY"){
-#if COIN_HAS_SYMPHONY
+			//#if COIN_HAS_SYMPHONY
 			sym_environment *env = dynamic_cast<OsiSymSolverInterface*>
 			    (evalLSolver)->getSymphonyEnvironment();
 
@@ -1088,7 +1094,7 @@ MibSModel::setupSAA(const CoinPackedMatrix& matrix,
 			}else{
 			    sym_set_int_param(env, "generate_cgl_gomory_cuts", GENERATE_DEFAULT);
 			}
-#endif
+			//#endif
 		    }else if (feasCheckSolver == "CPLEX"){
 #ifdef COIN_HAS_CPLEX
 			evalLSolver->setHintParam(OsiDoReducePrint);
@@ -1105,13 +1111,13 @@ MibSModel::setupSAA(const CoinPackedMatrix& matrix,
 
 
 		    if(feasCheckSolver == "SYMPHONY"){
-#if COIN_HAS_SYMPHONY
+			//#if COIN_HAS_SYMPHONY
 			if(sym_is_time_limit_reached(dynamic_cast<OsiSymSolverInterface*>
 						     (evalLSolver)->getSymphonyEnvironment())){
 			    isTimeLimReached = true;
 			    goto TERM_SETUPSAA;
 			}
-#endif
+			//#endif
 		    }
 		       
 		    if(!evalLSolver->isProvenOptimal()){
@@ -1144,13 +1150,14 @@ MibSModel::setupSAA(const CoinPackedMatrix& matrix,
 			objEval += tmpArr[j]; 
 		    }
 		    if(objBestEvalSol - objEval > etol){
+			objBestEvalSol = objEval;
 			memcpy(bestEvalSol, optSolRepl, sizeof(double) * uCols);
 			memcpy(objPartsBestEvalSol, tmpArr, sizeof(double) * (evalSampleSize + 1));
 		    }
 		    seenULSolutions[optSolReplVec] = objU + objL/evalSampleSize;
 		}
 	    }
-	    optSolReplVec.clear();
+	    //optSolReplVec.clear();
 	    delete [] optSolRepl;
 	}
 	else{
@@ -1331,12 +1338,12 @@ MibSModel::setUpEvalLModel(CoinPackedMatrix *matrixG2, double *optSol,
     if (feasCheckSolver == "Cbc"){
 	nSolver = new OsiCbcSolverInterface();
     }else if (feasCheckSolver == "SYMPHONY"){
-#ifdef COIN_HAS_SYMPHONY
+	//#ifdef COIN_HAS_SYMPHONY
 	nSolver = new OsiSymSolverInterface();
-#else
-	throw CoinError("SYMPHONY chosen as solver, but it has not been enabled",
-			"setUpModel", "MibsBilevel");
-#endif
+	//#else
+	//throw CoinError("SYMPHONY chosen as solver, but it has not been enabled",
+	//		"setUpModel", "MibsBilevel");
+	//#endif
     }else if (feasCheckSolver == "CPLEX"){
 #ifdef COIN_HAS_CPLEX
 	nSolver = new OsiCpxSolverInterface();
@@ -1354,7 +1361,7 @@ MibSModel::setUpEvalLModel(CoinPackedMatrix *matrixG2, double *optSol,
 
     for(i = uCols; i < numCols; i++){
 	if((colType[i] == 'B') || (colType[i] == 'I')){
-	    nSolver->setInteger(i);
+	    nSolver->setInteger(i - uCols);
 	}
     }
 
@@ -1395,6 +1402,7 @@ MibSModel::solveSAA(const CoinPackedMatrix& matrix,
     int sampleSize(MibSPar_->entry(MibSParams::sampSizeSAA));//N
     int i(0), j(0);
     int index(0), pos(0);
+    double optVal(0.0);
     int truncLColNum(getTruncLowerDim());
     int truncLRowNum(getTruncLowerRowNum());
     int uColNum(truncNumCols - truncLColNum);
@@ -1508,6 +1516,8 @@ MibSModel::solveSAA(const CoinPackedMatrix& matrix,
 
     brokerSAA.search(modelSAA);
 
+    brokerSAA.printBestSolution();
+
     MibSSolution *mibsSol = NULL;
 
     //saharSto2: check it
@@ -1521,7 +1531,15 @@ MibSModel::solveSAA(const CoinPackedMatrix& matrix,
     double *optSol = NULL;
     if(mibsSol != NULL){
 	optSol = new double[uColNum];
-	memcpy(optSol, mibsSol->getValues(), uColNum);
+	for(i = 0; i < uColNum; i++){
+	    optVal = mibsSol->getValues()[i];
+	    if(modelSAA->solver()->isInteger(i)){
+		optSol[i] = floor(optVal + 0.5);
+	    }
+	    else{
+		optSol[i] = optVal;
+	    }
+	}
     }
     else{
 	if(brokerSAA.getSolStatus() == AlpsExitStatusTimeLimit){
@@ -1535,7 +1553,6 @@ MibSModel::solveSAA(const CoinPackedMatrix& matrix,
     }
 
     delete [] b2Arr;
-    delete stocA2Matrix;
     delete modelSAA;
 
     return optSol;
@@ -1548,7 +1565,8 @@ MibSModel::generateSamples(int size, int truncNumCols, double *rhs)
 {
     
     int i(0), j(0), n(0);
-    int tmpVal(0);
+    double tmpVal(0.0);
+    int genVal(0);
     double etol(etol_);
     int truncLowerDim(getTruncLowerDim());
     int truncLowerRowNum(getTruncLowerRowNum());
@@ -1560,16 +1578,23 @@ MibSModel::generateSamples(int size, int truncNumCols, double *rhs)
     int ubA2(MibSPar_->entry(MibSParams::ubDistA2SAA));
     //saharSto2: it is assumed that incB2Numer <= incB2Denum
     //and they are relatively prime (the same for A2)
-    double incB2Numer(MibSPar_->entry(MibSParams::incDistB2NumerSAA));
-    double incB2Denum(MibSPar_->entry(MibSParams::incDistB2DenumSAA));
-    double incA2Numer(MibSPar_->entry(MibSParams::incDistA2NumerSAA));
-    double incA2Denum(MibSPar_->entry(MibSParams::incDistA2DenumSAA));
+    //strict assumption: numerators are 1
+    int incB2Numer(MibSPar_->entry(MibSParams::incDistB2NumerSAA));
+    int incB2Denum(MibSPar_->entry(MibSParams::incDistB2DenumSAA));
+    int incA2Numer(MibSPar_->entry(MibSParams::incDistA2NumerSAA));
+    int incA2Denum(MibSPar_->entry(MibSParams::incDistA2DenumSAA));
+
+    int lcmDenum = 10;
 
     //saharSto2: check it
-    int tmpB2 = floor((ubB2 - lbB2) * incB2Denum/incB2Numer) + 1;
-    int tmpA2 = floor((ubA2 - lbA2) * incA2Denum/incA2Numer) + 1;
+    int tmpB2 = (ubB2 - lbB2) * incB2Denum + 1;
+    int tmpA2 = (ubA2 - lbA2) * incA2Denum + 1;
 
+
+    static unsigned int lastSeed = 123456;
+    lastSeed = 1664525 * lastSeed + 1013904223;
     std::default_random_engine generator;
+    generator.seed(lastSeed);
     std::uniform_int_distribution<int> distB2(1, tmpB2);
     std::uniform_int_distribution<int> distA2(1, tmpA2);
 
@@ -1583,15 +1608,17 @@ MibSModel::generateSamples(int size, int truncNumCols, double *rhs)
 	//generate A2
 	for(i = 0; i < truncLowerRowNum; i++){
 	    for(j = 0; j < uColNum; j++){
-		tmpVal = (distA2(generator) - 1) * incA2Numer/incA2Denum + lbA2;
+		tmpVal = (distA2(generator) - 1) * incA2Numer * lcmDenum/incA2Denum + lbA2 * lcmDenum;
 		if(fabs(tmpVal) > etol_){
-		    row.insert(j, tmpVal);
+		    genVal = (int)round(tmpVal);
+		    row.insert(j, genVal);
 		}
 	    }
 	    stocMatrixA2->appendRow(row);
 	    row.clear();
-	    tmpVal = (distB2(generator) - 1) * incB2Numer/incB2Denum + lbB2;
-	    rhs[n * truncLowerRowNum + i] = tmpVal;
+	    tmpVal = (distB2(generator) - 1) * incB2Numer * lcmDenum/incB2Denum + lbB2 * lcmDenum;
+	    genVal = (int)round(tmpVal);
+	    rhs[n * truncLowerRowNum + i] = genVal;
 	}
     }
 
@@ -1733,6 +1760,10 @@ MibSModel::loadProblemData(const CoinPackedMatrix& matrix,
 
 	  //set matrix
 	  //extract truncG2
+	  int lcmDenum (1);
+	  if(stochasticityType == "stochasticSAA"){
+	      lcmDenum = 10;
+	  }
 	  CoinPackedMatrix *truncMatrixG2 = NULL;
 	  truncMatrixG2 = new CoinPackedMatrix(true, 0, 0);
 	  truncMatrixG2->setDimensions(truncNumLRows, 0);
@@ -1742,7 +1773,7 @@ MibSModel::loadProblemData(const CoinPackedMatrix& matrix,
 	      rowElem = row1.getElements();
 	      rowNumElem = row1.getNumElements();
 	      for(j = 0; j < rowNumElem; j++){
-		  row2.insert(rowInd[j] - numURows, rowElem[j]);
+		  row2.insert(rowInd[j] - numURows, rowElem[j] * lcmDenum);
 	      }
 	      truncMatrixG2->appendCol(row2);
 	      row1.clear();
@@ -1805,17 +1836,28 @@ MibSModel::loadProblemData(const CoinPackedMatrix& matrix,
 	  //set objective
 	  index = numUCols;
 	  CoinDisjointCopyN(obj, numUCols, objCoef);
-	  double *subObjCoef = new double[truncNumLCols];
-	  CoinDisjointCopyN(obj + numUCols, truncNumLCols, subObjCoef);
-	  for(i = 0; i < numScenarios; i++){
-	      prob = scenarioProb[i];
-	      for(j = 0; j < truncNumLCols; j++){
-		  objCoef[index] = prob * subObjCoef[j];
-		  index ++;
+	  if(stochasticityType == "stochasticSmps"){
+	      double *subObjCoef = new double[truncNumLCols];
+	      CoinDisjointCopyN(obj + numUCols, truncNumLCols, subObjCoef);
+	      for(i = 0; i < numScenarios; i++){
+		  prob = scenarioProb[i];
+		  for(j = 0; j < truncNumLCols; j++){
+		      objCoef[index] = prob * subObjCoef[j];
+		      index ++;
+		  }
+	      }
+
+	      delete [] subObjCoef;
+	  }
+	  else{
+	      for(i = 0; i < numUCols; i++){
+		  objCoef[i] = objCoef[i] * numScenarios;
+	      }
+	      for(i = 0; i < numScenarios; i++){
+		  index = numUCols + i * truncNumLCols;
+		  CoinDisjointCopyN(obj + numUCols, truncNumLCols, objCoef + index);
 	      }
 	  }
-
-	  delete [] subObjCoef;
 
 	  //saharSto: check it
 	  origRowSense_ = new char[truncNumRows];
