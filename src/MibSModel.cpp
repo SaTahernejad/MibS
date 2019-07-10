@@ -71,6 +71,9 @@
 #else
 #include "AlpsKnowledgeBrokerSerial.h"
 #endif
+#ifdef _OPENMP
+#include "omp.h"
+#endif 
 
 //#############################################################################
 MibSModel::MibSModel()
@@ -205,6 +208,12 @@ MibSModel::readParameters(const int argnum, const char * const * arglist)
     AlpsPar_->readFromArglist(argnum, arglist); 
     BlisPar_->readFromArglist(argnum, arglist);
     MibSPar_->readFromArglist(argnum, arglist);
+#ifdef _OPENMP 
+    int maxActiveNodes(MibSPar_->entry
+		       (MibSParams::maxActiveNodes));
+    omp_set_num_threads(maxActiveNodes);
+#endif
+    
 }
 
 //#############################################################################

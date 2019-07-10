@@ -47,6 +47,10 @@
 #include "OsiSymSolverInterface.hpp"
 #endif
 
+#ifdef _OPENMP
+#include "omp.h"
+#endif 
+
 //#############################################################################
 MibSCutGenerator::MibSCutGenerator(MibSModel *mibs)
 {
@@ -1683,13 +1687,13 @@ MibSCutGenerator::storeBestSolHypercubeIC(const double* lpSol,
 			(MibSParams::useUBDecompose));
     int numScenarios(localModel_->getNumScenarios()); 
     double timeLimit(localModel_->AlpsPar()->entry(AlpsParams::timeLimit));
-    double remainingTime(0.0);
     
     OsiSolverInterface * oSolver = localModel_->solver();
     MibSBilevel *bS = localModel_->bS_;
     int i(0);
     int lpStat;
-    bool isUBProvenOptimal(true);
+    int localCounterUB(0);
+    bool isUBProvenOptimal(true), localShouldPrune(false);
     int numCols(oSolver->getNumCols());
     int uN(localModel_->getUpperDim());
     int lN(localModel_->getLowerDim());
@@ -1709,8 +1713,6 @@ MibSCutGenerator::storeBestSolHypercubeIC(const double* lpSol,
 	    linkSol.push_back(lpSol[i]);
 	}
     }
-    
-    OsiSolverInterface *UBSolver = 0;
 
     //std::vector<double> optLowerObjVec;
     //optLowerObjVec.push_back(optLowerObj);
@@ -1737,7 +1739,16 @@ MibSCutGenerator::storeBestSolHypercubeIC(const double* lpSol,
       } 
     }
 
+    if(numDecomposedProbs > 1){
+#ifdef _OPENMP
+#pragma omp parallel for reduction(+:localCounterUB) reduction(+:objVal) reduction(&&:isUBProvenOptimal) reduction(||:localShouldPrune)
+#endif
+    }
     for(i = 0; i < numDecomposedProbs; i++){
+      OsiSolverInterface *UBSolver = 0;   
+      double remainingTime(0.0);
+      localShouldPrune = bS->shouldPrune_;
+
       if(numDecomposedProbs == 1){
 	UBSolver = bS->setUpUBModel(localModel_->getSolver(), optLowerObjVec, true);
       }
@@ -1748,9 +1759,12 @@ MibSCutGenerator::storeBestSolHypercubeIC(const double* lpSol,
       remainingTime = timeLimit - localModel_->broker_->subTreeTimer().getTime();
 
       if(remainingTime <= localModel_->etol_){
-	isTimeLimReached = true;
+#ifdef _OPENMP
+	localShouldPrune = true;
+#else
 	bS->shouldPrune_ = true;
-	break;
+#endif
+	goto TERM_LOCAL_STOREBESTSOL;
       }
       else{
 	remainingTime = CoinMax(remainingTime, 0.00);
@@ -1806,18 +1820,26 @@ MibSCutGenerator::storeBestSolHypercubeIC(const double* lpSol,
 #endif
 	}
 
+#ifdef _OPENMP
+	UBSolver->branchAndBound();
+	localCounterUB ++;
+#else
 	startTimeUB = localModel_->broker_->subTreeTimer().getTime(); 
         UBSolver->branchAndBound();
         localModel_->timerUB_ += localModel_->broker_->subTreeTimer().getTime() - startTimeUB;
         localModel_->counterUB_ ++;
+#endif
 
 	if(feasCheckSolver == "SYMPHONY"){
 #ifdef COIN_HAS_SYMPHONY
 	    if(sym_is_time_limit_reached(dynamic_cast<OsiSymSolverInterface *>
 					 (UBSolver)->getSymphonyEnvironment())){
-		isTimeLimReached = true;
-		bS->shouldPrune_ = true;
-		break;
+#ifdef _OPENMP
+	      localShouldPrune = true;
+#else
+	      bS->shouldPrune_ = true;
+#endif
+	      goto TERM_LOCAL_STOREBESTSOL;
 	    }
 #endif
 	}
@@ -1829,9 +1851,12 @@ MibSCutGenerator::storeBestSolHypercubeIC(const double* lpSol,
 				(UBSolver)->getLpPtr());
 	    if((lpStat == CPXMIP_TIME_LIM_FEAS) ||
 	       (lpStat == CPXMIP_TIME_LIM_INFEAS)){
-		isTimeLimReached = true;
-		bS->shouldPrune_ = true;
-	        break;
+#ifdef _OPENMP
+	      localShouldPrune = true;
+#else
+	      bS->shouldPrune_ = true;
+#endif
+	      goto TERM_LOCAL_STOREBESTSOL;
 	    }
 #endif
 	}
@@ -1858,9 +1883,23 @@ MibSCutGenerator::storeBestSolHypercubeIC(const double* lpSol,
 	  }
 	}
       }
+    TERM_LOCAL_STOREBESTSOL:
       delete UBSolver;
     }
 
+#ifdef _OPENMP
+    localModel_->counterUB_ += localCounterUB;
+
+    if(localShouldPrune == true){
+      bS->shouldPrune_ = true;
+    }
+#endif
+
+    if(timeLimit - localModel_->broker_->subTreeTimer().getTime() <= localModel_->etol_){
+      isTimeLimReached = true;
+      bS->shouldPrune_ = true;
+    }
+      
     if(isTimeLimReached == false){
       if(isUBProvenOptimal == true){
 	MibSSolution *mibsSol = new MibSSolution(numCols,

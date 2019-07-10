@@ -351,20 +351,19 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot)
     int useLinkingSolutionPool(model_->MibSPar_->entry
 			    (MibSParams::useLinkingSolutionPool));
     double timeLimit(model_->AlpsPar()->entry(AlpsParams::timeLimit));
-    double remainingTimeUBProb(0.0), startTimeVF(0.0), startTimeUB(0.0);
+    double startTimeVF(0.0), startTimeUB(0.0);
     MibSSolType storeSol(MibSNoSol);
     int truncLN(model_->truncLowerDim_);;
     int lN(model_->lowerDim_); // lower-level dimension
     int uN(model_->upperDim_); // lower-level dimension
     int i(0), index(0), length(0), pos(0);
-    int localCounterVF(0);
+    int localCounterVF(0), localCounterUB(0);
     bool localIsProvenOptimal(true), localShouldPrune(false);
     int sizeFixedInd(model_->sizeFixedInd_);
     double etol(model_->etol_), lowerObj(0.0);
     int * fixedInd = model_->fixedInd_;
     int * lowerColInd = model_->getLowerColInd();
     int * upperColInd = model_->getUpperColInd();
-    OsiSolverInterface *UBSolver = 0;
 
     //saharSto: fix it later
     if(numScenarios == 1){
@@ -413,7 +412,6 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot)
 	shouldStoreObjValues.resize(numScenarios);
 	lowerSol = new double[lN];
 	CoinFillN(lowerSol, lN, 0.0);
-	omp_set_num_threads(maxActiveNodes);
 #pragma omp parallel for reduction(+:localCounterVF) reduction(&&:localIsProvenOptimal) reduction(||:localShouldPrune)
 #endif
 	
@@ -443,7 +441,6 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot)
 		lSolver->writeLp("lSolver");
 
 	    remainingTimeLProb = timeLimit - model_->broker_->subTreeTimer().getTime();
-	    remainingTimeLProb = CoinMax(remainingTimeLProb, 0.00);
 	    if(remainingTimeLProb <= etol){
 #ifdef _OPENMP
 	      localShouldPrune = true;
@@ -454,6 +451,8 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot)
 	      goto TERM_CHECKBILEVELFEAS;
 #endif
 	    }
+
+	    remainingTimeLProb = CoinMax(remainingTimeLProb, 0.00);  
 
 	    if (feasCheckSolver == "Cbc"){
 		dynamic_cast<OsiCbcSolverInterface *>
@@ -828,7 +827,15 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot)
 		}
 	      }
 
+if(numDecomposedProbs > 1){
+#ifdef _OPENMP
+#pragma omp parallel for reduction(+:localCounterUB) reduction(+:objVal) reduction(&&:isUBProvenOptimal) reduction(||:localShouldPrune)
+#endif
+ }
 	      for(i = 0; i < numDecomposedProbs; i++){
+		double remainingTimeUBProb(0.0);
+		OsiSolverInterface *UBSolver = 0;
+		localShouldPrune = shouldPrune_;
 		if(numDecomposedProbs == 1){
 		  UBSolver = setUpUBModel(oSolver, shouldStoreObjValues, true);
 		}
@@ -838,13 +845,18 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot)
 
 		if(0)
 		    UBSolver->writeLp("UBSolver");
-
+		
 		remainingTimeUBProb = timeLimit - model_->broker_->subTreeTimer().getTime();
 
 		if(remainingTimeUBProb <= etol){
+#ifdef _OPENMP 
+		  localShouldPrune = true;
+		  goto TERM_LOCAL_SOLVEUB;
+#else
 		    shouldPrune_ = true;
 		    storeSol = MibSNoSol;
 		    goto TERM_CHECKBILEVELFEAS;
+#endif
 		}
 		
 		remainingTimeUBProb = CoinMax(remainingTimeUBProb, 0.00);
@@ -900,10 +912,17 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot)
 		}
 
 		//step 19
+#ifdef _OPENMP
+		UBSolver->branchAndBound();
+		localCounterUB ++;
+#else
+		//saharParallel: think about the time for solving problem UB
 		startTimeUB = model_->broker_->subTreeTimer().getTime(); 
 		UBSolver->branchAndBound();
 		model_->timerUB_ += model_->broker_->subTreeTimer().getTime() - startTimeUB;
 		model_->counterUB_ ++;
+#endif
+		//saharParallel: check it
 		if(i == numDecomposedProbs - 1){
 		  isUBSolved_ = true;
 		}
@@ -912,9 +931,14 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot)
 #ifdef COIN_HAS_SYMPHONY
 		    if(sym_is_time_limit_reached(dynamic_cast<OsiSymSolverInterface *>
 						 (UBSolver)->getSymphonyEnvironment())){
-			shouldPrune_ = true;
-			storeSol = MibSNoSol;
-			goto TERM_CHECKBILEVELFEAS;
+#ifdef _OPENMP
+		      localShouldPrune = true;
+		      goto TERM_LOCAL_SOLVEUB;
+#else
+		      shouldPrune_ = true;
+		      storeSol = MibSNoSol;
+		      goto TERM_CHECKBILEVELFEAS;
+#endif
 		    }
 #endif
 		}
@@ -926,9 +950,14 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot)
 					(UBSolver)->getLpPtr());
 		    if((lpStat == CPXMIP_TIME_LIM_FEAS) ||
 		       (lpStat == CPXMIP_TIME_LIM_INFEAS)){
-			shouldPrune_ = true;
-			storeSol = MibSNoSol;
-			goto TERM_CHECKBILEVELFEAS;
+#ifdef _OPENMP
+		      localShouldPrune = true;
+		      goto TERM_LOCAL_SOLVEUB;
+#else
+		      shouldPrune_ = true;
+		      storeSol = MibSNoSol;
+		      goto TERM_CHECKBILEVELFEAS;
+#endif
 		    }
 #endif
 		}
@@ -954,10 +983,24 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot)
 				    "checkBilevelFeasiblity", "MibSBilevel");
 		  }
 		}
+	      TERM_LOCAL_SOLVEUB:
 		delete UBSolver;
 	      }
 
-		if(isUBProvenOptimal){
+#ifdef _OPENMP
+	      counterUB_ += localCounterUB;
+	      
+	      if(timeLimit - model_->broker_->subTreeTimer().getTime() <= etol){
+		shouldPrune_ = true;
+		storeSol = MibSNoSol;
+		goto TERM_CHECKBILEVELFEAS;
+	      }
+	      
+	      if(localShouldPrune == true){
+		shouldPrune_ = true;
+	      }
+#endif
+		if(isUBProvenOptimal == true){
 		    isProvenOptimal_ = true;
 		    if(shouldStoreSolution == true){
 		      std::copy(valuesUB, valuesUB + uN + lN, shouldStoreValuesUBSol.begin());
