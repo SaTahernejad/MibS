@@ -1691,7 +1691,6 @@ MibSCutGenerator::storeBestSolHypercubeIC(const double* lpSol,
     OsiSolverInterface * oSolver = localModel_->solver();
     MibSBilevel *bS = localModel_->bS_;
     int i(0);
-    int lpStat;
     int localCounterUB(0);
     bool isUBProvenOptimal(true), localShouldPrune(false);
     int numCols(oSolver->getNumCols());
@@ -1699,7 +1698,8 @@ MibSCutGenerator::storeBestSolHypercubeIC(const double* lpSol,
     int lN(localModel_->getLowerDim());
     int truncLN(localModel_->getTruncLowerDim());
     double objVal(0.0);
-    double startTimeUB(0.0);
+    double infinit(oSolver->getInfinity());
+    double startTimeUB(infinit), endTimeUB(-1 * infinit);
     int * fixedInd = localModel_->getFixedInd();
     
     int useLinkingSolutionPool(localModel_->MibSPar_->entry
@@ -1727,6 +1727,7 @@ MibSCutGenerator::storeBestSolHypercubeIC(const double* lpSol,
 	UBSolver = bS->UBSolver_;*/
 
     int numDecomposedProbs(1);
+    double localObjVal(0.0); 
 
     if((numScenarios > 1) && (useUBDecompose == true) && (localModel_->sizeFixedInd_ == uN)){
       numDecomposedProbs = numScenarios;
@@ -1739,15 +1740,14 @@ MibSCutGenerator::storeBestSolHypercubeIC(const double* lpSol,
       } 
     }
 
-    if(numDecomposedProbs > 1){
+    
 #ifdef _OPENMP
-#pragma omp parallel for reduction(+:localCounterUB) reduction(+:objVal) reduction(&&:isUBProvenOptimal) reduction(||:localShouldPrune)
+#pragma omp parallel for reduction(+:localCounterUB) reduction(+:localObjVal) reduction(&&:isUBProvenOptimal) reduction(||:localShouldPrune) reduction(min:startTimeUB) reduction(max:endTimeUB)
 #endif
-    }
     for(i = 0; i < numDecomposedProbs; i++){
       OsiSolverInterface *UBSolver = 0;   
       double remainingTime(0.0);
-      localShouldPrune = bS->shouldPrune_;
+      int lpStat;
 
       if(numDecomposedProbs == 1){
 	UBSolver = bS->setUpUBModel(localModel_->getSolver(), optLowerObjVec, true);
@@ -1821,7 +1821,9 @@ MibSCutGenerator::storeBestSolHypercubeIC(const double* lpSol,
 	}
 
 #ifdef _OPENMP
+	startTimeUB = CoinMin(startTimeUB, localModel_->broker_->subTreeTimer().getWallClock());
 	UBSolver->branchAndBound();
+	endTimeUB = CoinMax(endTimeUB, localModel_->broker_->subTreeTimer().getWallClock());
 	localCounterUB ++;
 #else
 	startTimeUB = localModel_->broker_->subTreeTimer().getTime(); 
@@ -1862,7 +1864,7 @@ MibSCutGenerator::storeBestSolHypercubeIC(const double* lpSol,
 	}
 
 	if(UBSolver->isProvenOptimal()){
-	  isUBProvenOptimal = true;
+	  //isUBProvenOptimal = true;
 	  const double *partialValuesUB = UBSolver->getColSolution();
 	  if(numDecomposedProbs == 1){
 	    CoinDisjointCopyN(partialValuesUB, lN + uN, valuesUB);
@@ -1871,7 +1873,11 @@ MibSCutGenerator::storeBestSolHypercubeIC(const double* lpSol,
 	    int begPos = uN + i * truncLN;
 	    CoinDisjointCopyN(partialValuesUB, truncLN, valuesUB + begPos);
 	  }
+#ifdef _OPENMP
+	  localObjVal += UBSolver->getObjValue() * localModel_->solver()->getObjSense();
+#else
 	  objVal += UBSolver->getObjValue() * localModel_->solver()->getObjSense();
+#endif
 	}
 	else{
 	  isUBProvenOptimal = false;
@@ -1888,8 +1894,9 @@ MibSCutGenerator::storeBestSolHypercubeIC(const double* lpSol,
     }
 
 #ifdef _OPENMP
+    objVal += localObjVal;
     localModel_->counterUB_ += localCounterUB;
-
+    localModel_->timerUB_ += endTimeUB - startTimeUB;
     if(localShouldPrune == true){
       bS->shouldPrune_ = true;
     }
