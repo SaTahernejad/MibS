@@ -435,6 +435,18 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot)
 	    double remainingTimeLProb(0.0), objVal(0.0);
 	    int begPos(0), lpStat;
 
+            remainingTimeLProb = timeLimit - model_->broker_->subTreeTimer().getTime();
+	    if(remainingTimeLProb <= etol){
+#ifdef _OPENMP
+		localShouldPrune = true;
+		goto TERM_LOCAL_SOLVEVF;
+#else
+		shouldPrune_ = true;
+		storeSol = MibSNoSol;
+		goto TERM_CHECKBILEVELFEAS;
+#endif
+	    }
+
 	    if(warmStartLL && (feasCheckSolver == "SYMPHONY")){
 	      if(lSolver_){
 		lSolver_ = setUpModel(oSolver, false, i);
@@ -696,7 +708,9 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot)
 	    }*/
 	TERM_LOCAL_SOLVEVF:
 	    if((!warmStartLL) || (feasCheckSolver != "SYMPHONY")){
-	      delete lSolver;
+		if(lSolver){
+		    delete lSolver;
+		}
 	    }
       }
 
@@ -852,6 +866,20 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot)
 		int lpStat;
 		double remainingTimeUBProb(0.0);
 		OsiSolverInterface *UBSolver = 0;
+
+                remainingTimeUBProb = timeLimit - model_->broker_->subTreeTimer().getTime();
+
+		if(remainingTimeUBProb <= etol){
+#ifdef _OPENMP
+		    localShouldPrune = true;
+		    goto TERM_LOCAL_SOLVEUB;
+#else
+		    shouldPrune_ = true;
+		    storeSol = MibSNoSol;
+		    goto TERM_CHECKBILEVELFEAS;
+#endif
+		}
+		
 		if(numDecomposedProbs == 1){
 		  UBSolver = setUpUBModel(oSolver, shouldStoreObjValues, true);
 		}
@@ -1006,7 +1034,9 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot)
 		  }
 		}
 	      TERM_LOCAL_SOLVEUB:
-		delete UBSolver;
+		if(UBSolver){
+		    delete UBSolver;
+		}
 	      }
 
 #ifdef _OPENMP
