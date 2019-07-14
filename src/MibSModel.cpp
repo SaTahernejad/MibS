@@ -207,13 +207,7 @@ MibSModel::readParameters(const int argnum, const char * const * arglist)
      //std::cout << "Reading parameters ..." << std::endl;
     AlpsPar_->readFromArglist(argnum, arglist); 
     BlisPar_->readFromArglist(argnum, arglist);
-    MibSPar_->readFromArglist(argnum, arglist);
-#ifdef _OPENMP 
-    int maxActiveNodes(MibSPar_->entry
-		       (MibSParams::maxActiveNodes));
-    omp_set_num_threads(maxActiveNodes);
-#endif
-    
+    MibSPar_->readFromArglist(argnum, arglist);    
 }
 
 //#############################################################################
@@ -1193,6 +1187,7 @@ MibSModel::setupSAA(const CoinPackedMatrix& matrix,
     //saharStoSAA: ask about generating samples
     //saharStoSAA: lcm
     //saharStoSAA: ask about defining symphony then check all COIN_HAS_SYMPHONY
+  
     std::string feasCheckSolver =
 	MibSPar_->entry(MibSParams::feasCheckSolver);
 
@@ -1201,6 +1196,8 @@ MibSModel::setupSAA(const CoinPackedMatrix& matrix,
 
     int maxThreadsLL =
 	MibSPar_->entry(MibSParams::maxThreadsLL);
+    
+    int maxActiveNodes(MibSPar_->entry(MibSParams::maxActiveNodes));
     
     double timeLimit(AlpsPar()->entry(AlpsParams::timeLimit));
 
@@ -1214,7 +1211,7 @@ MibSModel::setupSAA(const CoinPackedMatrix& matrix,
     int index(0), rowNumElem(0), allScenariosNumSMPS(0);
     double element(0.0);
     double etol(etol_);
-    double remainingTime(0.0) ,objU(0.0), objL(0.0);
+    double objU(0.0);
     double objSAA(0.0);//z_N^i
     double objEval(0.0);//\hat{z}_N'(\hat{x}^i)
     double objBestEvalSol(infinity);//\hat{z}_N'(\hat{x}^*)
@@ -1294,8 +1291,6 @@ MibSModel::setupSAA(const CoinPackedMatrix& matrix,
     
     //evaluated upper-level solutions
     std::map<std::vector<double>, double> seenULSolutions;
-    OsiSolverInterface * evalLSolver = 0;
-    OsiSolverInterface * evalBestSolver = 0;
     //store G2 matrix to avoid extracting it for evaluatuion
     int lcmDenum = 1;
     CoinPackedMatrix *matrixG2 = new CoinPackedMatrix(false, 0, 0);
@@ -1345,18 +1340,41 @@ MibSModel::setupSAA(const CoinPackedMatrix& matrix,
 	       seenULSolutions.end()){
 		objU = 0.0;
 		objEval = 0.0;
+		isLowerInfeasible = false;
+#ifdef _OPENMP
+		omp_set_num_threads(maxActiveNodes);
+#pragma omp parallel for reduction(||:isLowerInfeasible) reduction(||:isTimeLimReached)
+#endif
 		for(i = 0; i < evalSampleSize; i++){
-		    objL = 0.0;
-		    isLowerInfeasible = false;
+		    double remainingTimeEval = 0.0;
+		    double objL = 0.0;
+		    int lpStat;
+		    OsiSolverInterface * evalLSolver = 0;
+		    OsiSolverInterface * evalBestSolver = 0; 
+                    remainingTimeEval = timeLimit - broker_->subTreeTimer().getTime();
+		    if(remainingTimeEval <= etol){
+			isTimeLimReached = true;
+#ifdef _OPENMP
+			goto TERM_LOCAL_SOLVEEVALL;
+#else
+			goto TERM_SETUPSAA;
+#endif
+		    }
+		    
 		    evalLSolver = setUpEvalModels(matrixG2, optSolRepl, evalRHS,
 						  evalA2Matrix, varLB, varUB, objCoef, rowSense,
 						  colType, infinity, i, uCols, uRows);
 
-		    remainingTime = timeLimit - broker_->subTreeTimer().getTime();
-		    remainingTime = CoinMax(remainingTime, 0.00);
-		    if(remainingTime <= etol){
+		    remainingTimeEval = timeLimit - broker_->subTreeTimer().getTime();
+		    remainingTimeEval = CoinMax(remainingTimeEval, 0.00);
+		    if(remainingTimeEval <= etol){
 			isTimeLimReached = true;
+#ifdef _OPENMP
+			goto TERM_LOCAL_SOLVEEVALL;
+#else
+			delete evalLSolver;
 			goto TERM_SETUPSAA;
+#endif
 		    }
 
 		    if (feasCheckSolver == "Cbc"){
@@ -1367,10 +1385,10 @@ MibSModel::setupSAA(const CoinPackedMatrix& matrix,
 			sym_environment *env = dynamic_cast<OsiSymSolverInterface*>
 			    (evalLSolver)->getSymphonyEnvironment();
 
-			sym_set_dbl_param(env, "time_limit", remainingTime);
+			sym_set_dbl_param(env, "time_limit", remainingTimeEval);
 			sym_set_int_param(env, "do_primal_heuristic", FALSE);
 			sym_set_int_param(env, "verbosity", -2);
-			sym_set_int_param(env, "prep_level", -1);
+			//sym_set_int_param(env, "prep_level", -1);
 			sym_set_int_param(env, "max_active_nodes", maxThreadsLL);
 			sym_set_int_param(env, "tighten_root_bounds", FALSE);
 			sym_set_int_param(env, "max_sp_size", 100);
@@ -1390,6 +1408,8 @@ MibSModel::setupSAA(const CoinPackedMatrix& matrix,
 			assert(cpxEnv);
 			CPXsetintparam(cpxEnv, CPX_PARAM_SCRIND, CPX_OFF);
 			CPXsetintparam(cpxEnv, CPX_PARAM_THREADS, maxThreadsLL);
+			CPXsetintparam(cpxEnv, CPX_PARAM_CLOCKTYPE, 1);
+			CPXsetdblparam(cpxEnv, CPX_PARAM_TILIM, remainingTimeEval);
 #endif
 		    }
 
@@ -1401,14 +1421,42 @@ MibSModel::setupSAA(const CoinPackedMatrix& matrix,
 			if(sym_is_time_limit_reached(dynamic_cast<OsiSymSolverInterface*>
 						     (evalLSolver)->getSymphonyEnvironment())){
 			    isTimeLimReached = true;
+#ifdef _OPENMP
+			    goto TERM_LOCAL_SOLVEEVALL;
+#else
+			    delete evalLSolver; 
 			    goto TERM_SETUPSAA;
+#endif
 			}
 			//#endif
+		    }
+		    else if(feasCheckSolver == "CPLEX"){
+#ifdef COIN_HAS_CPLEX
+			lpStat = CPXgetstat(dynamic_cast<OsiCpxSolverInterface*>
+					    (evalLSolver)->getEnvironmentPtr(),
+					    dynamic_cast<OsiCpxSolverInterface*>
+					    (evalLSolver)->getLpPtr());
+			if((lpStat == CPXMIP_TIME_LIM_FEAS) ||
+			   (lpStat == CPXMIP_TIME_LIM_INFEAS)){
+			    isTimeLimReached = true;
+#ifdef _OPENMP
+			    goto TERM_LOCAL_SOLVEEVALL;
+#else
+			    delete evalLSolver;
+			    goto TERM_SETUPSAA;
+#endif
+			}
+#endif
 		    }
 		       
 		    if(!evalLSolver->isProvenOptimal()){
 			isLowerInfeasible = true;
+#ifdef _OPENMP
+			goto TERM_LOCAL_SOLVEEVALL;
+#else
+			delete evalLSolver; 
 			break;
+#endif
 		    }
 		    else{
 			evalBestSolver = setUpEvalModels(matrixG2, optSolRepl, evalRHS,
@@ -1416,11 +1464,16 @@ MibSModel::setupSAA(const CoinPackedMatrix& matrix,
 							 rowSense, colType, infinity, i, uCols, uRows,
 							 evalLSolver->getObjValue(), false);
 
-			remainingTime = timeLimit - broker_->subTreeTimer().getTime();
-			remainingTime = CoinMax(remainingTime, 0.00);
-			if(remainingTime <= etol){
+			remainingTimeEval = timeLimit - broker_->subTreeTimer().getTime();
+			remainingTimeEval = CoinMax(remainingTimeEval, 0.00);
+			if(remainingTimeEval <= etol){
 			    isTimeLimReached = true;
+#ifdef _OPENMP
+			    goto TERM_LOCAL_SOLVEEVALL;
+#else
+			    delete evalBestSolver;
 			    goto TERM_SETUPSAA;
+#endif
 			}
 
 			if (feasCheckSolver == "Cbc"){
@@ -1431,10 +1484,10 @@ MibSModel::setupSAA(const CoinPackedMatrix& matrix,
 			    sym_environment *env = dynamic_cast<OsiSymSolverInterface*>
 				(evalBestSolver)->getSymphonyEnvironment();
 
-			    sym_set_dbl_param(env, "time_limit", remainingTime);
+			    sym_set_dbl_param(env, "time_limit", remainingTimeEval);
 			    sym_set_int_param(env, "do_primal_heuristic", FALSE);
 			    sym_set_int_param(env, "verbosity", -2);
-			    sym_set_int_param(env, "prep_level", -1);
+			    //sym_set_int_param(env, "prep_level", -1);
 			    sym_set_int_param(env, "max_active_nodes", maxThreadsLL);
 			    sym_set_int_param(env, "tighten_root_bounds", FALSE);
 			    sym_set_int_param(env, "max_sp_size", 100);
@@ -1446,7 +1499,7 @@ MibSModel::setupSAA(const CoinPackedMatrix& matrix,
 			    }
 			    //#endif
 			}else if (feasCheckSolver == "CPLEX"){
-			    #ifdef COIN_HAS_CPLEX
+#ifdef COIN_HAS_CPLEX
 			    evalBestSolver->setHintParam(OsiDoReducePrint);
 			    evalBestSolver->messageHandler()->setLogLevel(0);
 			    CPXENVptr cpxEnv =
@@ -1454,7 +1507,9 @@ MibSModel::setupSAA(const CoinPackedMatrix& matrix,
 			    assert(cpxEnv);
 			    CPXsetintparam(cpxEnv, CPX_PARAM_SCRIND, CPX_OFF);
 			    CPXsetintparam(cpxEnv, CPX_PARAM_THREADS, maxThreadsLL);
-			    #endif
+			    CPXsetintparam(cpxEnv, CPX_PARAM_CLOCKTYPE, 1);
+			    CPXsetdblparam(cpxEnv, CPX_PARAM_TILIM, remainingTimeEval);
+#endif
 			}
 
 			evalBestSolver->branchAndBound();
@@ -1464,10 +1519,33 @@ MibSModel::setupSAA(const CoinPackedMatrix& matrix,
 			    if(sym_is_time_limit_reached(dynamic_cast<OsiSymSolverInterface*>
 							 (evalBestSolver)->getSymphonyEnvironment())){
 				isTimeLimReached = true;
+#ifdef _OPENMP
+				goto TERM_LOCAL_SOLVEEVALL;
+#else
+				delete evalBestSolver;
 				goto TERM_SETUPSAA;
+#endif
 			    }
 			    //#endif
 			}
+			else if(feasCheckSolver == "CPLEX"){
+#ifdef COIN_HAS_CPLEX
+			  lpStat = CPXgetstat(dynamic_cast<OsiCpxSolverInterface*>
+					      (evalBestSolver)->getEnvironmentPtr(),
+					      dynamic_cast<OsiCpxSolverInterface*>
+					      (evalBestSolver)->getLpPtr());
+			  if((lpStat == CPXMIP_TIME_LIM_FEAS) ||
+			     (lpStat == CPXMIP_TIME_LIM_INFEAS)){
+			    isTimeLimReached = true;
+#ifdef _OPENMP
+			    goto TERM_LOCAL_SOLVEEVALL;
+#else
+			    delete evalBestSolver; 
+			    goto TERM_SETUPSAA;
+#endif
+			  }
+			  #endif
+			}  
 			
 			if(!evalBestSolver->isProvenOptimal()){
 			    throw CoinError("evalBestSolver cannot be infeasible",
@@ -1483,8 +1561,18 @@ MibSModel::setupSAA(const CoinPackedMatrix& matrix,
 			//}
 			tmpArr[i] = objL/evalSampleSize;
 		    }
+		TERM_LOCAL_SOLVEEVALL:
+		    if(evalLSolver){
+		      delete evalLSolver;
+		    }
+		    if(evalBestSolver){
+		      delete evalBestSolver;
+		    } 
+		}// end for
+		if(isTimeLimReached == true){
+		  goto TERM_SETUPSAA;
 		}
-		if(isLowerInfeasible == true){
+		else if(isLowerInfeasible == true){
 		    seenULSolutions[optSolReplVec] = infinity;
 		}
 		else{
@@ -1514,12 +1602,6 @@ MibSModel::setupSAA(const CoinPackedMatrix& matrix,
     }//for m
 
  TERM_SETUPSAA:
-    if(evalLSolver){
-	delete evalLSolver;
-	    }
-    if(evalBestSolver){
-	delete evalBestSolver;
-    }
     delete evalA2Matrix;
     delete [] evalRHS;
 
@@ -1540,23 +1622,43 @@ MibSModel::setupSAA(const CoinPackedMatrix& matrix,
 					  truncNumRows, allScenariosNumSMPS, rowSense,
 					  b2Base, matrixA2Base, fullMatrixA2, evalRHSNew);
 
-	OsiSolverInterface * evalLSolverNew = 0;
-	OsiSolverInterface * evalBestSolverNew = 0;
-
 	CoinZeroN(tmpArr, evalSampleSize + 1);
 	objU = 0.0;
-	for(i = 0; i < evalSampleSize; i++){
-	    objL = 0.0;
-	    isLowerInfeasible = false;
+	isLowerInfeasible = false;
+#ifdef _OPENMP
+	omp_set_num_threads(maxActiveNodes); 
+#pragma omp parallel for reduction(||:isLowerInfeasible) reduction(||:isTimeLimReached)
+#endif
+	for(i = 0; i < evalSampleSize; i++){//begin2 for
+	    double remainingTimeEval = 0.0;
+	    double objL = 0.0;
+	    int lpStat;
+	    OsiSolverInterface * evalLSolverNew = 0;
+	    OsiSolverInterface * evalBestSolverNew = 0;
+            remainingTimeEval = timeLimit - broker_->subTreeTimer().getTime();
+	    if(remainingTimeEval <= etol){
+	      isTimeLimReached = true;
+#ifdef _OPENMP
+	      goto TERM_LOCAL_SOLVEEVALNEW;
+#else
+	      break;
+#endif
+	    } 
+	    
 	    evalLSolverNew = setUpEvalModels(matrixG2, bestEvalSol, evalRHSNew,
 					     evalA2MatrixNew, varLB, varUB, objCoef,
 					     rowSense, colType, infinity, i, uCols, uRows);
-	    remainingTime = timeLimit - broker_->subTreeTimer().getTime();
-	    remainingTime = CoinMax(remainingTime, 0.00);
-	    if(remainingTime <= etol){
-		isTimeLimReached = true;
-		break;
+	    remainingTimeEval = timeLimit - broker_->subTreeTimer().getTime();
+	    if(remainingTimeEval <= etol){
+	      isTimeLimReached = true;
+#ifdef _OPENMP
+	      goto TERM_LOCAL_SOLVEEVALNEW;
+#else
+	      delete evalLSolverNew;
+	      break;
+#endif
 	    }
+	    remainingTimeEval = CoinMax(remainingTimeEval, 0.0);
 
 	    if (feasCheckSolver == "Cbc"){
 		dynamic_cast<OsiCbcSolverInterface *>
@@ -1566,10 +1668,10 @@ MibSModel::setupSAA(const CoinPackedMatrix& matrix,
 		sym_environment *env = dynamic_cast<OsiSymSolverInterface*>
 		    (evalLSolverNew)->getSymphonyEnvironment();
 
-		sym_set_dbl_param(env, "time_limit", remainingTime);
+		sym_set_dbl_param(env, "time_limit", remainingTimeEval);
 		sym_set_int_param(env, "do_primal_heuristic", FALSE);
 		sym_set_int_param(env, "verbosity", -2);
-		sym_set_int_param(env, "prep_level", -1);
+		//sym_set_int_param(env, "prep_level", -1);
 		sym_set_int_param(env, "max_active_nodes", maxThreadsLL);
 		sym_set_int_param(env, "tighten_root_bounds", FALSE);
 		sym_set_int_param(env, "max_sp_size", 100);
@@ -1589,6 +1691,8 @@ MibSModel::setupSAA(const CoinPackedMatrix& matrix,
 		assert(cpxEnv);
 		CPXsetintparam(cpxEnv, CPX_PARAM_SCRIND, CPX_OFF);
 		CPXsetintparam(cpxEnv, CPX_PARAM_THREADS, maxThreadsLL);
+		CPXsetintparam(cpxEnv, CPX_PARAM_CLOCKTYPE, 1);
+		CPXsetdblparam(cpxEnv, CPX_PARAM_TILIM, remainingTimeEval);
 #endif
 	    }
 
@@ -1599,25 +1703,59 @@ MibSModel::setupSAA(const CoinPackedMatrix& matrix,
 		if(sym_is_time_limit_reached(dynamic_cast<OsiSymSolverInterface*>
 					     (evalLSolverNew)->getSymphonyEnvironment())){
 		    isTimeLimReached = true;
+#ifdef _OPENMP
+		    goto TERM_LOCAL_SOLVEEVALNEW;
+#else
+		    delete evalLSolverNew;
 		    break;
+#endif
 		}
 		//#endif
 	    }
+	    else if(feasCheckSolver == "CPLEX"){
+#ifdef COIN_HAS_CPLEX
+	      lpStat = CPXgetstat(dynamic_cast<OsiCpxSolverInterface*>
+				  (evalLSolverNew)->getEnvironmentPtr(),
+				  dynamic_cast<OsiCpxSolverInterface*>
+				  (evalLSolverNew)->getLpPtr());
+	      if((lpStat == CPXMIP_TIME_LIM_FEAS) ||
+		 (lpStat == CPXMIP_TIME_LIM_INFEAS)){
+		isTimeLimReached = true;
+#ifdef _OPENMP
+		goto TERM_LOCAL_SOLVEEVALNEW;
+#else
+		delete evalLSolverNew;
+		break;
+#endif
+	      }
+#endif
+	    }
+	    
 	    if(!evalLSolverNew->isProvenOptimal()){
 		isLowerInfeasible = true;
+#ifdef _OPENMP
+		goto TERM_LOCAL_SOLVEEVALNEW; 
+#else
+		delete evalLSolverNew;
 		break;
+#endif
 	    }
 	    else{
 		evalBestSolverNew = setUpEvalModels(matrixG2, bestEvalSol, evalRHSNew,
 						    evalA2MatrixNew, varLB, varUB, objCoef,
 						    rowSense, colType, infinity, i, uCols,
 						    uRows, evalLSolverNew->getObjValue(), false);
-
-		remainingTime = timeLimit - broker_->subTreeTimer().getTime();
-		remainingTime = CoinMax(remainingTime, 0.00);
-		if(remainingTime <= etol){
+		
+		remainingTimeEval = timeLimit - broker_->subTreeTimer().getTime();
+		remainingTimeEval = CoinMax(remainingTimeEval, 0.00);
+		if(remainingTimeEval <= etol){
 		    isTimeLimReached = true;
-		    goto TERM_SETUPSAA;
+#ifdef _OPENMP
+		    goto TERM_LOCAL_SOLVEEVALNEW;
+#else
+		    delete evalBestSolverNew;
+		    break;
+#endif
 		}
 
 		if (feasCheckSolver == "Cbc"){
@@ -1628,10 +1766,10 @@ MibSModel::setupSAA(const CoinPackedMatrix& matrix,
 		    sym_environment *env = dynamic_cast<OsiSymSolverInterface*>
 			(evalBestSolverNew)->getSymphonyEnvironment();
 
-		    sym_set_dbl_param(env, "time_limit", remainingTime);
+		    sym_set_dbl_param(env, "time_limit", remainingTimeEval);
 		    sym_set_int_param(env, "do_primal_heuristic", FALSE);
 		    sym_set_int_param(env, "verbosity", -2);
-		    sym_set_int_param(env, "prep_level", -1);
+		    //sym_set_int_param(env, "prep_level", -1);
 		    sym_set_int_param(env, "max_active_nodes", maxThreadsLL);
 		    sym_set_int_param(env, "tighten_root_bounds", FALSE);
 		    sym_set_int_param(env, "max_sp_size", 100);
@@ -1651,6 +1789,8 @@ MibSModel::setupSAA(const CoinPackedMatrix& matrix,
 		    assert(cpxEnv);
 		    CPXsetintparam(cpxEnv, CPX_PARAM_SCRIND, CPX_OFF);
 		    CPXsetintparam(cpxEnv, CPX_PARAM_THREADS, maxThreadsLL);
+		    CPXsetintparam(cpxEnv, CPX_PARAM_CLOCKTYPE, 1);
+		    CPXsetdblparam(cpxEnv, CPX_PARAM_TILIM, remainingTimeEval);
 #endif
 		}
 
@@ -1661,9 +1801,32 @@ MibSModel::setupSAA(const CoinPackedMatrix& matrix,
 		    if(sym_is_time_limit_reached(dynamic_cast<OsiSymSolverInterface*>
 						 (evalBestSolverNew)->getSymphonyEnvironment())){
 			isTimeLimReached = true;
-			goto TERM_SETUPSAA;
+#ifdef _OPENMP
+			goto TERM_LOCAL_SOLVEEVALNEW;
+#else
+			delete evalBestSolverNew;
+			break;
+#endif
 		    }
 		    //#endif
+		}
+		else if(feasCheckSolver == "CPLEX"){ 
+#ifdef COIN_HAS_CPLEX
+		  lpStat = CPXgetstat(dynamic_cast<OsiCpxSolverInterface*>
+				      (evalBestSolverNew)->getEnvironmentPtr(),
+				      dynamic_cast<OsiCpxSolverInterface*>
+				      (evalBestSolverNew)->getLpPtr());
+		  if((lpStat == CPXMIP_TIME_LIM_FEAS) ||
+		     (lpStat == CPXMIP_TIME_LIM_INFEAS)){
+		    isTimeLimReached = true;
+#ifdef _OPENMP
+		    goto TERM_LOCAL_SOLVEEVALNEW;
+#else
+		    delete evalBestSolverNew;
+		    break;
+#endif
+		  }
+#endif
 		}
 
 		if(!evalBestSolverNew->isProvenOptimal()){
@@ -1681,7 +1844,14 @@ MibSModel::setupSAA(const CoinPackedMatrix& matrix,
 		//}
 		tmpArr[i] = objL;
 	    }
-	}
+	TERM_LOCAL_SOLVEEVALNEW:
+	    if(evalLSolverNew){
+	      delete evalLSolverNew;
+	    }
+	    if(evalBestSolverNew){
+	      delete evalBestSolverNew;
+	    }
+	}//end2 for
 
 	if(isLowerInfeasible == true){
 	    std::cout << ("Optimality gap is infinite :(") << std::endl;
@@ -1703,10 +1873,6 @@ MibSModel::setupSAA(const CoinPackedMatrix& matrix,
 	    printSolutionSAA(truncNumCols, estimatedObj, estimatedLowerBound,
 			     varLower, varUpper, bestEvalSol);
 
-    delete evalLSolverNew;
-    if(evalBestSolverNew){
-	delete evalBestSolverNew;
-    }
     delete evalA2MatrixNew;
     delete [] evalRHSNew;
 	}
@@ -1993,6 +2159,12 @@ MibSModel::solveSAA(const CoinPackedMatrix& matrix,
 
     double timeLimit(AlpsPar()->entry(AlpsParams::timeLimit));
 
+    int clockType(AlpsPar()->entry(AlpsParams::clockType));
+
+    bool useUBDecompose(MibSPar_->entry(MibSParams::useUBDecompose));
+
+    int maxActiveNodes(MibSPar_->entry(MibSParams::maxActiveNodes));
+
     double etol(etol_);
     int sampleSize(MibSPar_->entry(MibSParams::sampSizeSAA));//N
     int i(0), j(0);
@@ -2057,6 +2229,9 @@ MibSModel::solveSAA(const CoinPackedMatrix& matrix,
     modelSAA->isInterdict_ = false;
     modelSAA->MibSPar()->setEntry(MibSParams::stochasticityType, "stochasticWithSAA");
     modelSAA->MibSPar()->setEntry(MibSParams::isA2Random, isA2Random);
+    modelSAA->MibSPar()->setEntry(MibSParams::useUBDecompose, useUBDecompose);
+    modelSAA->MibSPar()->setEntry(MibSParams::maxActiveNodes, maxActiveNodes);
+    modelSAA->AlpsPar()->setEntry(AlpsParams::clockType, clockType);
 
     modelSAA->numScenarios_ = sampleSize;
 

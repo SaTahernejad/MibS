@@ -426,6 +426,7 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot)
 	shouldStoreObjValues.resize(numScenarios);
 	lowerSol = new double[lN];
 	CoinFillN(lowerSol, lN, 0.0);
+	omp_set_num_threads(maxActiveNodes);
 #pragma omp parallel for reduction(+:localCounterVF) reduction(&&:localIsProvenOptimal) reduction(||:localShouldPrune) reduction(min:startTimeVF) reduction(max:endTimeVF)
 #endif
 	
@@ -859,6 +860,7 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot)
 	      localShouldPrune = false;
 
 #ifdef _OPENMP
+	      omp_set_num_threads(maxActiveNodes);
 #pragma omp parallel for reduction(+:localCounterUB) reduction(+:localObjVal) reduction(&&:isUBProvenOptimal) reduction(||:localShouldPrune) reduction(min:startTimeUB) reduction(max:endTimeUB)
 #endif
  

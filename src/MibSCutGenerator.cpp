@@ -1685,6 +1685,10 @@ MibSCutGenerator::storeBestSolHypercubeIC(const double* lpSol,
 				(MibSParams::feasCheckSolver));
     bool useUBDecompose(localModel_->MibSPar_->entry
 			(MibSParams::useUBDecompose));
+
+    int maxActiveNodes(localModel_->MibSPar_->entry
+		       (MibSParams::maxActiveNodes));
+    
     int numScenarios(localModel_->getNumScenarios()); 
     double timeLimit(localModel_->AlpsPar()->entry(AlpsParams::timeLimit));
     
@@ -1742,6 +1746,7 @@ MibSCutGenerator::storeBestSolHypercubeIC(const double* lpSol,
 
     
 #ifdef _OPENMP
+    omp_set_num_threads(maxActiveNodes);
 #pragma omp parallel for reduction(+:localCounterUB) reduction(+:localObjVal) reduction(&&:isUBProvenOptimal) reduction(||:localShouldPrune) reduction(min:startTimeUB) reduction(max:endTimeUB)
 #endif
     for(i = 0; i < numDecomposedProbs; i++){
