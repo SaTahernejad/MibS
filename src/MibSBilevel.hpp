@@ -109,7 +109,9 @@ public:
     void gutsOfDestructor();
 
 private:
-   
+
+  double get_wall_time();
+  double get_cpu_time(); 
     int findIndex(int index, int size, int * indices);
     OsiSolverInterface * setUpDecomposedUBModel(OsiSolverInterface * oSolver,
 						std::vector<double> &objValuesVec,

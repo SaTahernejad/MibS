@@ -33,6 +33,9 @@
 #include "OsiCpxSolverInterface.hpp"
 #endif
 
+#include "omp.h"
+#include <math.h>
+
 //#############################################################################
 MibSSolType
 MibSBilevel::createBilevel(CoinPackedVector* sol, 
@@ -431,6 +434,32 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot)
 
 	    if(0)
 		lSolver->writeLp("lSolver");
+	    double wallAlps0 = model_->broker_->subTreeTimer().getWallClock();
+	    double cpuAlps0 = model_->broker_->subTreeTimer().getCpuTime();
+	    double wallMyFunc0 = get_wall_time();
+	    double cpuMyFunc0  = get_cpu_time();
+	    std::cout << "=======================================" << std::endl;
+	    std::cout << "Running the parallel loop has been started" << std::endl;
+	    int k = 0;
+	    omp_set_num_threads(5);
+#pragma omp parallel for
+	    for(k = 0; k < 5; k++){
+	      int tt = 0;
+	      int sumtt = 0;
+	      for(tt = 0; tt < 1000000000; tt++){
+		sumtt += tt;
+	      }
+	    }
+	    std::cout << "Running the parallel loop has been finished" << std::endl;
+	    double wallAlps1 = model_->broker_->subTreeTimer().getWallClock();
+	    double cpuAlps1 = model_->broker_->subTreeTimer().getCpuTime();
+	    double wallMyFunc1 = get_wall_time();
+	    double cpuMyFunc1  = get_cpu_time();
+	    std::cout << "Alps wall time = " << wallAlps1 - wallAlps0 << std::endl;
+	    std::cout << "Alps cpu time  = " << cpuAlps1  - cpuAlps0  << std::endl;
+	    std::cout << "My function's wall time = " << wallMyFunc1 - wallMyFunc0 << std::endl;
+	    std::cout << "My function's cpu time  = " << cpuMyFunc1  - cpuMyFunc0  << std::endl;
+	    std::cout << "=======================================" << std::endl; 
 
 	    remainingTime = timeLimit - model_->broker_->subTreeTimer().getTime();
 	    if(remainingTime <= etol){
@@ -962,6 +991,23 @@ MibSBilevel::checkBilevelFeasiblity(bool isRoot)
     delete [] lowerSol;
 
     return storeSol;
+}
+
+
+//#############################################################################
+
+double
+MibSBilevel::get_wall_time(){
+  struct timeval time;
+  if (gettimeofday(&time,NULL)){
+    //  Handle error
+    return 0;
+  }
+  return (double)time.tv_sec + (double)time.tv_usec * .000001;
+}
+double
+MibSBilevel::get_cpu_time(){
+  return (double)clock() / CLOCKS_PER_SEC;
 }
 	    
 //#############################################################################
